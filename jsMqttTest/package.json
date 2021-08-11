@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "mqtt": "^4.2.8"
+  }
+}

@@ -4,6 +4,8 @@ import kind from '@enact/core/kind';
 import {Panel, Header} from '@enact/sandstone/Panels';
 import {useState} from 'react';
 
+var amqp = require('amqplib/callback_api');
+
 const MainPanel = kind({
 	name: 'MainPanel',
 	render: (props) => (
@@ -140,7 +142,7 @@ function BtnClick() { // 버튼 클릭 시 버튼 안의 값을 on <-> off 변�
 //let amqp = require('amqplib/callback_api');
 
 function MqttTest() { // MQTT Test
-	
+	/*
 	const mqtt = require('mqtt');
 	const options = {
 		//host: '211.179.42.130',
@@ -190,7 +192,7 @@ function MqttTest() { // MQTT Test
 			</div>
 		</>
 	);
-	/*
+	
 	amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connection) {
 		if (error0) {
 			throw error0;
@@ -225,6 +227,30 @@ function MqttTest() { // MQTT Test
 		console.log(" [x] Sent %s", msg);
 	}
 	*/
+	amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connection) {
+		if (error0) {
+			throw error0;
+		}
+		connection.createChannel(function(error1, channel) {
+			if (error1) {
+				throw error1;
+			}
+			var exchange = 'test321';
+			var msg = process.argv.slice(2).join(' ') || 'enact mqtt test';
+
+			channel.assertExchange(exchange, 'direct', {
+				durable: false
+			});
+			//channel.publish(exchange, 'amqtest', Buffer.from(msg));
+			channel.publish(exchange, 'amqtest', msg);
+			console.log(" [x] Sent %s", msg);
+		});
+
+		setTimeout(function() { 
+			connection.close(); 
+			process.exit(0); 
+		}, 500);
+	});
 }
 
 export default MainPanel;
