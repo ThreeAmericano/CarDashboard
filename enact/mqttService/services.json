@@ -1,9 +1,9 @@
 {
-  "id": "com.ta.car2webos.mqttService",
+  "id": "com.ta.car2webos.mqttservice",
   "description": "mqtt Service",
   "services": [
     {
-      "name": "com.ta.car2webos.mqttService"
+      "name": "com.ta.car2webos.mqttservice"
     }
   ]
 }
