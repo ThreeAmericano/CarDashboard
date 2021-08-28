@@ -14,8 +14,8 @@ amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connect
     var exchange = 'test321';
     var msg = process.argv.slice(2).join(' ') || 'js mqtt test';
 
-    channel.assertExchange(exchange, 'direct', {
-      durable: false
+    channel.assertExchange(exchange, 'topic', {
+      durable: true
     });
     channel.publish(exchange, 'amqtest', Buffer.from(msg));
     console.log(" [x] Sent %s", msg);

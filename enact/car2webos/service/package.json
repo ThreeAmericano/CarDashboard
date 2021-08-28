@@ -1,0 +1,16 @@
+{
+  "name": "com.ta.car2webos.service",
+  "version": "1.0.1",
+  "description": "js service",
+  "main": "helloworld_webos_service.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD",
+  "keywords": [],
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "firebase": "^8.10.0"
+  }
+}

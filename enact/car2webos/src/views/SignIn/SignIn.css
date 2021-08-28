@@ -1,4 +1,107 @@
 .sign-in{
+    display:'inline-block';
+    width: 90%;
+    height: 90%;
+    position: relative;
+    margin: 0px auto;
+    align-items: center;
+    background-color: white;
+}
+.sign-in-name{
+    position: relative;
+    display: flex;
+    height: 100%;
+}
+.sign-in-name h3{
+    width: 50%;
+    text-align: center;
+}
+.sign-in-form{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.face-recognation-form{
+    width: 100%;
+    float: left;
+    height: 100%;
+    padding: 3%;
+    text-align: center;
+}
+.email-form{
+    float: right;
+    width: 100%;
+    height: 100%;
+    padding: 3%;
+    text-align: center;
+}
+.face-contents .email-contents{
+    padding: 100%;
+    padding-top: 10%;
+}
+.email-contents button{
+    position: relative;
+    width: 100%;
+}
+.face-contents button{
+    position: relative;
+    width: 90%;
+    padding-bottom: 90%;
+}
+.face-button-icon{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    margin: auto;
+
+    width: 60%;
+    height: 60%;
+}
+.input-box{ 
+    position:relative; 
+    margin:10px 0; 
+}
+.input-box input{
+    background:transparent; 
+    border:none; 
+    border-bottom: solid 1px #ccc; 
+    padding:20px 0px 5px 0px;
+    font-size:14pt; 
+    width: 100%;
+    height: 110px;
+}
+.input-box input::placeholder{
+    color:transparent; 
+}
+.input-box input:placeholder-shown + label{ 
+    color:#aaa; 
+    font-size:14pt; 
+    top:15px; 
+}
+.input-box input:focus + label, label{ 
+    color:#8aa1a1; 
+    font-size:10pt; 
+    pointer-events: none; 
+    position: absolute; 
+    left:0px; 
+    top:0px; 
+    transition: all 0.2s ease ; 
+    -webkit-transition: all 0.2s ease; 
+    -moz-transition: all 0.2s ease; 
+    -o-transition: all 0.2s ease; 
+}
+.input-box input:focus, input:not(:placeholder-shown){ 
+    border-bottom: solid 1px #8aa1a1; 
+    outline:none; 
+}
+
+
+/*
+.sign-in{
     background: linear-gradient(90deg, #afccf1 50%,#333D51 50%);
     box-shadow: 0px 0px 100px rgba(220, 222, 255, 0.2);
     margin: 10% 25%;
@@ -14,8 +117,8 @@
 }
 
 .face-recognation-form, .email-form{
-    width: 50%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     padding: 5%;
 }
 
@@ -28,6 +131,11 @@
     flex-direction: column;
     align-items: center;
     padding: 30px;
+}
+
+.face-button .face-button-icon{
+    width: 100%;
+    height: 100%;
 }
 
 .email-form .email-contents{
@@ -62,3 +170,4 @@
 .email-contents button{
     margin-top: 7%;
 }
+*/

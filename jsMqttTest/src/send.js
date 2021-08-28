@@ -18,7 +18,7 @@ amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connect
         var key = (args.length > 0) ? args[0] : 'anonymous.info';
         var msg = args.slice(1).join(' ') || 'js_mqtt_test';
 
-        channel.assertExchange(exchange, {
+        channel.assertExchange(exchange, 'topic', {
             durable: false
         });
         

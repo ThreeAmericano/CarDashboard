@@ -3,11 +3,16 @@
   "version": "1.0.1",
   "vendor": "ThreeAmericano",
   "type": "web",
-  "main": "src/index.js",
+  "main": "index.html",
   "title": "car2webOS",
   "icon": "icon.png",
   "requiredPermissions": [
     "time.query",
-    "activity.operation"
+    "activity.operation",
+		"all",
+    "mqttservice.operation",
+    "app.mqttservice.operation",
+    "ta.app.mqttservice.operation",
+    "com.ta.app.mqttservice.operation"
   ]
 }
