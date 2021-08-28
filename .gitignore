@@ -4,3 +4,5 @@ template-webosauto/
 js_service/ 
 enact/car2webos/node_modules/
 enact/mqttService/node_modules/
+jsMqttTest/node_modules/
+mqttTest/
