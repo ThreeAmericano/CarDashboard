@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {useState } from "react";
 import {useHistory} from "react-router-dom";
 import Button from "../../components/Button/Button";
@@ -24,9 +25,9 @@ const SignUp = () => {
     }
 
     return(
-        <div className="email-form">
-            <h3>E-Mail 로그인</h3>
-            <div className="email-contents">
+        <div className="sign-up">
+            <h3>E-Mail 회원가입</h3>
+            <div className="sign-up__box">
                 <div className="input-box">
                     <input type="email" value={email} onChange={onEmailChange} placeholder="이메일을 입력하세요." required />
                     <label for="email">E-mail</label>

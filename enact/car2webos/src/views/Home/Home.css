@@ -1,3 +1,26 @@
 .home{
+    width: 90%;
+    height: 90%;
+    position: relative;
+    margin: 0px auto;
+    align-items: center;
     background-color: white;
+}
+
+.home__head{
+    display:'inline-block';
+
+}
+
+.home__head button{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    margin: auto;
+
+    width: 60%;
+    height: 60%;
 }

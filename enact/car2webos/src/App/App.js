@@ -5,14 +5,13 @@ import SignIn from "../views/SignIn/SignIn";
 import SignUp from "../views/SignUp/SignUp";
 import Home from "../views/Home/Home";
 
-import './App.css';
+//import './App.css';
 
 const App = function () {
 	/*
 	const [loginFlag, setLoginFlag] = useState(false);
 	const [user, setUser] = useState({
-		name: '홍길동',
-		job: '구급대원',
+		name: '홍길동'
 	});
 	<SignIn setLoginFlag={setLoginFlag} setUser={setUser} />
 	*/

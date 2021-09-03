@@ -19,7 +19,7 @@ let greeting = "Hello, World!";
 
 const MQ_URL = 'amqp://rabbit:MQ321@211.179.42.130:5672';
 
-async function sendMqtt(exchange, routingKey, msg) {
+async function sendMqttFunc(exchange, routingKey, msg) {
     console.log("send MQTT start");
     
     const connection = await amqp.connect(MQ_URL);
@@ -35,7 +35,6 @@ async function sendMqtt(exchange, routingKey, msg) {
     setTimeout(() => {
         channel.close();
         connection.close();
-        process.exit(0);
     }, 500);
 
     console.log("send MQTT end");
@@ -45,9 +44,7 @@ async function consumeMqtt(queue) {
     try{
         console.log("consume MQTT start");
         console.log("queue : ", queue);
-        let inMsg;
         let returnMsg;
-        let messageString;
 
         await amqp.connect(MQ_URL).then(function(conn){
             process.once('SIGINT', function() { conn.close(); });
@@ -76,7 +73,6 @@ async function consumeMqtt(queue) {
             console.log("consume time out")
             channel.close();
             connection.close();
-            process.exit(0);
         }, 1000);
 
         return returnMsg;
@@ -127,7 +123,7 @@ service.register("signIn", async function(message) {
     const queue = "webos.car";
     let returnMsg;
 
-    await sendMqtt(exchange, routingKey, msg);
+    await sendMqttFunc(exchange, routingKey, msg);
     console.log("sendMqtt end in service");
 
     async function signinMqtt() {
@@ -145,15 +141,15 @@ service.register("signIn", async function(message) {
 });
 
 // a method that always returns the same value
-service.register("sendMqtt", function(message) {
+service.register("sendMqtt", async function(message) {
     console.log(logHeader, "SERVICE_METHOD_CALLED:/sendMqtt");
     console.log("In sendMqtt callback");
 
     const exchange = message.payload.exchange;
     const routingKey = message.payload.routingKey;
-    const msg = JSON.stringify(message.payload.msg);
+    const msg = message.payload.msg;
     
-    await sendMqtt(exchange, routingKey, msg);
+    await sendMqttFunc(exchange, routingKey, msg);
 
     message.respond({
         returnValue: true,
