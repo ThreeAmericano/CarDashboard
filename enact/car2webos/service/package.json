@@ -2,7 +2,7 @@
   "name": "com.ta.car2webos.service",
   "version": "1.0.1",
   "description": "js service",
-  "main": "helloworld_webos_service.js",
+  "main": "webos_service.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

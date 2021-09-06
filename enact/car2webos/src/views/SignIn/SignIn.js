@@ -4,11 +4,12 @@ import {useHistory} from "react-router-dom";
 import Button from "../../components/Button/Button";
 import faceIcon from '../../../resources/webos_project_icon/removeLogo/smile.png';
 
-var webOSBridge = new WebOSServiceBridge();
+var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
 
 import "./SignIn.css"
 
 const sendMqtt = (exchange, routingKey, msg) => {
+    // JS 서비스의 sendMqtt 서비스를 이용하여 MQTT 메세지를 보낸다.
     console.log("displayReponse function excuted");
 
     var url = 'luna://com.ta.car2webos.service/sendMqtt';
@@ -18,32 +19,33 @@ const sendMqtt = (exchange, routingKey, msg) => {
         "msg":msg        
     });
   
-    webOSBridge.call(url, params); 
+    webOSBridge.call(url, params);  // JS 서비스 호출
 
     console.log("sendMqtt function end");
 }
 
 const SignIn = () => {
-    const history = useHistory();
+    // 로그인 페이지
+    const history = useHistory();   // 페이지 이동에 사용된다.
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     let test = "022222220";
 
-    const onEmailChange = (event) => {
+    const onEmailChange = (event) => {  // 이메일 작성이 감지되면 이메일 변수에 값을 넣는다.
         const {target : {value}} = event;
         setEmail(value);
     };
 
-    const onPasswordChange = (event) => {
+    const onPasswordChange = (event) => {  // 비밀번호 작성이 감지되면 비밀번호 변수에 값을 넣는다.
         const {target : {value}} = event;
         setPassword(value);
     };
 
-    const onSignIn = () => {    
+    const onSignIn = () => {    // 이메일 로그인 함수
         console.log("onSignIn function excuted");
 
-        var url = 'luna://com.ta.car2webos.service/signIn';
+        var url = 'luna://com.ta.car2webos.service/signIn'; // JS 서비스의 signIn 서비스를 이용한다.
         var params = JSON.stringify({
             "email":email,
             "password":password
@@ -51,15 +53,15 @@ const SignIn = () => {
 
         let name = '';
       
-        webOSBridge.call(url, params);
-        webOSBridge.onservicecallback = callback;
+        webOSBridge.call(url, params);  // 서비스 호출
+        webOSBridge.onservicecallback = callback;   // 콜백 설정
         function callback(msg){
-            var response = JSON.parse(msg); 
+            var response = JSON.parse(msg); // 서버에서 보낸 이름을 가져온다.
 
             name = response.Response;
             console.log(name);
 
-            history.push({
+            history.push({  // 받은 이름과 함께 홈 페이지로 넘어간다.
                 pathname: '/home',
                 state: {'name': name}
             });
@@ -69,6 +71,7 @@ const SignIn = () => {
     };
 
     const onTestSignIn = () => {    
+        // 테스트 계정으로 로그인 한다. 방식은 onSignIn 함수와 동일
         console.log("onSignIn function excuted");
 
         var url = 'luna://com.ta.car2webos.service/signIn';
@@ -97,18 +100,17 @@ const SignIn = () => {
     };
 
     const onSignUp = () => {
-        history.push('/sign-up');
+        history.push('/sign-up');   // 회원가입 페이지로 넘어간다.
     };
 
     const onFaceSignIn = async() => {
         console.log("onFaceSignIn function excuted");
         //await visionSignIn();
         // 얼굴인식 시작 mqtt를 server로 보냄
-        sendMqtt("webos.topic", "webos.smarthome", test);
-        //smarthome test
+        //sendMqtt("webos.topic", "start_facer", test);
     };
 
-    return(
+    return( // 표시되는 html 코드
         <div className="sign-in">
             <div className="sign-in__head">
                 <h3>얼굴인식 로그인</h3>
