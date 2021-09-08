@@ -1,6 +1,10 @@
 /* eslint-disable */
-import { useState, Component } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+
+import "./Home.css"
+
+// Import Icon
 import { FiChevronsLeft } from "react-icons/fi";
 import { WiCloudy } from "react-icons/wi";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -17,23 +21,58 @@ import lightIcon from '../../../resources/webos_project_icon/removeLogo/light.pn
 import valveIcon from '../../../resources/webos_project_icon/removeLogo/valve.png';
 import windowIcon from '../../../resources/webos_project_icon/removeLogo/window.png';
 
-import "./Home.css"
+import sunny from '../../../resources/weather_image/drawable/sunny.png';
+import littlecloudy from '../../../resources/weather_image/drawable/littlecloudy.png';
+import cloudy from '../../../resources/weather_image/drawable/cloudy.png';
+import darkcloudy from '../../../resources/weather_image/drawable/darkcloudy.png';
+import rain from '../../../resources/weather_image/drawable/rain.png';
+import rainsunny from '../../../resources/weather_image/drawable/rainsunny.png';
+import thunder from '../../../resources/weather_image/drawable/thunder.png';
+import snow from '../../../resources/weather_image/drawable/snow.png';
+import fog from '../../../resources/weather_image/drawable/fog.png';
+
 
 var webOSBridge = new WebOSServiceBridge();
-Component.componentDid
 
 const Home = () => {
     const history = useHistory();
     const location = useLocation();
-    const [temp, setTemp] = useState(24);
-    const [humi, setHumi] = useState(70);
+    const [name, setName] = useState();
+    const [temp, setTemp] = useState();
+    const [humi, setHumi] = useState();
+    const [weather, setWeather] = useState();
+    const [w_icon,setW_icon] = useState();
+    const [dust, setDust] = useState();
+
+    useEffect(() => {
+        console.log("[Home] 컴포넌트가 화면에 나타남");
+        // 초기값 설정
+        setName(location.state.name);
+        setTemp(location.state.temp);
+        setHumi(location.state.humi);
+        setW_icon(location.state.w_icon);
+        setWeather("날씨 : "+location.state.w_description+" "+location.state.temp+"°C")
+        
+        switch(location.state.air_level) {
+            case 1 : setDust("매우 좋음"); break;
+            case 2 : setDust("좋음"); break;
+            case 3 : setDust("보통"); break;
+            case 4 : setDust("나쁨"); break;
+            case 5 : setDust("매우 나쁨"); break;
+            default : break;
+        }
+
+        return() => {
+            console.log("[Home] 컴포넌트가 화면에서 사라짐");
+        };
+    }, []);
 /*
     webOSBridge.onservicecallback = callback;
 
     function callback(msg){
         var response = JSON.parse(msg);
         let db = response.Response;
-        console.log("db :",db);
+        console.log("[Home] db :",db);
         setTemp(db.hometemp.temp);
         setHumi(db.hometemp.humi);
     }
@@ -61,26 +100,25 @@ const Home = () => {
         //sendMqtt("webos.topic", "webos.smarthome", test);
     };
 */
-    let test = "022222220";
-    const name = location.state.name;
+    let test = "122222220";
 
     const onGotoSignin = () => {
         history.push('/');
     }
 
     const onGotoMode = () => {
-        console.log("모드 설정 페이지");
+        console.log("[Home] 모드 설정 페이지");
         //모드 설정 페이지
         //history.push('/');
     }
 
     const onGotoAppliance = () => {
-        console.log("개별 가전 제어 페이지");
+        console.log("[Home] 개별 가전 제어 페이지");
         //가전 제어 페이지
         //history.push('/');
 
         //firebase test
-        console.log("firebase db test excuted");
+        console.log("[Home] firebase db test excuted");
 
         var url = 'luna://com.ta.car2webos.service/getDB';
         var params = JSON.stringify({
@@ -92,16 +130,15 @@ const Home = () => {
         function callback(msg){
             var response = JSON.parse(msg);
             let db = response.Response;
-            console.log("db :",db);
+            console.log("[Home] db :",db);
             setTemp(db.hometemp.temp);
             setHumi(db.hometemp.humi);
         }
-        console.log("firebase db test end");   
-
-    }
+        console.log("[Home] firebase db test end");   
+    };
     
     const sendMqtt = (exchange, routingKey, msg) => {
-        console.log("displayReponse function excuted");
+        console.log("[Home] displayReponse function excuted");
     
         var url = 'luna://com.ta.car2webos.service/sendMqtt';
         var params = JSON.stringify({
@@ -112,16 +149,16 @@ const Home = () => {
       
         webOSBridge.call(url, params); 
     
-        console.log("sendMqtt function end");
+        console.log("[Home] sendMqtt function end");
     };
-
+//<WiCloudy size="130" color="#000"/>
     return(
         <div className="home">
             <div className="home__head">
                 <button className="back-button" onClick={onGotoSignin}>
                     <FiChevronsLeft size="40" color="#000"/>
                 </button>
-                <p className="name">{location.state.name} 님 안녕하세요.</p>
+                <p className="name">{name} 님 안녕하세요.</p>
                     <div className="temp">
                         <p>온도</p>
                         <progress value={temp} max="40"></progress>
@@ -133,8 +170,23 @@ const Home = () => {
                     </div>
                     <p className="hum-value">{humi}%</p>
                     <div className="weather-icon">
-                        <WiCloudy size="130" color="#000"/>
-                        <p>구름</p>
+                        <img className="w_icon" src = {
+                            {
+                                "01d" : sunny,
+                                "02d" : littlecloudy,
+                                "03d" : cloudy,
+                                "04d" : darkcloudy,
+                                "09d" : rain,
+                                "10d" : rainsunny,
+                                "11d" : thunder,
+                                "13d" : snow,
+                                "50d" : fog
+                            }[w_icon]
+                        } />
+                        <br />
+                        <p>{weather}</p>
+                        <br />
+                        <p>미세먼지 : {dust}</p>
                     </div>
             </div>
             <br />
@@ -151,7 +203,7 @@ const Home = () => {
                         <table>
                             <tr>
                                 <td>
-                                    <button>
+                                    <button onClick={sendMqtt("webos.topic","webos.smarthome.info", test)}>
                                         <img className="control-mode" src={indoorIcon} />
                                     </button>
                                     <p>실내 모드</p>

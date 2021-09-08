@@ -1,6 +1,6 @@
 /* eslint-disable */
-import {useState } from "react";
-import {useHistory} from "react-router-dom";
+import { useState } from "react";
+import { useHistory } from "react-router-dom";
 import Button from "../../components/Button/Button";
 import faceIcon from '../../../resources/webos_project_icon/removeLogo/smile.png';
 
@@ -10,7 +10,7 @@ import "./SignIn.css"
 
 const sendMqtt = (exchange, routingKey, msg) => {
     // JS 서비스의 sendMqtt 서비스를 이용하여 MQTT 메세지를 보낸다.
-    console.log("displayReponse function excuted");
+    console.log("[SignIn] displayReponse function excuted");
 
     var url = 'luna://com.ta.car2webos.service/sendMqtt';
     var params = JSON.stringify({
@@ -21,7 +21,7 @@ const sendMqtt = (exchange, routingKey, msg) => {
   
     webOSBridge.call(url, params);  // JS 서비스 호출
 
-    console.log("sendMqtt function end");
+    console.log("[SignIn] sendMqtt function end");
 }
 
 const SignIn = () => {
@@ -43,36 +43,59 @@ const SignIn = () => {
     };
 
     const onSignIn = () => {    // 이메일 로그인 함수
-        console.log("onSignIn function excuted");
+        console.log("[SignIn] onSignIn function excuted");
+        let name, temp, humi, air_level, w_description, w_icon, w_temp;
 
         var url = 'luna://com.ta.car2webos.service/signIn'; // JS 서비스의 signIn 서비스를 이용한다.
         var params = JSON.stringify({
             "email":email,
             "password":password
         });
-
-        let name = '';
       
-        webOSBridge.call(url, params);  // 서비스 호출
-        webOSBridge.onservicecallback = callback;   // 콜백 설정
+        webOSBridge.call(url, params);
+        webOSBridge.onservicecallback = callback;
         function callback(msg){
-            var response = JSON.parse(msg); // 서버에서 보낸 이름을 가져온다.
+            var response = JSON.parse(msg); 
+            console.log("[SignIn] response :", response);
+            let returnValue = response.Response;
 
-            name = response.Response;
-            console.log(name);
+            console.log("[SignIn] returnValue :", returnValue);
+            console.log("[SignIn] name :", returnValue.name);
+            console.log("[SignIn] db :", returnValue.db);
+            
+            name = returnValue.name;
+            temp = returnValue.db.hometemp.temp;
+            humi = returnValue.db.hometemp.humi;          
+            air_level = returnValue.db.openweather.air_level;
+            w_description = returnValue.db.openweather.description;
+            w_icon = returnValue.db.openweather.icon;
+            w_temp = returnValue.db.openweather.temp;
 
-            history.push({  // 받은 이름과 함께 홈 페이지로 넘어간다.
+            history.push({
                 pathname: '/home',
-                state: {'name': name}
+                state: {
+                    'name' : name,
+                    'temp' : temp,
+                    'humi' : humi,
+                    'air_level' : air_level, 
+                    'w_description' : w_description, 
+                    'w_icon' : w_icon, 
+                    'w_temp' : w_temp
+                }
             });
 
         }
-        console.log("onSignIn function end");
+        console.log("[SignIn] onSignIn function end");
     };
 
     const onTestSignIn = () => {    
-        // 테스트 계정으로 로그인 한다. 방식은 onSignIn 함수와 동일
-        console.log("onSignIn function excuted");
+        // 테스트 계정으로 로그인
+        setEmail("lee@test.com");
+        setPassword("123412");
+
+        //onSignIn();
+        /*
+        console.log("[SignIn] onSignIn function excuted");
 
         var url = 'luna://com.ta.car2webos.service/signIn';
         var params = JSON.stringify({
@@ -80,23 +103,44 @@ const SignIn = () => {
             "password":"123412"
         });
 
-        let name = '';
+        let name, temp, humi, air_level, w_description, w_icon, w_temp;
       
         webOSBridge.call(url, params);
         webOSBridge.onservicecallback = callback;
         function callback(msg){
             var response = JSON.parse(msg); 
+            console.log("[SignIn] response :", response);
+            let returnValue = response.Response;
 
-            name = response.Response;
-            console.log(name);
+            console.log("[SignIn] returnValue :", returnValue);
+
+            console.log("[SignIn] name :", returnValue.name);
+            console.log("[SignIn] db :", returnValue.db);
+            
+            name = returnValue.name;
+            temp = returnValue.db.hometemp.temp;
+            humi = returnValue.db.hometemp.humi;          
+            air_level = returnValue.db.openweather.air_level;
+            w_description = returnValue.db.openweather.description;
+            w_icon = returnValue.db.openweather.icon;
+            w_temp = returnValue.db.openweather.temp;
 
             history.push({
                 pathname: '/home',
-                state: {'name': name}
+                state: {
+                    'name' : name,
+                    'temp' : temp,
+                    'humi' : humi,
+                    'air_level' : air_level, 
+                    'w_description' : w_description, 
+                    'w_icon' : w_icon, 
+                    'w_temp' : w_temp
+                }
             });
 
         }
-        console.log("onSignIn function end");
+        console.log("[SignIn] onSignIn function end");
+        */
     };
 
     const onSignUp = () => {
@@ -104,7 +148,7 @@ const SignIn = () => {
     };
 
     const onFaceSignIn = async() => {
-        console.log("onFaceSignIn function excuted");
+        console.log("[SignIn] onFaceSignIn function excuted");
         //await visionSignIn();
         // 얼굴인식 시작 mqtt를 server로 보냄
         //sendMqtt("webos.topic", "start_facer", test);

@@ -23,7 +23,7 @@ const firebaseConfig = {                    // 우리 프로젝트 firebase 설�
 firebase.initializeApp(firebaseConfig);// firebase 초기 설정
 
 async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함수
-    console.log("send MQTT start");
+    console.log("[Service] send MQTT start");
     
     const connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
     const channel = await connection.createChannel();       // 채널 생성
@@ -33,85 +33,84 @@ async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함�
     });
     channel.publish(exchange, routingKey, Buffer.from(msg));// Exchange의 RoutingKey로 msg 송신
 
-    console.log(" [x] Sent %s:'%s'", routingKey, msg);
+    console.log("[Service]  [x] Sent %s:'%s'", routingKey, msg);
 
     setTimeout(() => {                                      // timeout 되면 채널과 연결 닫음
         channel.close();
         connection.close();
     }, 500);
 
-    console.log("send MQTT end");
+    console.log("[Service] send MQTT end");
 };
 
 async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값을 받아온다.)
-    try{
-        console.log("consume MQTT start");
-        console.log("queue : ", queue);
-        let returnMsg;  // 수신 받은 값을 리턴해줄 변수
+    let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
+    let channel = await connection.createChannel();       // 채널 생성
 
-        await amqp.connect(MQ_URL).then(async function(conn){             // RabbitMQ 연결
-            process.once('SIGINT', function() { conn.close(); });   // 종료 신호가 오면 연결 해제 [SIGINT : ctrl+c < 종료신호]
-            return await conn.createChannel().then(async function(ch) {         // 채널 생성
-                return ch.assertQueue(queue, {durable:true})        // Queue 연결 생성
-                    .then(async function(qok) {                           // Queue 가 연결되면
-                        return await ch.get(qok.queue, {noAck: false});   // 값을 가져온다. noAck를 true로 설정하면, 값을 가져와도 pop되지 않는다.
-                    })
-                    .then(function(msg) {                                   // 받아온 값
-                        if (msg) {
-                            console.log("msg : " + msg.content.toString());
-                            returnMsg = JSON.parse(msg.content.toString()); // 받아온 값을 returnMSG 변수에 담는다. 
-                            console.log("returnMsg.name : ",returnMsg.name);
-                            ch.ack(msg); // Queue의 값을 pop 한다.
-                        } else {
-                            console.log("logMessage: No Messages At This Time.");
-                        }
-                    })
-                    .then(function() {
-                        console.log(' [C] Closing Connection');
-                    });
-            });
-        }).then(null, console.warn);
+    let response = await channel.assertQueue(queue, {durable:true});
+
+    //response = await channel.consume(response.queue, logMessage,{noAck=false});
+
+    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 wait
+
+    response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
+    
+    //console.log("[Service] response :",response);   
+    if(response) {  // 가져왔는지 확인
+        //console.log("[Service] response.content.toString()",response.content.toString());
+    
+        let msg = JSON.parse(response.content.toString());  // json으로 파싱
+        channel.ack(response);  // queue 소진하기
+            
+        //console.log("[Service] msg :", msg);
+        //console.log("[Service] msg.name :", msg.name);
+
+        return String(msg.name);
+    } else { // 너무 빨리 get 하여 아무 값도 받지 못하였다면
+        //console.log("[Service] get restart");
+        await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 wait
         
-        console.log("returnMSG : ",returnMsg);
-        return returnMsg;   // 수신한 MQTT 값을 return한다.
-
-    } catch(e) {
-        console.log(String(e));
+        response = await channel.get(response.queue,{noAck : false});
+        //console.log("[Service] response :",response);
+        
+        let msg = JSON.parse(response.content.toString());  // json으로 파싱
+        channel.ack(response);  // queue 소진하기
+        
+        //console.log("[Service] msg :", msg);
+        //console.log("[Service] msg.name :", msg.name);
+        
+        return String(msg.name);
     }
 };
 
 async function firebaseLogin(email, password) { // firebase 로그인 함수
-    console.log("firebase singin function start");
-
-
+    console.log("[Service] firebase singin function start");
     try {   // 로그인하고 UID 값을 받아온다.
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password)
         const uid = userCredential.user.uid;
 
-        console.log(uid);
-        console.log("firebase singin function success");
+        console.log("[Service] uid :", uid);
+        console.log("[Service] firebase singin function success");
         return uid;
     } catch(err) {
-        console.log("firebase singin function failed");
-        console.log(err);
+        console.log("[Service] firebase singin function failed");
+        console.log("[Service] err :", err);
     }
 };
 
-async function firebaseRTdb(){
+async function firebaseRTdb(){  // realtime database 읽기
     const dbRef = firebase.database().ref();
     let db;
     await dbRef.child("sensor").get().then((snapshot) => {
         if (snapshot.exists()) {
             db = snapshot.val();
-            let homeTemp = db.hometemp;
-            let openWeather = db.openweather;
-            console.log("snapshot.val() :",snapshot.val());
-            console.log("homeTemp :",homeTemp);
-            console.log("openWeather :",openWeather);
-
-            
+            //let homeTemp = db.hometemp;
+            //let openWeather = db.openweather;
+            //console.log("[Service] snapshot.val() :",snapshot.val());
+            //console.log("[Service] homeTemp :",homeTemp);
+            //console.log("[Service] openWeather :",openWeather);            
         } else {
-            console.log("No data available");
+            console.log("[Service] No data available");
         }
     }).catch((error) => {
         console.error(error);
@@ -122,13 +121,13 @@ async function firebaseRTdb(){
 
 service.register("getDB", async function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/getDB");
-    console.log("In getDB callback");
+    console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/getDB");
+    console.log("[Service] In getDB callback");
 
     let data = message.payload.data;
-    console.log("[service:getDB] data:",data);
+    console.log("[Service:getDB] data:",data);
     let db = await firebaseRTdb();
-    console.log("[service:getDB] db:",db);
+    console.log("[Service:getDB] db:",db);
 
     message.respond({
         returnValue: true,
@@ -138,11 +137,15 @@ service.register("getDB", async function(message) {    // signIn 서비스
 
 service.register("signIn", async function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/signIn");
-    console.log("In signIn callback");
+    console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/signIn");
+    console.log("[Service] In signIn callback");
     
     let email = message.payload.email;
     let password = message.payload.password;
+
+    console.log("[Service] email :", email);
+    console.log("[Service] password :", password);
+
     let uid = await firebaseLogin(email, password); // 이메일, 비밀번호로 firebase에서 UID값 받아오기
 
     const exchange = "webos.topic";             // RabbitMQ 로그인 시 연결 정보
@@ -156,26 +159,32 @@ service.register("signIn", async function(message) {    // signIn 서비스
     let returnMsg;
 
     await sendMqttFunc(exchange, routingKey, msg);  // 서버로 uid 값을 보낸다.
-    console.log("sendMqtt end in service");
+    console.log("[Service] sendMqtt end in service");
 
     async function signinMqtt() {                   // await를 위해 비동기 함수로 만들어 실행
         returnMsg = await consumeMqtt(queue);       // 이름 수신 (서버는 uid를 받으면 이름을 보낸다.)
-        console.log("consumeMqtt end in service");
-        console.log("name : ", returnMsg);
+        console.log("[Service] consumeMqtt end in service");
+        console.log("[Service] name :", returnMsg);
     };
 
     await signinMqtt();//위 비동기 함수
 
+    let db = await firebaseRTdb();
+    console.log("[Service] db:",db);
+
     message.respond({
         returnValue: true,
-        Response: returnMsg.name
+        Response: {
+            "name" : returnMsg,
+            "db" : db
+        }
     });
 });
 
 service.register("sendMqtt", async function(message) {  // MQTT 송신 서비스
     // Exchange, routingKey, msg를 받아 송신한다.
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/sendMqtt");
-    console.log("In sendMqtt callback");
+    console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/sendMqtt");
+    console.log("[Service] In sendMqtt callback");
 
     const exchange = message.payload.exchange;
     const routingKey = message.payload.routingKey;
