@@ -1,7 +1,8 @@
 /* eslint-disable */
 import {useState } from "react";
 import {useHistory} from "react-router-dom";
-import Button from "../../components/Button/Button";
+import Button from '@enact/sandstone/Button';
+//import Button from "../../components/Button/Button";
 
 import "./SignUp.css"
 

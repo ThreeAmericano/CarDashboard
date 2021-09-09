@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import Button from "../../components/Button/Button";
+import { ButtonBase } from '@enact/sandstone/Button';
 import faceIcon from '../../../resources/webos_project_icon/removeLogo/smile.png';
 
 var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
@@ -30,8 +30,6 @@ const SignIn = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    let test = "022222220";
-
     const onEmailChange = (event) => {  // 이메일 작성이 감지되면 이메일 변수에 값을 넣는다.
         const {target : {value}} = event;
         setEmail(value);
@@ -44,7 +42,7 @@ const SignIn = () => {
 
     const onSignIn = () => {    // 이메일 로그인 함수
         console.log("[SignIn] onSignIn function excuted");
-        let name, temp, humi, air_level, w_description, w_icon, w_temp;
+        let name, temp, humi, air_level, w_description, w_icon, w_temp, smarthome;
 
         var url = 'luna://com.ta.car2webos.service/signIn'; // JS 서비스의 signIn 서비스를 이용한다.
         var params = JSON.stringify({
@@ -64,12 +62,15 @@ const SignIn = () => {
             console.log("[SignIn] db :", returnValue.db);
             
             name = returnValue.name;
-            temp = returnValue.db.hometemp.temp;
-            humi = returnValue.db.hometemp.humi;          
-            air_level = returnValue.db.openweather.air_level;
-            w_description = returnValue.db.openweather.description;
-            w_icon = returnValue.db.openweather.icon;
-            w_temp = returnValue.db.openweather.temp;
+            temp = returnValue.db.sensor.hometemp.temp;
+            humi = returnValue.db.sensor.hometemp.humi;          
+            air_level = returnValue.db.sensor.openweather.air_level;
+            w_description = returnValue.db.sensor.openweather.description;
+            w_icon = returnValue.db.sensor.openweather.icon.substring(0,2);
+            w_temp = returnValue.db.sensor.openweather.temp;
+            smarthome = returnValue.db.smarthome.status;
+            
+            console.log("[SignIn] w_icon :", w_icon);
 
             history.push({
                 pathname: '/home',
@@ -80,7 +81,8 @@ const SignIn = () => {
                     'air_level' : air_level, 
                     'w_description' : w_description, 
                     'w_icon' : w_icon, 
-                    'w_temp' : w_temp
+                    'w_temp' : w_temp,
+                    'smarthome' : smarthome
                 }
             });
 
@@ -92,55 +94,6 @@ const SignIn = () => {
         // 테스트 계정으로 로그인
         setEmail("lee@test.com");
         setPassword("123412");
-
-        //onSignIn();
-        /*
-        console.log("[SignIn] onSignIn function excuted");
-
-        var url = 'luna://com.ta.car2webos.service/signIn';
-        var params = JSON.stringify({
-            "email":"lee@test.com",
-            "password":"123412"
-        });
-
-        let name, temp, humi, air_level, w_description, w_icon, w_temp;
-      
-        webOSBridge.call(url, params);
-        webOSBridge.onservicecallback = callback;
-        function callback(msg){
-            var response = JSON.parse(msg); 
-            console.log("[SignIn] response :", response);
-            let returnValue = response.Response;
-
-            console.log("[SignIn] returnValue :", returnValue);
-
-            console.log("[SignIn] name :", returnValue.name);
-            console.log("[SignIn] db :", returnValue.db);
-            
-            name = returnValue.name;
-            temp = returnValue.db.hometemp.temp;
-            humi = returnValue.db.hometemp.humi;          
-            air_level = returnValue.db.openweather.air_level;
-            w_description = returnValue.db.openweather.description;
-            w_icon = returnValue.db.openweather.icon;
-            w_temp = returnValue.db.openweather.temp;
-
-            history.push({
-                pathname: '/home',
-                state: {
-                    'name' : name,
-                    'temp' : temp,
-                    'humi' : humi,
-                    'air_level' : air_level, 
-                    'w_description' : w_description, 
-                    'w_icon' : w_icon, 
-                    'w_temp' : w_temp
-                }
-            });
-
-        }
-        console.log("[SignIn] onSignIn function end");
-        */
     };
 
     const onSignUp = () => {
@@ -151,7 +104,8 @@ const SignIn = () => {
         console.log("[SignIn] onFaceSignIn function excuted");
         //await visionSignIn();
         // 얼굴인식 시작 mqtt를 server로 보냄
-        //sendMqtt("webos.topic", "start_facer", test);
+        //let startFaceSignIn = "start msg to server"; // 실행코드 넣기
+        //sendMqtt("webos.topic", "start_facer", startFaceSignIn);
     };
 
     return( // 표시되는 html 코드
@@ -179,13 +133,13 @@ const SignIn = () => {
                             <label for="password">Password</label>
                         </div> 
                         <br />
-                        <Button value="로그인" onClick={onSignIn} /> 
+                        <button onClick={onSignIn}>로그인</button>
                         <br />
                         <br />
-                        <Button value="회원가입" onClick={onSignUp} />
+                        <button onClick={onSignUp}>회원가입</button>
                         <br />
                         <br />
-                        <Button value="test 로그인" onClick={onTestSignIn} /> 
+                        <button onClick={onTestSignIn}>test 계정</button> 
                         <br />
                         <br />
                     </div>

@@ -22,6 +22,39 @@ const firebaseConfig = {                    // 우리 프로젝트 firebase 설�
 };
 firebase.initializeApp(firebaseConfig);// firebase 초기 설정
 
+let listenerData;
+
+var dbRef = firebase.database().ref();
+dbRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    console.log("[Service] listener :",data);
+    console.log("[Service] listener :",data.smarthome.status);
+
+    listenerData = data;
+
+    //var url = 'luna://com.ta.car2webos.service/listener';
+    //var params = JSON.stringify({
+    //    "data": data 
+    //});
+    //service.call(url, params);
+});
+
+service.register("listener", function(message) {    // signIn 서비스
+    // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
+    console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/listener");
+    console.log("[Service] In listener callback");
+
+    let data = message.payload.data;
+    console.log("[Service:listener] data :",data);
+    console.log("[Service:listener] data.smarthome.status:",data.smarthome.status);
+
+    message.respond({
+        returnValue: true,
+        Response: data
+    });
+});
+
+
 async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함수
     console.log("[Service] send MQTT start");
     
@@ -47,37 +80,23 @@ async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는
     let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
     let channel = await connection.createChannel();       // 채널 생성
 
-    let response = await channel.assertQueue(queue, {durable:true});
-
-    //response = await channel.consume(response.queue, logMessage,{noAck=false});
+    let response = await channel.assertQueue(queue, {durable:true});    // Queue 연결
 
     await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 wait
 
     response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
     
-    //console.log("[Service] response :",response);   
-    if(response) {  // 가져왔는지 확인
-        //console.log("[Service] response.content.toString()",response.content.toString());
-    
+    if(response) {  // 가져왔는지 확인    
         let msg = JSON.parse(response.content.toString());  // json으로 파싱
         channel.ack(response);  // queue 소진하기
-            
-        //console.log("[Service] msg :", msg);
-        //console.log("[Service] msg.name :", msg.name);
 
         return String(msg.name);
     } else { // 너무 빨리 get 하여 아무 값도 받지 못하였다면
-        //console.log("[Service] get restart");
         await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 wait
         
-        response = await channel.get(response.queue,{noAck : false});
-        //console.log("[Service] response :",response);
-        
+        response = await channel.get(response.queue,{noAck : false}); // 다시 수신
         let msg = JSON.parse(response.content.toString());  // json으로 파싱
         channel.ack(response);  // queue 소진하기
-        
-        //console.log("[Service] msg :", msg);
-        //console.log("[Service] msg.name :", msg.name);
         
         return String(msg.name);
     }
@@ -101,7 +120,7 @@ async function firebaseLogin(email, password) { // firebase 로그인 함수
 async function firebaseRTdb(){  // realtime database 읽기
     const dbRef = firebase.database().ref();
     let db;
-    await dbRef.child("sensor").get().then((snapshot) => {
+    await dbRef.get().then((snapshot) => {
         if (snapshot.exists()) {
             db = snapshot.val();
             //let homeTemp = db.hometemp;
@@ -119,8 +138,15 @@ async function firebaseRTdb(){  // realtime database 읽기
     return db;
 }
 
+/*
+await dbRef.child("sensor").get().then((snapshot) => {
+        if (snapshot.exists()) {
+            db = snapshot.val();
+*/
+
 service.register("getDB", async function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
+    console.log("[Service] print message ", message);
     console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/getDB");
     console.log("[Service] In getDB callback");
 
@@ -142,9 +168,6 @@ service.register("signIn", async function(message) {    // signIn 서비스
     
     let email = message.payload.email;
     let password = message.payload.password;
-
-    console.log("[Service] email :", email);
-    console.log("[Service] password :", password);
 
     let uid = await firebaseLogin(email, password); // 이메일, 비밀번호로 firebase에서 UID값 받아오기
 
@@ -215,133 +238,11 @@ service.register("consumeMqtt", async function(message) {  // MQTT 수신 서비
     });
 });
 */
-/*
-// a method that always returns the same value
-service.register("mqtt", function(message) {
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/mqtt");
-    console.log("In mqtt callback");
-
-    console.log("message : ",message);
-    console.log("message.payload : ",message.payload);
-    
-    console.log("message.payload.exchange : ",message.payload.exchange);
-    console.log("message.payload.msg : ",message.payload.msg);
-
-    const exchange = message.payload.exchange;
-    const routingKey = message.payload.routingKey;
-    const msg = JSON.stringify(message.payload.msg);
-    const queue = "webos.car";
-
-    let returnMsg = "";
-    
-    amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connection) {
-        if (error0) {
-            throw error0;
-        }
-        connection.createChannel(function(error1, channel) {
-            if (error1) {
-                throw error1;
-            }
-
-            channel.assertExchange(exchange, 'topic', {
-                durable: true
-            });
-            channel.publish(exchange, routingKey, Buffer.from(msg));
-            console.log(" [x] Sent %s", msg);
-        });
-
-        setTimeout(function() { 
-            connection.close(); 
-            process.exit(0); 
-        }, 500);
-    });
-
-    amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connection) {
-        if (error0) {
-            throw error0;
-        }
-        connection.createChannel(function(error1, channel) {
-            if (error1) {
-                throw error1;
-            }
-
-            channel.assertQueue(queue, {
-                durable: true
-            });
-
-            console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
-            
-            channel.consume(queue, function(msg) {
-                console.log(" [x] Received %s", msg.content.toString());
-                returnMsg = msg.content.toString();
-            }, {
-                noAck: true
-            });
-        });
-
-        setTimeout(function() { 
-            connection.close(); 
-            process.exit(0); 
-        }, 500);
-    });
-
-    console.log("name : ", returnMsg);
-
-    message.respond({
-        returnValue: true,
-        Response: "name : "+ returnMsg
-    });
-});
-*/
-
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------
-
-/*
-// 되는 예제
-service.register("mqtt", function(message) {
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/mqtt");
-    console.log("In mqtt callback");
-
-    const exchange = "webos.topic";
-    const routingKey = "webos.server.info";
-    const msg = JSON.stringify({
-        "Producer":"car",
-        "command":"signin",
-        "UID": "aw0liyvHuUXW1d3AZqzoP9vcsV92"
-    });
-    
-    amqp.connect('amqp://rabbit:MQ321@211.179.42.130:5672', function(error0, connection) {
-        if (error0) {
-            throw error0;
-        }
-        connection.createChannel(function(error1, channel) {
-            if (error1) {
-                throw error1;
-            }
-
-            channel.assertExchange(exchange, 'topic', {
-                durable: true
-            });
-            channel.publish(exchange, routingKey, Buffer.from(msg));
-            console.log(" [x] Sent %s", msg);
-        });
-
-        setTimeout(function() { 
-            connection.close(); 
-            process.exit(0); 
-        }, 500);
-    });
-
-    message.respond({
-        returnValue: true,
-        Response: "Send Complete"
-    });
-});
-*/
 
 // a method that always returns the same value
 service.register("hello", function(message) {

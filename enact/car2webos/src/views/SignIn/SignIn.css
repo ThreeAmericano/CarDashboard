@@ -43,6 +43,8 @@
 .email__box button{
     position: relative;
     width: 100%;
+    background-color: cornflowerblue;
+    color: black;
 }
 .face-recognation__box button{
     position: relative;
