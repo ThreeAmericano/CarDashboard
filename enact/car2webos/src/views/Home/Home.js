@@ -32,40 +32,10 @@ import lightIcon from '../../../resources/webos_project_icon/removeLogo/light.pn
 import valveIcon from '../../../resources/webos_project_icon/removeLogo/valve.png';
 import windowIcon from '../../../resources/webos_project_icon/removeLogo/window.png';
 
-//import LS2Request from '@enact/webos/LS2Request';
-
 var webOSBridge = new WebOSServiceBridge();
-/*
-var firebase = require("../../../node_modules/firebase");
+import { db, ref, onValue } from "../../firebase";
+let oldDB;
 
-const firebaseConfig = {                    // 우리 프로젝트 firebase 설정
-    apiKey: "AIzaSyDMy6DVimbJQgQGo1PU0IXiPeq3K0yzF5I",
-    authDomain: "threeamericano.firebaseapp.com",
-    databaseURL: "https://threeamericano-default-rtdb.firebaseio.com",
-    projectId: "threeamericano",
-    storageBucket: "threeamericano.appspot.com",
-    messagingSenderId: "475814972535",
-    appId: "1:475814972535:web:8be8e4e4b6cf92f2e90a72",
-    measurementId: "G-WEWQJ2NQSB"
-};
-firebase.initializeApp(firebaseConfig);// firebase 초기 설정
-let listenerData;
-
-var dbRef = firebase.database().ref();
-dbRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    console.log("[Service] listener :",data);
-    console.log("[Service] listener :",data.smarthome.status);
-
-    listenerData = data;
-
-    //var url = 'luna://com.ta.car2webos.service/listener';
-    //var params = JSON.stringify({
-    //    "data": data 
-    //});
-    //service.call(url, params);
-});
-*/
 const Home = () => {
     const history = useHistory();
     const location = useLocation();
@@ -88,22 +58,22 @@ const Home = () => {
 
     let smarthome = "";
 
-	//const LS2 = new LS2Request();
-
     useEffect(() => {
         console.log("[Home] 컴포넌트가 화면에 나타남");
         // 초기값 설정
         setName(location.state.name);
-        setTemp(location.state.temp);
-        setHumi(location.state.humi);
-        setW_icon(location.state.w_icon);
-        setWeather("날씨 : "+location.state.w_description+", "+location.state.temp+"°C")
 
-        smarthome = location.state.smarthome;
-        if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
-        else modeTurnOff;
+        oldDB = location.state.db;
+        console.log("[Home:useEffect] oldDB :",oldDB);
 
-        switch(location.state.air_level) {
+        setTemp(location.state.db.sensor.hometemp.temp);
+        setHumi(location.state.db.sensor.hometemp.humi);
+        setW_icon(location.state.db.sensor.openweather.icon.substring(0,2));
+        setWeather("날씨 : "+location.state.db.sensor.openweather.description+", "+location.state.db.sensor.openweather.temp+"°C")
+
+        smarthome = location.state.db.smarthome.status;
+
+        switch(location.state.db.sensor.openweather.air_level) {
             case 1 : setDust("매우 좋음"); break;
             case 2 : setDust("좋음"); break;
             case 3 : setDust("보통"); break;
@@ -111,6 +81,7 @@ const Home = () => {
             case 5 : setDust("매우 나쁨"); break;
             default : break;
         }
+
         if(Number(smarthome[1]) < 2) {
             setAircon(Number(smarthome[1])?true:false);
         };
@@ -124,27 +95,52 @@ const Home = () => {
             setValve(Number(smarthome[8])?true:false);
         };
 
+        if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
+        else modeTurnOff;
+
         return() => {
             console.log("[Home] 컴포넌트가 화면에서 사라짐");
         };
     }, []);
 
-    webOSBridge.onservicecallback = callback;  
-    function callback(msg){
-        var response = JSON.parse(msg);
-        let db = response.Response;
-        console.log("[Home] listener db :",db);
-    }
+    const dbRef = ref(db);
+    onValue(dbRef, (snapshot) => {
+        console.log("[Home] 잘 작동하길 바란다");
+        let data = snapshot.val();
+        console.log("[Home:listener] oldDB :", oldDB);
+        console.log("[Home:listener] data :", data);
+        console.log("[Home:listener] oldDB == data :", oldDB == data);
 
-/*
-/////////////////////////////////////////////////////////// 리스너
-    const listen = () => {
-        setTemp(location.state.temp);
-        setHumi(location.state.humi);
-        setW_icon(location.state.w_icon);
-        setWeather("날씨 : "+location.state.w_description+", "+location.state.temp+"°C")
+        //if((oldDB.sensor.hometemp != data.sensor.hometemp)||(oldDB.sensor.openweather != data.sensor.openweather)||(oldDB.smarthome.status != data.smarthome.status))
+        if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
+            console.log("같음");
+        } else {
+            console.log("[home : listener] old.smarthome.status :",oldDB.smarthome.status);
+            console.log("[home : listener] listener.smarthome.status :",data.smarthome.status);
+            oldDB = data;
+            setUI(data);
+        };
+    });
+    
+    const setUI = (data) => {
+        console.log("[Home:setUI] 함수 실행 data :", data);
+        let listenTemp = data.sensor.hometemp.temp;
+        let listenHumi = data.sensor.hometemp.humi;
+
+        let listenAir = data.sensor.openweather.air_level;
+        let listenDescription = data.sensor.openweather.description;
+        let listenIcon = data.sensor.openweather.icon.substring(0,2);
+        let listenWTemp = data.sensor.openweather.temp;
         
-        switch(location.state.air_level) {
+        let listenHome = data.smarthome.status;
+                     
+        setTemp(listenTemp);
+        setHumi(listenHumi);
+
+        setW_icon(listenIcon);
+        setWeather("날씨 : "+listenDescription+", "+listenWTemp+"°C")
+        
+        switch(listenAir) {
             case 1 : setDust("매우 좋음"); break;
             case 2 : setDust("좋음"); break;
             case 3 : setDust("보통"); break;
@@ -152,10 +148,23 @@ const Home = () => {
             case 5 : setDust("매우 나쁨"); break;
             default : break;
         }
-    }
-*/
 
-    let test = "122222220";
+        if(Number(listenHome[1]) < 2) {
+            setAircon(Number(listenHome[1])?true:false);
+        };
+        if(Number(listenHome[3]) < 2) {
+            setLight(Number(listenHome[3])?true:false);
+        };
+        if(Number(listenHome[7]) < 2) {
+            setWindow(Number(listenHome[7])?true:false);
+        };
+        if(Number(listenHome[8]) < 2) {
+            setValve(Number(listenHome[8])?true:false);
+        };
+
+        if(Number(listenHome[0])>0) onDoMode(Number(listenHome[0])-1);
+        else modeTurnOff;
+    };
 
     const modeTurnOff = () => {
         setIndoorMode(false);
@@ -204,7 +213,7 @@ const Home = () => {
     };
 
     const onDoApplience = (num) => {
-        console.log("[Home:onDoMode] num :", num);
+        console.log("[Home:onDoApplience] num :", num);
         let command = "";
         switch(num) {
             case 0 : {
@@ -217,7 +226,7 @@ const Home = () => {
                     command = "016222222";
                 } 
                 console.log("[Home] aircon :", aircon);
-                //sendMqtt("webos.topic", "webos.smarthome.info", command);
+                sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
             case 1 : {
@@ -230,7 +239,7 @@ const Home = () => {
                     command = "022160222";
                 } 
                 console.log("[Home] light :", light);
-                //sendMqtt("webos.topic", "webos.smarthome.info", command);
+                sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
             case 2 : {
@@ -243,7 +252,7 @@ const Home = () => {
                     command = "022222221";
                 } 
                 console.log("[Home] valve :", valve);
-                //sendMqtt("webos.topic", "webos.smarthome.info", command);
+                sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
             case 3 : {
@@ -256,7 +265,7 @@ const Home = () => {
                     command = "022222212";
                 }
                 console.log("[Home] window :", window);
-                //sendMqtt("webos.topic", "webos.smarthome.info", command);
+                sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
             default : break;
@@ -337,35 +346,35 @@ const Home = () => {
                     <FiChevronsLeft size="40" color="#000"/>
                 </button>
                 <p className="name">{name} 님 안녕하세요.</p>
-                    <div className="temp">
-                        <p>온도</p>
-                        <progress value={temp} max="40"></progress>
-                    </div>
-                    <p className="temp-value">{temp}도</p>
-                    <div className="hum">
-                        <p>습도</p>
-                        <progress value={humi} max="100"></progress>
-                    </div>
-                    <p className="hum-value">{humi}%</p>
-                    <div className="weather-icon">
-                        <img className="w_icon" src = {
-                            {
-                                "01" : sunny,
-                                "02" : littlecloudy,
-                                "03" : cloudy,
-                                "04" : darkcloudy,
-                                "09" : rain,
-                                "10" : rainsunny,
-                                "11" : thunder,
-                                "13" : snow,
-                                "50" : fog
-                            }[w_icon]
-                        } />
-                        <br />
-                        <p>{weather}</p>
-                        <br />
-                        <p>미세먼지 : {dust}</p>
-                    </div>
+                <div className="temp">
+                    <p>온도</p>
+                    <progress value={temp} max="40"></progress>
+                </div>
+                <p className="temp-value">{temp}도</p>
+                <div className="hum">
+                    <p>습도</p>
+                    <progress value={humi} max="100"></progress>
+                </div>
+                <p className="hum-value">{humi}%</p>
+                <div className="weather-icon">
+                    <img className="w_icon" src = {
+                        {
+                            "01" : sunny,
+                            "02" : littlecloudy,
+                            "03" : cloudy,
+                            "04" : darkcloudy,
+                            "09" : rain,
+                            "10" : rainsunny,
+                            "11" : thunder,
+                            "13" : snow,
+                            "50" : fog
+                        }[w_icon]
+                    } />
+                    <br />
+                    <p>{weather}</p>
+                    <br />
+                    <p>미세먼지 : {dust}</p>
+                </div>
             </div>
             <br />
             <div className="home__box">

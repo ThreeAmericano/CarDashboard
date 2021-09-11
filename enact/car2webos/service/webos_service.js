@@ -10,7 +10,7 @@ const logHeader = "[" + pkgInfo.name + "]"; // 서비스 이름으로 logHeader 
 
 const MQ_URL = 'amqp://rabbit:MQ321@211.179.42.130:5672';   // RabbitMQ 주소 지정 amqp://아이디:비밀번호@호스트:포트
 
-const firebaseConfig = {                    // 우리 프로젝트 firebase 설정
+const firebaseConfig = {    // 우리 프로젝트 firebase 설정
     apiKey: "AIzaSyDMy6DVimbJQgQGo1PU0IXiPeq3K0yzF5I",
     authDomain: "threeamericano.firebaseapp.com",
     databaseURL: "https://threeamericano-default-rtdb.firebaseio.com",
@@ -21,16 +21,12 @@ const firebaseConfig = {                    // 우리 프로젝트 firebase 설�
     measurementId: "G-WEWQJ2NQSB"
 };
 firebase.initializeApp(firebaseConfig);// firebase 초기 설정
-
-let listenerData;
-
+/*
 var dbRef = firebase.database().ref();
 dbRef.on('value', (snapshot) => {
     const data = snapshot.val();
     console.log("[Service] listener :",data);
     console.log("[Service] listener :",data.smarthome.status);
-
-    listenerData = data;
 
     //var url = 'luna://com.ta.car2webos.service/listener';
     //var params = JSON.stringify({
@@ -38,7 +34,7 @@ dbRef.on('value', (snapshot) => {
     //});
     //service.call(url, params);
 });
-
+*/
 service.register("listener", function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
     console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/listener");

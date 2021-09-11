@@ -19,17 +19,17 @@ const App = function () {
 		<div>
 			<Router>
 				<Switch>
-						<Route exact path="/">
-							<SignIn />
-						</Route>
-						<Route path="/sign-up">
-							<SignUp />
-						</Route>
-						<Route path="/home">
-							<Home />
-						</Route>
-						<Redirect to="/" />
-					</Switch>
+					<Route exact path="/">
+						<SignIn />
+					</Route>
+					<Route path="/sign-up">
+						<SignUp />
+					</Route>
+					<Route path="/home">
+						<Home />
+					</Route>
+					<Redirect to="/" />
+				</Switch>
 			</Router>
 		</div>
 	);

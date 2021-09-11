@@ -62,6 +62,7 @@ const SignIn = () => {
             console.log("[SignIn] db :", returnValue.db);
             
             name = returnValue.name;
+            /*
             temp = returnValue.db.sensor.hometemp.temp;
             humi = returnValue.db.sensor.hometemp.humi;          
             air_level = returnValue.db.sensor.openweather.air_level;
@@ -69,11 +70,16 @@ const SignIn = () => {
             w_icon = returnValue.db.sensor.openweather.icon.substring(0,2);
             w_temp = returnValue.db.sensor.openweather.temp;
             smarthome = returnValue.db.smarthome.status;
-            
             console.log("[SignIn] w_icon :", w_icon);
+            */
 
             history.push({
                 pathname: '/home',
+                state: {
+                    'name' : name,
+                    'db' : returnValue.db
+                }
+                /*
                 state: {
                     'name' : name,
                     'temp' : temp,
@@ -84,6 +90,7 @@ const SignIn = () => {
                     'w_temp' : w_temp,
                     'smarthome' : smarthome
                 }
+                */
             });
 
         }
