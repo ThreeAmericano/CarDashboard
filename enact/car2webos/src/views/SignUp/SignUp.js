@@ -1,10 +1,11 @@
 /* eslint-disable */
 import {useState } from "react";
 import {useHistory} from "react-router-dom";
-import Button from '@enact/sandstone/Button';
+//import Button from '@enact/sandstone/Button';
 //import Button from "../../components/Button/Button";
 
 import "./SignUp.css"
+import "../../../resources/css/sam_style.css"
 
 const SignUp = () => {
     const history = useHistory();
@@ -46,8 +47,8 @@ const SignUp = () => {
                     <label for="password">Password Cert</label>
                 </div> 
                 <br />
-                <Button value="로그인" />
-                <Button value="취소" onClick={onCancel} />
+                <button class="button" value="가입" />
+                <button class="button" value="취소" onClick={onCancel} />
             </div>
         </div>
     );

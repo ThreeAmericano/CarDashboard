@@ -7,6 +7,7 @@ import faceIcon from '../../../resources/webos_project_icon/removeLogo/smile.png
 var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
 
 import "./SignIn.css"
+import "../../../resources/css/sam_style.css"
 
 const SignIn = () => {
     // 로그인 페이지
@@ -173,18 +174,18 @@ const SignIn = () => {
                 <source id="tts_source" src="" type="audio/mp3" />
             </audio>
             <div className="sign-in__head">
-                <h3>얼굴인식 로그인</h3>
-                <h3>E-Mail 로그인</h3>
             </div>
             <div className="sign-in__box">
-                <div className="face-recognation">
+                <div className="face-recognation">		   
+					<h3>얼굴인식 로그인</h3>
                     <div className="face-recognation__box">
                         <button onClick={onFaceSignIn}>
                             <img className="face-button-icon" src={faceIcon} />    
                         </button>
                     </div>
                 </div>
-                <div className="email">
+                <div className="email">	 
+					<h3>E-Mail 로그인</h3>
                     <div className="email__box">
                         <div className="input-box">
                             <input type="email" value={email} onChange={onEmailChange} placeholder="이메일을 입력하세요." required />
@@ -195,15 +196,16 @@ const SignIn = () => {
                             <label for="password">Password</label>
                         </div> 
                         <br />
-                        <button onClick={onSignIn}>로그인</button>
-                        <br />
-                        <br />
-                        <button onClick={onSignUp}>회원가입</button>
-                        <br />
-                        <br />
-                        <button onClick={onTestSignIn}>test 계정</button> 
-                        <br />
-                        <br />
+                        <button class="button" onClick={onSignIn}>
+						<span class="material-icons">arrow_upward</span>
+						로그인</button>
+                        <button class="button" onClick={onSignUp}>
+						<span class="material-icons">assignment_ind</span>
+						회원가입</button>
+						<br />
+						<br />					
+                        <button class="button" onClick={onTestSignIn}>
+						test계정</button>
                     </div>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+/*
 .home{
     width: 90%;
     height: 90%;
@@ -5,6 +6,7 @@
     margin: 0px auto;
     background-color: white;
 }
+*/
 .home__head{
     display: grid;
     /*grid-template-columns: repeat(4, 1fr);*/

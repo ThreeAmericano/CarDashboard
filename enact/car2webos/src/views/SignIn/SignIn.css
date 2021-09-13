@@ -1,3 +1,4 @@
+/*
 .sign-in{
     display:'inline-block';
     width: 90%;
@@ -7,6 +8,7 @@
     align-items: center;
     background-color: white;
 }
+*/
 .sign-in__head{
     position: relative;
     display: flex;
@@ -40,12 +42,14 @@
     padding: 100%;
     padding-top: 10%;
 }
+/*
 .email__box button{
     position: relative;
     width: 100%;
     background-color: cornflowerblue;
     color: black;
 }
+*/
 .face-recognation__box button{
     position: relative;
     width: 90%;

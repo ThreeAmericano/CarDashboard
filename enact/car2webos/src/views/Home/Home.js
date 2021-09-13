@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
 import "./Home.css"
+import "../../../resources/css/sam_style.css"
 
 // Import Icon
 import { FiChevronsLeft } from "react-icons/fi";
