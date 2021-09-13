@@ -1,0 +1,87 @@
+/* fallback */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/materialicons/v99/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24dp;
+  line-height: 100%;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.sign-in, .sign-up, .home{
+    display:'inline-block';
+    width: 90%;
+    height: 90%;
+    position: relative;
+    margin: 0px auto;
+    align-items: center;
+    background-color: white;
+}
+
+.button {
+  background-color: cornflowerblue; /* Blue */
+  border: none;
+  border-radius: 2%;
+  color: white;
+  padding: 4% 15%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: large;
+  margin: 4px 2px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: 0.3s;
+}
+
+.button:hover {
+	opacity: 1;
+}
+
+.input{
+    background:transparent; 
+    border:none; 
+    border-bottom: solid 1px #ccc; 
+    padding:20px 0px 5px 0px;
+    font-size:14pt; 
+    width: 100%;
+    height: 110px;
+}
+.input::placeholder{
+    color:transparent; 
+}
+.input:placeholder-shown + label{ 
+    color:#aaa; 
+    font-size:14pt; 
+    top:15px; 
+}
+.input:focus + label, label{ 
+    color:#8aa1a1; 
+    font-size:10pt; 
+    pointer-events: none; 
+    position: absolute; 
+    left:0px; 
+    top:0px; 
+    transition: all 0.2s ease ; 
+    -webkit-transition: all 0.2s ease; 
+    -moz-transition: all 0.2s ease; 
+    -o-transition: all 0.2s ease; 
+}
+.input:focus, input:not(:placeholder-shown){ 
+    border-bottom: solid 1px #8aa1a1; 
+    outline:none; 
+}
