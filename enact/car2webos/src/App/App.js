@@ -1,4 +1,13 @@
 //import {useState, useEffect} from 'react';
+/*
+import kind from '@enact/core/kind';
+import ThemeDecorator from '@enact/sandstone/ThemeDecorator';
+import {Panel} from '@enact/sandstone/Panels';
+
+//import './attachErrorHandler';
+
+import css from './App.module.less';
+*/
 import {HashRouter as Router, Redirect, Route, Switch} from "react-router-dom";
 
 import SignIn from "../views/SignIn/SignIn";

@@ -2,6 +2,8 @@
 const pkgInfo = require('./package.json');
 const Service = require('webos-service');
 
+//const {WebhookClient} = require('dialogflow-fulfillment');
+
 const amqp = require('amqplib');    // RabbitMQ 사용 amqp 라이브러리
 var firebase = require('firebase').default; // firebase 라이브러리
 
@@ -34,6 +36,42 @@ dbRef.on('value', (snapshot) => {
     //});
     //service.call(url, params);
 });
+*/
+/*
+exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, response) => {
+    console.log("[Service:dialogflow] send MQTT start");
+    const agent = new WebhookClient({ request, response });
+    console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
+    console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
+   
+    function welcome(agent) {
+        agent.add(`Welcome to my agent!`);
+    }
+   
+    function fallback(agent) {
+      agent.add(`I didn't understand`);
+      agent.add(`I'm sorry, can you try again?`);
+    }
+  
+    // Run the proper function handler based on the matched Dialogflow intent name
+    function handleLights(agent) {
+      const name = agent.parameters.nameLight;
+      const on = agent.parameters.on;
+      console.log("[Service] name :",name);
+      console.log("[Service] on :",on);
+      
+      var state = 0;
+      if(on == '켜') 
+        state = 1;
+    }
+
+    let intentMap = new Map();
+    intentMap.set('Default Welcome Intent', welcome);
+    intentMap.set('Default Fallback Intent', fallback);
+    intentMap.set('Lights', handleLights);
+    
+    agent.handleRequest(intentMap);
+  });
 */
 service.register("listener", function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
@@ -78,7 +116,7 @@ async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는
 
     let response = await channel.assertQueue(queue, {durable:true});    // Queue 연결
 
-    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 wait
+    await new Promise(resolve => setTimeout(resolve, 200)); // 0.5초 wait
 
     response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
     
@@ -88,7 +126,7 @@ async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는
 
         return String(msg.name);
     } else { // 너무 빨리 get 하여 아무 값도 받지 못하였다면
-        await new Promise(resolve => setTimeout(resolve, 500)); // 0.5초 wait
+        await new Promise(resolve => setTimeout(resolve, 200)); // 0.5초 wait
         
         response = await channel.get(response.queue,{noAck : false}); // 다시 수신
         let msg = JSON.parse(response.content.toString());  // json으로 파싱

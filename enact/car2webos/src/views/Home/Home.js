@@ -59,9 +59,10 @@ const Home = () => {
     let smarthome = "";
 
     useEffect(() => {
-        console.log("[Home] 컴포넌트가 화면에 나타남");
+        console.log("[Home:useEffect] 컴포넌트가 화면에 나타남");
         // 초기값 설정
         setName(location.state.name);
+        ttsTest(String(location.state.name)+"님 안녕하세요");
 
         oldDB = location.state.db;
         console.log("[Home:useEffect] oldDB :",oldDB);
@@ -92,28 +93,32 @@ const Home = () => {
             setWindow(Number(smarthome[7])?true:false);
         };
         if(Number(smarthome[8]) < 2) {
-            setValve(Number(smarthome[8])?true:false);
+            //setValve(Number(smarthome[8])?true:false);
+            if(Number(smarthome[8])) {
+                setValve(true);
+                createToast("가스밸브가 잠기지 않았습니다.")                
+            } else {
+                setValve(false);
+            }
         };
 
         if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
         else modeTurnOff;
 
         return() => {
-            console.log("[Home] 컴포넌트가 화면에서 사라짐");
+            console.log("[Home:useEffect] 컴포넌트가 화면에서 사라짐");
         };
     }, []);
 
     const dbRef = ref(db);
     onValue(dbRef, (snapshot) => {
-        console.log("[Home] 잘 작동하길 바란다");
         let data = snapshot.val();
         console.log("[Home:listener] oldDB :", oldDB);
         console.log("[Home:listener] data :", data);
         console.log("[Home:listener] oldDB == data :", oldDB == data);
 
-        //if((oldDB.sensor.hometemp != data.sensor.hometemp)||(oldDB.sensor.openweather != data.sensor.openweather)||(oldDB.smarthome.status != data.smarthome.status))
         if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
-            console.log("같음");
+            console.log("[Home:listener] 변화 없음");
         } else {
             console.log("[home : listener] old.smarthome.status :",oldDB.smarthome.status);
             console.log("[home : listener] listener.smarthome.status :",data.smarthome.status);
@@ -121,6 +126,22 @@ const Home = () => {
             setUI(data);
         };
     });
+    const ttsTest = (ment) => {
+        console.log("[Home:ttsTest] test start");
+        console.log("[Home:ttsTest] ment :", ment);
+    
+        var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
+        var params = {
+            "text": ment, 
+            "language": "ko-KR", 
+            "clear":false
+        };
+          
+        webOSBridge.call(url, JSON.stringify(params));
+
+        console.log("[Home:ttsTest] test end");
+    }
+    
     
     const setUI = (data) => {
         console.log("[Home:setUI] 함수 실행 data :", data);
@@ -181,7 +202,7 @@ const Home = () => {
                 setOutdoorMode(false);
                 setEcoMode(false);
                 setNightMode(false);
-                console.log("[Home] indoorMode :", indoorMode);
+                console.log("[Home:onDoMode] indoorMode :", indoorMode);
                 break;
             };
             case 1 : {
@@ -189,7 +210,7 @@ const Home = () => {
                 outdoorMode ? setOutdoorMode(false) : setOutdoorMode(true) ;
                 setEcoMode(false);
                 setNightMode(false);
-                console.log("[Home] outdoorMode :", outdoorMode);
+                console.log("[Home:onDoMode] outdoorMode :", outdoorMode);
                 break;
             };
             case 2 : {
@@ -197,7 +218,7 @@ const Home = () => {
                 setOutdoorMode(false);
                 ecoMode ? setEcoMode(false) : setEcoMode(true);
                 setNightMode(false);
-                console.log("[Home] ecoMode :", ecoMode);
+                console.log("[Home:onDoMode] ecoMode :", ecoMode);
                 break;
             };
             case 3 : {
@@ -205,7 +226,7 @@ const Home = () => {
                 setOutdoorMode(false);
                 setEcoMode(false);
                 nightMode ? setNightMode(false) : setNightMode(true);
-                console.log("[Home] nightMode :", nightMode);
+                console.log("[Home:onDoMode] nightMode :", nightMode);
                 break;
             };
             default : break;
@@ -225,7 +246,7 @@ const Home = () => {
                     setAircon(true); 
                     command = "016222222";
                 } 
-                console.log("[Home] aircon :", aircon);
+                console.log("[Home:onDoApplience] aircon :", aircon);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
@@ -238,7 +259,7 @@ const Home = () => {
                     setLight(true);
                     command = "022160222";
                 } 
-                console.log("[Home] light :", light);
+                console.log("[Home:onDoApplience] light :", light);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
@@ -251,7 +272,7 @@ const Home = () => {
                     setValve(true);
                     command = "022222221";
                 } 
-                console.log("[Home] valve :", valve);
+                console.log("[Home:onDoApplience] valve :", valve);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
@@ -264,7 +285,7 @@ const Home = () => {
                     setWindow(true);
                     command = "022222212";
                 }
-                console.log("[Home] window :", window);
+                console.log("[Home:onDoApplience] window :", window);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
@@ -273,30 +294,30 @@ const Home = () => {
     };
 
     const onGotoSignin = () => {
-        console.log("[Home] 뒤로 돌아가기");
+        console.log("[Home:onGotoSignin] 뒤로 돌아가기");
         history.push('/');
     }
 
     const onGotoMode = () => {
-        console.log("[Home] 모드 설정 페이지");
+        console.log("[Home:onGotoMode] 모드 설정 페이지");
         //모드 설정 페이지
         //history.push('/');
     }
 
     const onGotoAppliance = () => {
-        console.log("[Home] 개별 가전 제어 페이지");
+        console.log("[Home:onGotoAppliance] 개별 가전 제어 페이지");
         //가전 제어 페이지
         //history.push('/');
-
+/*
         //firebase test
-        console.log("[Home] firebase db test excuted");
+        console.log("[Home:onGotoAppliance] firebase db test excuted");
 
         var url = 'luna://com.ta.car2webos.service/getDB';
         var params = JSON.stringify({
             "data":"getDB"
         });
       
-        webOSBridge.onservicecallback = callback;   /////////////////////////////// 이것을 함수 밖 최상단에 두면 리스너를 만들 수 있을까?
+        webOSBridge.onservicecallback = callback;
         function callback(msg){
             var response = JSON.parse(msg);
             let db = response.Response;
@@ -322,10 +343,11 @@ const Home = () => {
         }
         webOSBridge.call(url, params);
         console.log("[Home] firebase db test end");   
+*/
     };
     
     const sendMqtt = (exchange, routingKey, msg) => {
-        console.log("[Home] displayReponse function excuted");
+        console.log("[Home:sendMqtt] displayReponse function excuted");
     
         var url = 'luna://com.ta.car2webos.service/sendMqtt';
         var params = JSON.stringify({
@@ -336,11 +358,31 @@ const Home = () => {
       
         webOSBridge.call(url, params); 
     
-        console.log("[Home] sendMqtt function end");
+        console.log("[Home:sendMqtt] sendMqtt function end");
     };
+
+    function createToast(ment) {
+        console.log("[Home:createToast] ment :", ment);
+
+        var url = 'luna://com.webos.notification/createToast';
+        var params = {
+            "sourceId":"com.ta.car2webos",
+            "message":String(ment)
+        };
+        webOSBridge.call(url, JSON.stringify(params));
+
+        webOSBridge.onservicecallback = toastCallback;
+        function toastCallback(msg){
+            var response = JSON.parse(msg); 
+            console.log("[SignIn:createToast callback] response :", response);
+        }
+    }
     
     return(
         <div className="home">
+            <audio id="tts">
+                <source id="tts_source" src="" type="audio/mp3" />
+            </audio>
             <div className="home__head">
                 <button className="back-button" onClick={onGotoSignin}>
                     <FiChevronsLeft size="40" color="#000"/>

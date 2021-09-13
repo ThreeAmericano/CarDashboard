@@ -10,9 +10,13 @@
     "time.query",
     "activity.operation",
 		"all",
-    "mqttservice.operation",
-    "app.mqttservice.operation",
-    "ta.app.mqttservice.operation",
-    "com.ta.app.mqttservice.operation"
+    "database.operation",
+    "tts.management",
+    "tts.operation",
+    "audio.management",
+    "notification.operation",
+    "audiofocus.operation",
+    "ai.voice",
+    "ai.management"
   ]
 }

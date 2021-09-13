@@ -1,0 +1,102 @@
+.sign-in{
+    display:'inline-block';
+    width: 90%;
+    height: 90%;
+    position: relative;
+    margin: 0px auto;
+    align-items: center;
+    background-color: white;
+}
+.sign-in__head{
+    position: relative;
+    display: flex;
+    height: 100%;
+}
+.sign-in__head h3{
+    width: 50%;
+    text-align: center;
+}
+.sign-in__box{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+.face-recognation{
+    width: 100%;
+    float: left;
+    height: 100%;
+    padding: 3%;
+    text-align: center;
+}
+.email{
+    float: right;
+    width: 100%;
+    height: 100%;
+    padding: 3%;
+    text-align: center;
+}
+.face-recognation__box .email__box{
+    padding: 100%;
+    padding-top: 10%;
+}
+.email__box button{
+    position: relative;
+    width: 100%;
+    background-color: cornflowerblue;
+    color: black;
+}
+.face-recognation__box button{
+    position: relative;
+    width: 90%;
+    padding-bottom: 90%;
+}
+.face-button-icon{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    margin: auto;
+
+    width: 60%;
+    height: 60%;
+}
+.input-box{ 
+    position:relative; 
+    margin:10px 0; 
+}
+.input-box input{
+    background:transparent; 
+    border:none; 
+    border-bottom: solid 1px #ccc; 
+    padding:20px 0px 5px 0px;
+    font-size:14pt; 
+    width: 100%;
+    height: 110px;
+}
+.input-box input::placeholder{
+    color:transparent; 
+}
+.input-box input:placeholder-shown + label{ 
+    color:#aaa; 
+    font-size:14pt; 
+    top:15px; 
+}
+.input-box input:focus + label, label{ 
+    color:#8aa1a1; 
+    font-size:10pt; 
+    pointer-events: none; 
+    position: absolute; 
+    left:0px; 
+    top:0px; 
+    transition: all 0.2s ease ; 
+    -webkit-transition: all 0.2s ease; 
+    -moz-transition: all 0.2s ease; 
+    -o-transition: all 0.2s ease; 
+}
+.input-box input:focus, input:not(:placeholder-shown){ 
+    border-bottom: solid 1px #8aa1a1; 
+    outline:none; 
+}
