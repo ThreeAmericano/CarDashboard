@@ -139,7 +139,7 @@ const SignIn = () => {
 					<h3>얼굴인식 로그인</h3>
                     <div className="face-recognation__box">
                         <button onClick={onFaceSignIn}>
-                            <img className="face-button-icon" src={faceIcon} />    
+                            <img className="face-button-icon" src={faceIcon} />
                         </button>
                     </div>
                 </div>

@@ -10,6 +10,7 @@ import "../../../resources/css/sam_style.css"
 //import { AiOutlinePlus } from "react-icons/ai";
 
 // 날씨
+
 import sunny from '../../../resources/weather_icon/sunny.png';
 import littlecloudy from '../../../resources/weather_icon/littlecloudy.png';
 import cloudy from '../../../resources/weather_icon/cloudy.png';
@@ -37,18 +38,31 @@ var webOSBridge = new WebOSServiceBridge();
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from "../../firebase";
 
 let oldDB;
+let smarthome = "";
+let mode = new Array(4);
+
+let i = 0;
 
 (async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 0.2초 wait
-
-    console.log("[Home:store asdfasdfasdfadsfasdfasdfadsf]")
+    console.log("[Home:store start]")
     const querySnapshot = await getDocs(collection(storeDB, "modes"));
     console.log("[Home:store listener] querySnapshot :", querySnapshot);
     querySnapshot.forEach((doc) => {
         console.log("[Home:store listener]", doc.id, " => ", doc.data());
+        
+        mode[i] = String(i+1);
+        mode[i] += doc.data().airconEnable ? '1' : '0';
+        mode[i] += String(doc.data().airconWindPower);
+        mode[i] += doc.data().lightEnable ? '1' : '0';
+        mode[i] += String(doc.data().lightBrightness);
+        mode[i] += String(doc.data().lightColor);
+        mode[i] += String(doc.data().lightMode-8);
+        mode[i] += doc.data().windowOpen ? '1' : '0';
+        mode[i] += doc.data().gasValveEnable ? '1' : '0';
+        console.log("[Home:store] mode",i+1,":",mode[i].toString());
+        i++;
     });
 })();
-
 
 const Home = () => {
     const history = useHistory();
@@ -69,8 +83,6 @@ const Home = () => {
     const [light, setLight] = useState(false);
     const [valve, setValve] = useState(false);
     const [window, setWindow] = useState(false);
-
-    let smarthome = "";
 
     useEffect(() => {
         console.log("[Home:useEffect] 컴포넌트가 화면에 나타남");
@@ -141,38 +153,6 @@ const Home = () => {
         };
     });
     
-    /*
-    const querySnapshot = getDocs(collection(storeDB, "modes"));
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log("[Home:store listener]", doc.id, " => ", doc.data());
-    });
-    */
-    
-/*
-    const docRef = doc(storeDB,"modes","1. 실내모드");
-    const docSnap = getDocs(docRef);
-
-    if (docSnap.exists()) {
-        console.log("[Home:store listener] Document data:", docSnap.data());
-    } else {
-        // doc.data() will be undefined in this case
-        console.log("[Home:store listener] No such document!");
-    }
-*/
-/*
-    const docRef = collection(storeDB, "modes"); //.doc("1. 실내모드")
-    docRef.get().then((doc) => {
-        if (doc.exists) {
-            console.log("[Home:store listener] Document data:", doc.data());
-        } else {
-            // doc.data() will be undefined in this case
-            console.log("[Home:store listener] No such document!");
-        }
-    }).catch((error) => {
-        console.log("[Home:store listener] Error getting document:", error);
-    });
-*/
     const ttsTest = (ment) => {
         console.log("[Home:ttsTest] test start");
         console.log("[Home:ttsTest] ment :", ment);
@@ -243,13 +223,22 @@ const Home = () => {
 
     const onDoMode = (num) => {
         console.log("[Home:onDoMode] num :", num);
+        setIndoorMode(num==0?(indoorMode?false:true):false);
+        setOutdoorMode(num==1?(outdoorMode?false:true):false);
+        setEcoMode(num==2?(ecoMode?false:true):false);
+        setNightMode(num==3?(nightMode?false:true):false);
+        console.log("[Home:onDoMode] mode code :", mode[num]);
+        //sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+        /*
         switch(num) {
             case 0 : {
                 indoorMode ? setIndoorMode(false) : setIndoorMode(true); 
                 setOutdoorMode(false);
                 setEcoMode(false);
                 setNightMode(false);
-                console.log("[Home:onDoMode] indoorMode :", indoorMode);
+                console.log("[Home:onDoMode] indoorMode button :", indoorMode);
+                console.log("[Home:onDoMode] indoorMode code :", mode[0]);
+                //sendMqtt("webos.topic", "webos.smarthome.info", mode[0]);
                 break;
             };
             case 1 : {
@@ -257,7 +246,9 @@ const Home = () => {
                 outdoorMode ? setOutdoorMode(false) : setOutdoorMode(true) ;
                 setEcoMode(false);
                 setNightMode(false);
-                console.log("[Home:onDoMode] outdoorMode :", outdoorMode);
+                console.log("[Home:onDoMode] outdoorMode button :", outdoorMode);
+                console.log("[Home:onDoMode] outdoorMode code :", mode[1]);
+                //sendMqtt("webos.topic", "webos.smarthome.info", mode[1]);
                 break;
             };
             case 2 : {
@@ -265,7 +256,9 @@ const Home = () => {
                 setOutdoorMode(false);
                 ecoMode ? setEcoMode(false) : setEcoMode(true);
                 setNightMode(false);
-                console.log("[Home:onDoMode] ecoMode :", ecoMode);
+                console.log("[Home:onDoMode] ecoMode button :", ecoMode);
+                console.log("[Home:onDoMode] ecoMode code :", mode[2]);
+                //sendMqtt("webos.topic", "webos.smarthome.info", mode[2]);
                 break;
             };
             case 3 : {
@@ -273,11 +266,15 @@ const Home = () => {
                 setOutdoorMode(false);
                 setEcoMode(false);
                 nightMode ? setNightMode(false) : setNightMode(true);
-                console.log("[Home:onDoMode] nightMode :", nightMode);
+                console.log("[Home:onDoMode] nightMode button :", nightMode);
+                console.log("[Home:onDoMode] nightMode code :", mode[3]);
+                //sendMqtt("webos.topic", "webos.smarthome.info", mode[4]);
                 break;
             };
             default : break;
         };
+        */
+
     };
 
     const onDoApplience = (num) => {
