@@ -1,3 +1,0 @@
-name: dart_rabbitmq_example
-dependencies:
-    dart_amqp: 0.1.1
