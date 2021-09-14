@@ -1,0 +1,16 @@
+{
+  "name": "com.ta.car2smarthome.service",
+  "version": "1.0.0",
+  "description": "js service",
+  "main": "webos_service.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD",
+  "keywords": [],
+  "dependencies": {
+    "amqplib": "^0.8.0",
+    "firebase": "^8.10.0"
+  }
+}

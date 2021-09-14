@@ -1,0 +1,9 @@
+{
+  "id": "com.ta.car2smarthome.service",
+  "description": "js Service",
+  "services": [
+    {
+      "name": "com.ta.car2smarthome.service"
+    }
+  ]
+}

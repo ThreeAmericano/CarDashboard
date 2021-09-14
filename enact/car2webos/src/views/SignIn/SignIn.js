@@ -41,11 +41,7 @@ const SignIn = () => {
             var response = JSON.parse(msg); 
             console.log("[SignIn:onSignIn callback] response :", response);
             let returnValue = response.Response;
-/*
-            console.log("[SignIn] returnValue :", returnValue);
-            console.log("[SignIn] name :", returnValue.name);
-            console.log("[SignIn] db :", returnValue.db);
-*/
+
             name = returnValue.name;
 
             history.push({
@@ -97,31 +93,7 @@ const SignIn = () => {
     
         console.log("[SignIn:sendMqtt] sendMqtt function end");
     }
-    function startAssistant() {
-        var url = 'luna://com.webos.service.ai.voice/start';
-
-        var params = {
-            "mode":"continuous",
-            "keywordDetect":"true",
-        };
-
-        console.log("before-bridge.call");
-        bridge.call(url, JSON.stringify(params));
-        console.log("after-bridge.call");
-    }
-
-    function GetState() {
-        var url = 'luna://com.webos.service.ai.voice/getResponse';
-
-        var params = {
-            "subscribe": true
-        };
-
-        console.log("before-bridge.call");
-        bridge.call(url, JSON.stringify(params));
-        console.log("after-bridge.call");
-    }
-    
+ 
     const ttsTest = () => {
         console.log("[Signin:ttsTest] test start");
     
@@ -133,20 +105,7 @@ const SignIn = () => {
         };
           
         webOSBridge.call(url, JSON.stringify(params));
-    /*
-        webOSBridge.onservicecallback = ttsCallback;
-        function ttsCallback(msg){
-            var response = JSON.parse(msg); 
-            console.log("[SignIn:ttsCallback] response :", response);
-            let returnValue = response.returnValue;
-            let errorCode = response.errorCode;
-            let errorText = response.errorText;
-    
-            console.log("[SignIn:ttsCallback] returnValue :", returnValue);
-            console.log("[SignIn:ttsCallback] errorCode :", errorCode);
-            console.log("[SignIn:ttsCallback] errorText :", errorText);
-        };
-    */
+
         console.log("[Signin:ttsTest] test end");
     }
     

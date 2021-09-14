@@ -17,6 +17,10 @@
     "notification.operation",
     "audiofocus.operation",
     "ai.voice",
-    "ai.management"
+    "ai.management",
+    "mqttservice.operation",
+    "app.mqttservice.operation",
+    "ta.app.mqttservice.operation",
+    "com.ta.app.mqttservice.operation"
   ]
 }
