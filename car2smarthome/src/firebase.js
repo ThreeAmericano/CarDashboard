@@ -1,8 +1,7 @@
 import * as firebase from "firebase/app";
 import { getDatabase, ref, onValue} from "firebase/database";
-import { doc, collection, getDocs, onSnapshot } from "firebase/firestore";
-import * as  firestore from "firebase/firestore";
-
+import { getFirestore, doc, getDocs, onSnapshot, collection } from "firebase/firestore";
+//import * as  firestore from "firebase/firestore";
 
 const firebaseConfig = {    // 우리 프로젝트 firebase 설정
     apiKey: "AIzaSyDMy6DVimbJQgQGo1PU0IXiPeq3K0yzF5I",
@@ -14,10 +13,10 @@ const firebaseConfig = {    // 우리 프로젝트 firebase 설정
     appId: "1:475814972535:web:8be8e4e4b6cf92f2e90a72",
     measurementId: "G-WEWQJ2NQSB"
 }
-let app = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 const db = getDatabase();
-const storeDB = firestore;
+const storeDB = getFirestore();
 
 export default firebase;
-export {db, ref, onValue, storeDB, doc, getDocs, collection, onSnapshot};
+export {db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot};

@@ -34,9 +34,21 @@ import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
 var webOSBridge = new WebOSServiceBridge();
-import firebase, { db, ref, onValue, doc, getDocs, collection, onSnapshot, storeDB } from "../../firebase";
-import { getDoc } from "@firebase/firestore";
+import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from "../../firebase";
+
 let oldDB;
+
+(async () => {
+    await new Promise(resolve => setTimeout(resolve, 1000)); // 0.2초 wait
+
+    console.log("[Home:store asdfasdfasdfadsfasdfasdfadsf]")
+    const querySnapshot = await getDocs(collection(storeDB, "modes"));
+    console.log("[Home:store listener] querySnapshot :", querySnapshot);
+    querySnapshot.forEach((doc) => {
+        console.log("[Home:store listener]", doc.id, " => ", doc.data());
+    });
+})();
+
 
 const Home = () => {
     const history = useHistory();
@@ -128,9 +140,18 @@ const Home = () => {
             setUI(data);
         };
     });
-
-    const docRef = doc(storeDB,"modes","1. 실내모드")
-    const docSnap = await getDoc(docRef);
+    
+    /*
+    const querySnapshot = getDocs(collection(storeDB, "modes"));
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log("[Home:store listener]", doc.id, " => ", doc.data());
+    });
+    */
+    
+/*
+    const docRef = doc(storeDB,"modes","1. 실내모드");
+    const docSnap = getDocs(docRef);
 
     if (docSnap.exists()) {
         console.log("[Home:store listener] Document data:", docSnap.data());
@@ -138,8 +159,8 @@ const Home = () => {
         // doc.data() will be undefined in this case
         console.log("[Home:store listener] No such document!");
     }
-
-    /*
+*/
+/*
     const docRef = collection(storeDB, "modes"); //.doc("1. 실내모드")
     docRef.get().then((doc) => {
         if (doc.exists) {

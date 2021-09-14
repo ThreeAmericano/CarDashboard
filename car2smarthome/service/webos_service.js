@@ -79,7 +79,7 @@ async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는
 
     let response = await channel.assertQueue(queue, {durable:true});    // Queue 연결
 
-    await new Promise(resolve => setTimeout(resolve, 200)); // 0.5초 wait
+    await new Promise(resolve => setTimeout(resolve, 200)); // 0.2초 wait
 
     response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
     
@@ -89,7 +89,7 @@ async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는
 
         return String(msg.name);
     } else { // 너무 빨리 get 하여 아무 값도 받지 못하였다면
-        await new Promise(resolve => setTimeout(resolve, 200)); // 0.5초 wait
+        await new Promise(resolve => setTimeout(resolve, 200)); // 0.2초 wait
         
         response = await channel.get(response.queue,{noAck : false}); // 다시 수신
         let msg = JSON.parse(response.content.toString());  // json으로 파싱
