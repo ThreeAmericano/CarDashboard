@@ -1,5 +1,12 @@
 .mode-setting__head{
     display:inline-flex;
+    /*
+    display: grid;
+    grid-template-columns: 10% 18% 10% 10% 10% 10% 18% 10%;
+    grid-gap: 0.625rem;
+    grid-auto-rows: minmax(100px, auto);
+    background-color: #D5DCE5;
+    */
 }
 
 .mode-setting__head button{
@@ -38,3 +45,29 @@
     margin: auto;
     padding: 50px 50px 50px 50px;
 }
+
+.label-lightmode-radio label{
+    position: relative;
+}
+.label-lightmode-radio input[type="radio"]{
+    display:none;
+  }
+  
+  .label-lightmode-radio input[type="radio"] + span{
+    display:inline-block;
+    background:none;
+    border:1px solid #dfdfdf;  
+    padding:0px 10px;
+    text-align:center;
+    height:35px;
+    line-height:33px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  
+  .label-lightmode-radio input[type="radio"]:checked + span{
+    border:1px solid cornflowerblue;
+    background:cornflowerblue;
+    color:#fff;
+  }
+   

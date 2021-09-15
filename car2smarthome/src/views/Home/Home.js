@@ -42,27 +42,33 @@ let smarthome = "";
 let mode = new Array(4);
 
 let i = 0;
+let pageNum = 0;
 
-(async () => {
+async function getStoreDB() {
+    let i = 0;
+
     console.log("[Home:store start]")
     const querySnapshot = await getDocs(collection(storeDB, "modes"));
     console.log("[Home:store listener] querySnapshot :", querySnapshot);
     querySnapshot.forEach((doc) => {
         console.log("[Home:store listener]", doc.id, " => ", doc.data());
         
-        mode[i] = String(i+1);
-        mode[i] += doc.data().airconEnable ? '1' : '0';
-        mode[i] += String(doc.data().airconWindPower);
-        mode[i] += doc.data().lightEnable ? '1' : '0';
-        mode[i] += String(doc.data().lightBrightness);
-        mode[i] += String(doc.data().lightColor);
-        mode[i] += String(doc.data().lightMode);
-        mode[i] += doc.data().windowOpen ? '1' : '0';
-        mode[i] += doc.data().gasValveEnable ? '1' : '0';
-        console.log("[Home:store] mode",i+1,":",mode[i].toString());
+        mode[i] = String(i+1); // 모드 번호
+        mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
+        mode[i] += String(doc.data().airconWindPower);  // 에어컨 강도 (0~9)
+        mode[i] += doc.data().lightEnable ? '1' : '0';  // 전등 상태 (0~1)
+        mode[i] += String(doc.data().lightBrightness);  // 전등 밝기 (1~9)
+        mode[i] += String(doc.data().lightColor);       // 전등 색상 ()
+        mode[i] += String(doc.data().lightMode-8);        // 전등 모드 (0~3)
+        mode[i] += doc.data().windowOpen ? '1' : '0';   // 창문 상태
+        mode[i] += doc.data().gasValveEnable ? '1' : '0';//가스 밸브 상태
+        console.log("[Home:store] mode",i+1,":",mode[i]); //.toString()
+
         i++;
     });
-})();
+};
+
+if(pageNum == 1) getStoreDB();
 
 const Home = () => {
     const history = useHistory();
@@ -87,6 +93,7 @@ const Home = () => {
     useEffect(() => {
         console.log("[Home:useEffect] 컴포넌트가 화면에 나타남");
         // 초기값 설정
+        pageNum = 1;
         setName(location.state.name);
         ttsTest(String(location.state.name)+"님 안녕하세요");
 
@@ -152,6 +159,8 @@ const Home = () => {
             setUI(data);
         };
     });
+
+    getStoreDB();
     
     const ttsTest = (ment) => {
         console.log("[Home:ttsTest] test start");
@@ -339,11 +348,13 @@ const Home = () => {
 
     const onGotoSignin = () => {
         console.log("[Home:onGotoSignin] 뒤로 돌아가기");
+        pageNum = 0;
         history.push('/');
     }
 
     const onGotoMode = () => {
         console.log("[Home:onGotoMode] 모드 설정 페이지");
+        pageNum = 2;
         //모드 설정 페이지
         history.push({
             pathname: '/mode',

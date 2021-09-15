@@ -25,7 +25,7 @@
 body{
     background-color: #bda5a5;
 }
-.sign-in, .sign-up, .home, .mode{
+.sign-in, .sign-up, .home, .mode-setting{
     display:'inline-block';
     width: 100%;
     height: 100%;
@@ -34,6 +34,84 @@ body{
     align-items: center;
     background-color: white;
 }
+
+  /* 라디오버튼 설정 */
+  input[type='radio'] {
+    -webkit-appearance:none;
+    width:50px;
+    height:50px;
+    /* border: 5px solid red; */
+    border-radius:50%;
+    outline:none;
+    background:#e6e6e6;
+  }
+  input[type='radio']:before {
+    content:'';
+    display:block;
+    width:60%;
+    height:60%;
+    margin: 20% auto;  
+    border-radius:50%;
+  }
+
+  .color-white:checked{
+    background:white;
+        filter: drop-shadow(0px 0px 5px lightgray);
+  }
+  .color-red:checked{
+    background:red;
+        filter: drop-shadow(0px 0px 5px red);
+  }
+  .color-blue:checked{
+    background:blue;
+        filter: drop-shadow(0px 0px 5px blue);
+  }
+  .color-green:checked{
+    background:green;  
+      filter: drop-shadow(0px 0px 5px green);
+  }
+  .color-yellow:checked{
+    background:yellow;
+    filter: drop-shadow(0px 0px 5px yellow);
+  }
+  .color-purple:checked{
+    background:purple; 
+       filter: drop-shadow(0px 0px 5px purple);
+  }
+  .color-orange:checked{
+    background:orange;   
+     filter: drop-shadow(0px 0px 5px orange);
+  }
+  .color-skyblue:checked{
+    background:skyblue;   
+     filter: drop-shadow(0px 0px 5px skyblue);
+  }
+
+  .color-white:before{
+    background:white
+}
+  .color-red:before{
+    background:red;
+  }
+  .color-blue:before{
+    background:blue;
+  }
+  .color-green:before{
+    background:green;
+  }
+  .color-yellow:before{
+    background:yellow;
+  }
+  .color-purple:before{
+    background:purple;
+  }
+  .color-orange:before{
+    background:orange;
+  }
+  .color-skyblue:before{
+    background:skyblue;
+  }
+
 
 .button {
   background-color: cornflowerblue; /* Blue */
