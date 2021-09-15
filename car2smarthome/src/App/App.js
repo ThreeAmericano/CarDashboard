@@ -4,6 +4,7 @@ import {HashRouter as Router, Redirect, Route, Switch} from "react-router-dom";
 import SignIn from "../views/SignIn/SignIn";
 import SignUp from "../views/SignUp/SignUp";
 import Home from "../views/Home/Home";
+import Mode from "../views/Mode/Mode";
 
 const App = function () {
 	return(
@@ -18,6 +19,9 @@ const App = function () {
 					</Route>
 					<Route path="/home">
 						<Home />
+					</Route>
+					<Route path="/mode">
+						<Mode />
 					</Route>
 					<Redirect to="/" />
 				</Switch>

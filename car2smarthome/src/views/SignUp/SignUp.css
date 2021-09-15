@@ -8,3 +8,20 @@
     align-items: center;
 }
 */
+.sign-up__box{
+    padding-left: 19rem;
+    padding-right: 19rem;
+    padding-top: 7rem;
+    height: 70%;
+    text-align: center;
+    display: block;
+}
+
+.button__box{
+    width: 100%;
+    height: 30%;
+    padding: 3%;
+    text-align: center;
+    display: inline-block;
+}
+

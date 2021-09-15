@@ -5,206 +5,272 @@ import { useHistory, useLocation } from "react-router-dom";
 import "./Mode.css"
 import "../../../resources/css/sam_style.css"
 
-const Home = () => {
+// 모드 + 가전
+import indoorIcon from '../../../resources/smarthome_icon/indoor.png';
+import outdoorIcon from '../../../resources/smarthome_icon/outdoor.png';
+import ecoIcon from '../../../resources/smarthome_icon/eco_energy.png';
+import nightIcon from '../../../resources/smarthome_icon/night.png';
+
+import airconIcon from '../../../resources/smarthome_icon/air_conditioner.png';
+import lightIcon from '../../../resources/smarthome_icon/light.png';
+import valveIcon from '../../../resources/smarthome_icon/valve.png';
+import windowIcon from '../../../resources/smarthome_icon/window.png';
+
+var webOSBridge = new WebOSServiceBridge();
+import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from "../../firebase";
+
+let mode = new Array(4);
+let smarthome = new Array(9);
+
+(async () => {
+    let i = 0;
+
+    console.log("[Mode:store start]")
+    const querySnapshot = await getDocs(collection(storeDB, "modes"));
+    console.log("[Mode:store listener] querySnapshot :", querySnapshot);
+    querySnapshot.forEach((doc) => {
+        console.log("[Mode:store listener]", doc.id, " => ", doc.data());
+        
+        mode[i] = String(i+1); // 모드 번호
+        mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
+        mode[i] += String(doc.data().airconWindPower);  // 에어컨 강도 (0~9)
+        mode[i] += doc.data().lightEnable ? '1' : '0';  // 전등 상태 (0~1)
+        mode[i] += String(doc.data().lightBrightness);  // 전등 밝기 (1~9)
+        mode[i] += String(doc.data().lightColor);       // 전등 색상 ()
+        mode[i] += String(doc.data().lightMode);        // 전등 모드 (0~3)
+        mode[i] += doc.data().windowOpen ? '1' : '0';   // 창문 상태
+        mode[i] += doc.data().gasValveEnable ? '1' : '0';//가스 밸브 상태
+        console.log("[Mode:store] mode",i+1,":",mode[i]); //.toString()
+        i++;
+    });
+})();
+
+const Mode = () => {
     const history = useHistory();
     const location = useLocation();
-    
-    const sendMqtt = (exchange, routingKey, msg) => {
-        console.log("[Home] displayReponse function excuted");
-    
-        var url = 'luna://com.ta.car2smarthome.service/sendMqtt';
-        var params = JSON.stringify({
-            "exchange": exchange,
-            "routingKey": routingKey,
-            "msg":msg        
+
+    const name = location.state.name;
+    const oldDB = location.state.db;
+
+    const [selectedMode, setSelectedMode] = useState(0);
+
+    const [indoorMode, setIndoorMode] = useState(false);
+    const [outdoorMode, setOutdoorMode] = useState(false);
+    const [ecoMode, setEcoMode] = useState(false);
+    const [nightMode, setNightMode] = useState(false);
+
+    const [aircon, setAircon] = useState(false);
+    const [light, setLight] = useState(false);
+    const [valve, setValve] = useState(false);
+    const [window, setWindow] = useState(false);
+
+    const [airconValue, setAirconValue] = useState(70);
+    const [lightValue, setlightValue] = useState(70);
+    const [lightColor, setlightColor] = useState(0);
+    const [lightMode, setlightMode] = useState(0);
+
+    const onGotoHome = () => {
+        history.push({
+            pathname: '/home',
+            state: {
+                'name' : name,
+                'db' : oldDB
+            }
         });
-      
-        webOSBridge.call(url, params); 
-    
-        console.log("[Home] sendMqtt function end");
+    };
+
+    const onSave = () => {
+        smarthome[2] = airconValue; //에어컨 강도
+        smarthome[4] = lightValue;
+        smarthome[5] = lightColor;
+        smarthome[6] = lightMode;
+        mode[selectedMode] = smarthome.toString();
+        
+        // firestore 에 저장
+    };
+
+    const onSelectMode = (num) => {
+        console.log("[Mode:onSelectMode] num :", num);
+        setSelectedMode(num);
+        setIndoorMode(num==0?true:false);
+        setOutdoorMode(num==1?true:false);
+        setEcoMode(num==2?true:false);
+        setNightMode(num==3?true:false);
+        console.log("[Mode:onSelectMode] mode code :", mode[num]);
+        smarthome = mode[num].split('');
+    }
+
+    const onSelectApplience = (num) => {
+        switch(num) {
+            case 0 : {
+                smarthome[1] = Number(smarthome[0])?'0':'1';
+                setAircon(aircon?false:true); 
+                break;
+            } 
+            case 1 : {
+                smarthome[3] = Number(smarthome[3])?'0':'1';
+                setLight(light?false:true);
+                break;
+            } 
+            case 2 : {
+                smarthome[8] = Number(smarthome[8])?'0':'1';
+                setValve(valve?false:true);
+                break;
+            } 
+            case 3 : {
+                smarthome[7] = Number(smarthome[7])?'0':'1';
+                setWindow(window?false:true);
+                break;
+            } 
+            default : {
+                console.log("[Mode:onSelectApplience] switch default");
+                break;
+            }
+        }
     };
     
     return(
-        <div className="home">
-            <div className="home__head">
-                <button className="back-button" onClick={onGotoSignin}>
-                    <FiChevronsLeft size="40" color="#000"/>
+        <div className="mode-setting">
+            <div className="mode-setting__head">
+                <button className="back-button" onClick={onGotoHome}>
+                    홈으로
                 </button>
-                <p className="name">{name} 님 안녕하세요.</p>
-                    <div className="temp">
-                        <p>온도</p>
-                        <progress value={temp} max="40"></progress>
-                    </div>
-                    <p className="temp-value">{temp}도</p>
-                    <div className="hum">
-                        <p>습도</p>
-                        <progress value={humi} max="100"></progress>
-                    </div>
-                    <p className="hum-value">{humi}%</p>
-                    <div className="weather-icon">
-                        <img className="w_icon" src = {
-                            {
-                                "01" : sunny,
-                                "02" : littlecloudy,
-                                "03" : cloudy,
-                                "04" : darkcloudy,
-                                "09" : rain,
-                                "10" : rainsunny,
-                                "11" : thunder,
-                                "13" : snow,
-                                "50" : fog
-                            }[w_icon]
-                        } />
-                        <br />
-                        <p>{weather}</p>
-                        <br />
-                        <p>미세먼지 : {dust}</p>
-                    </div>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <button 
+                                    onClick = {() => onSelectMode(0)} 
+                                    style={{
+                                        backgroundColor : indoorMode ? 'cornflowerblue' : 'white'
+                                    }} >
+                                    <img className="control-mode" src={indoorIcon} style={{
+                                        filter : indoorMode ? 'invert(1)' : 'invert(0)'
+                                    }} />
+                                </button>
+                            </td>
+                            <td>
+                                <button 
+                                    onClick = {() => onSelectMode(1)} 
+                                    style={{
+                                        backgroundColor : outdoorMode ? 'cornflowerblue' : 'white'
+                                    }}>
+                                    <img className="control-mode" src={outdoorIcon} style={{
+                                        filter : outdoorMode ? 'invert(1)' : 'invert(0)'
+                                    }} />
+                                </button>
+                            </td>
+                            <td>
+                                <button 
+                                    onClick = {() => onSelectMode(2)} 
+                                    style={{
+                                        backgroundColor : ecoMode ? 'cornflowerblue' : 'white'
+                                    }}>
+                                    <img className="control-mode" src={ecoIcon} style={{
+                                        filter : ecoMode ? 'invert(1)' : 'invert(0)'
+                                    }} />
+                                </button>
+                            </td>
+                            <td>
+                                <button 
+                                    onClick = {() => onSelectMode(3)} 
+                                    style={{
+                                        backgroundColor : nightMode ? 'cornflowerblue' : 'white'
+                                    }}>
+                                    <img className="control-mode" src={nightIcon} style={{
+                                        filter : nightMode ? 'invert(1)' : 'invert(0)'
+                                    }} />
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button className="save-button" onClick = {onSave}>
+                    저장
+                </button>
             </div>
-            <br />
-            <div className="home__box">
-                <div className="mode">
-                    <div className="mode__head">
-                        <button onClick={onGotoMode}>
-                            <img className="mode-icon" src={modeIcon} />
-                            <p>모드</p>
+            <div className="mode-setting__box">
+                <div className="mode-setting__box__left">
+                    <div className="aircon-setting">
+                        <p>에어컨</p>
+                        <button 
+                            onClick = {() => onSelectApplience(0)} 
+                            style={{
+                                backgroundColor : aircon ? 'cornflowerblue' : 'white'
+                            }}
+                        >
+                            <img className="control-appliance" src={airconIcon} style={{
+                                filter : aircon ? 'invert(1)' : 'invert(0)'
+                            }} />
                         </button>
+                        <br />
+                        <p>세기</p>
+                        <input 
+                            type="range" 
+                            id="airconInputValue" 
+                            name="airconInputValue" 
+                            min="1" 
+                            max="9" 
+                            step="1" 
+                            onChange={(event) => setAirconValue(event.target.value)} 
+                        />
                     </div>
-                    <br />
-                    <div className="mode__box">
-                        <table>
-                            <tr>
-                                <td>
-                                    <button 
-                                        onClick = {() => onDoMode(0)} 
-                                        style={{
-                                            backgroundColor : indoorMode ? 'blue' : 'white'
-                                        }}
-                                    >
-                                        <img className="control-mode" src={indoorIcon} />
-                                    </button>
-                                    <p>실내 모드</p>
-                                </td>
-                                <td>
-                                    <button 
-                                        onClick = {() => onDoMode(1)} 
-                                        style={{
-                                            backgroundColor : outdoorMode ? 'blue' : 'white'
-                                        }}
-                                    >
-                                        <img className="control-mode" src={outdoorIcon} />
-                                    </button>
-                                    <p>외출 모드</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <button 
-                                        onClick = {() => onDoMode(2)} 
-                                        style={{
-                                            backgroundColor : ecoMode ? 'blue' : 'white'
-                                        }}
-                                    >
-                                        <img className="control-mode" src={ecoIcon} />
-                                    </button>
-                                    <p>에코 모드</p>
-                                </td>
-                                <td>
-                                    <button 
-                                        onClick = {() => onDoMode(3)} 
-                                        style={{
-                                            backgroundColor : nightMode ? 'blue' : 'white'
-                                        }}
-                                    >
-                                        <img className="control-mode" src={nightIcon} />
-                                    </button>
-                                    <p>슬립 모드</p>
-                                </td>
-                            </tr>
-                        </table>
+                    <div className="valve-window">
+                        <div className="valve-setting">
+                            <button 
+                                onClick = {() => onSelectApplience(2)} 
+                                style={{
+                                    backgroundColor : valve ? 'cornflowerblue' : 'white'
+                                }}
+                            >
+                                <img className="control-appliance" src={valveIcon} style={{
+                                    filter : valve ? 'invert(1)' : 'invert(0)'
+                                }} />
+                            </button>
+                        </div>
+                        <div className="window-setting">
+                            <button 
+                                onClick = {() => onSelectApplience(3)} 
+                                style={{
+                                    backgroundColor : window ? 'cornflowerblue' : 'white'
+                                }}
+                            >
+                                <img className="control-appliance" src={windowIcon} style={{
+                                    filter : window ? 'invert(1)' : 'invert(0)'
+                                }} />
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div className="appliance">
-                    <div className="appliance__head">
-                        <button onClick={onGotoAppliance}>
-                            <img className="appliance-icon" src={applianceIcon} />
-                            <p>가전</p>
+            
+                <div className="mode-setting__box">
+                    <div className="light-setting">
+                        <p>무드등</p>
+                        <button 
+                            onClick = {() => onSelectApplience(3)} 
+                            style={{
+                                backgroundColor : light ? 'cornflowerblue' : 'white'
+                            }}
+                        >
+                            <img className="control-appliance" src={lightIcon} style={{
+                                filter : light ? 'invert(1)' : 'invert(0)'
+                            }} />
                         </button>
-                    </div>
-                    <br />
-                    <div className="appliance__box">
-                        <div >
-                            <table>
-                                <tr>
-                                    <td>
-                                        <button 
-                                            onClick = {() => onDoApplience(0)} 
-                                            style={{
-                                                backgroundColor : aircon ? 'blue' : 'white'
-                                            }}
-                                        >
-                                            <img className="control-appliance" src={airconIcon} />
-                                        </button>
-                                        <p>에어컨</p>
-                                    </td>
-                                    <td>
-                                        <button 
-                                            onClick = {() => onDoApplience(1)} 
-                                            style={{
-                                                backgroundColor : light ? 'blue' : 'white'
-                                            }}
-                                        >
-                                            <img className="control-appliance" src={lightIcon} />
-                                        </button>
-                                        <p>무드등</p>
-                                    </td>
-                                    <td>
-                                        <button 
-                                            onClick = {() => onDoApplience(2)} 
-                                            style={{
-                                                backgroundColor : valve ? 'blue' : 'white'
-                                            }}
-                                        >
-                                            <img className="control-appliance" src={valveIcon} />
-                                        </button>
-                                        <p>가스밸브</p>
-                                    </td>
-                                    <td>
-                                        <button 
-                                            onClick = {() => onDoApplience(3)} 
-                                            style={{
-                                                backgroundColor : window ? 'blue' : 'white'
-                                            }}
-                                        >
-                                            <img className="control-appliance" src={windowIcon} />
-                                        </button>
-                                        <p>창문</p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <button>
-                                            <AiOutlinePlus size="130" color="#000" />
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button>
-                                            <AiOutlinePlus size="130" color="#000" />
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button>
-                                            <AiOutlinePlus size="130" color="#000" />
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button>
-                                            <AiOutlinePlus size="130" color="#000" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
+                        <br />
+                        <p>밝기</p>
+                        <input 
+                            type="range" 
+                            id="lightInputValue" 
+                            name="lightInputValue" 
+                            min="1" 
+                            max="9" 
+                            step="1" 
+                            onChange={(event) => setlightValue(event.target.value)} 
+                        />
+                        <br />
+                        색 선택
+                        <br />
+                        모드 선택
                     </div>
                 </div>
             </div>
@@ -212,4 +278,4 @@ const Home = () => {
     );
 }
 
-export default Home;
+export default Mode;

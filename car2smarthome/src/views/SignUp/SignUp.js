@@ -28,8 +28,8 @@ const SignUp = () => {
 
     return(
         <div className="sign-up">
-            <h3>E-Mail 회원가입</h3>
             <div className="sign-up__box">
+                <h3>E-Mail 회원가입</h3>
                 <div className="input-box">
                     <input type="email" value={email} onChange={onEmailChange} placeholder="이메일을 입력하세요." required />
                     <label for="email">E-mail</label>
@@ -47,8 +47,16 @@ const SignUp = () => {
                     <label for="password">Password Cert</label>
                 </div> 
                 <br />
-                <button class="button" value="가입" />
-                <button class="button" value="취소" onClick={onCancel} />
+                <div className="button__box">
+                    <button class="button" value="가입">
+                        <span class="material-icons">assignment_ind</span>
+                        가입
+                    </button>
+                    <button class="button" value="취소" onClick={onCancel}>
+                        <span class="material-icons">reply</span>
+                        취소
+                    </button>
+                </div>
             </div>
         </div>
     );

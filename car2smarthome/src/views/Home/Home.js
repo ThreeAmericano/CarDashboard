@@ -56,7 +56,7 @@ let i = 0;
         mode[i] += doc.data().lightEnable ? '1' : '0';
         mode[i] += String(doc.data().lightBrightness);
         mode[i] += String(doc.data().lightColor);
-        mode[i] += String(doc.data().lightMode-8);
+        mode[i] += String(doc.data().lightMode);
         mode[i] += doc.data().windowOpen ? '1' : '0';
         mode[i] += doc.data().gasValveEnable ? '1' : '0';
         console.log("[Home:store] mode",i+1,":",mode[i].toString());
@@ -96,7 +96,7 @@ const Home = () => {
         setTemp(location.state.db.sensor.hometemp.temp);
         setHumi(location.state.db.sensor.hometemp.humi);
         setW_icon(location.state.db.sensor.openweather.icon.substring(0,2));
-        setWeather("날씨 : "+location.state.db.sensor.openweather.description+", "+location.state.db.sensor.openweather.temp+"°C")
+        setWeather(location.state.db.sensor.openweather.description+", "+location.state.db.sensor.openweather.temp+"°C")
 
         smarthome = location.state.db.smarthome.status;
 
@@ -186,14 +186,14 @@ const Home = () => {
         setHumi(listenHumi);
 
         setW_icon(listenIcon);
-        setWeather("날씨 : "+listenDescription+", "+listenWTemp+"°C")
+        setWeather(listenDescription+", "+listenWTemp+"°C")
         
         switch(listenAir) {
-            case 1 : setDust("매우 좋음"); break;
+            case 1 : setDust("매우좋음"); break;
             case 2 : setDust("좋음"); break;
             case 3 : setDust("보통"); break;
             case 4 : setDust("나쁨"); break;
-            case 5 : setDust("매우 나쁨"); break;
+            case 5 : setDust("매우나쁨"); break;
             default : break;
         }
 
@@ -228,7 +228,7 @@ const Home = () => {
         setEcoMode(num==2?(ecoMode?false:true):false);
         setNightMode(num==3?(nightMode?false:true):false);
         console.log("[Home:onDoMode] mode code :", mode[num]);
-        //sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+        sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
         /*
         switch(num) {
             case 0 : {
@@ -345,7 +345,13 @@ const Home = () => {
     const onGotoMode = () => {
         console.log("[Home:onGotoMode] 모드 설정 페이지");
         //모드 설정 페이지
-        //history.push('/');
+        history.push({
+            pathname: '/mode',
+            state: {
+                'name' : name,
+                'db' : oldDB
+            }
+        });
     }
 
     const onGotoAppliance = () => {
@@ -431,19 +437,29 @@ const Home = () => {
             </audio>
             <div className="home__head">
                 <button className="back-button" onClick={onGotoSignin}>
-                    뒤로가기
+                    <span class="material-icons">reply</span>
                 </button>
-                <p className="name">{name} 님 안녕하세요.</p>
+                <p className="name">
+                    <span className="name_top">{name}님,</span>
+                    <p className="name_small">안녕하세요.</p>
+                </p>
+        
+                <p className="home_sensor_data temp-value">
+                    <span class="material-icons">thermostat</span>
+                    {temp}℃
+                </p>
                 <div className="temp">
-                    <p>온도</p>
                     <progress value={temp} max="40"></progress>
                 </div>
-                <p className="temp-value">{temp}도</p>
+        
+                <p className="home_sensor_data hum-value">
+                    <span class="material-icons">water_drop</span>
+                    {humi}%
+                </p>
                 <div className="hum">
-                    <p>습도</p>
                     <progress value={humi} max="100"></progress>
                 </div>
-                <p className="hum-value">{humi}%</p>
+        
                 <div className="weather-icon">
                     <img className="w_icon" src = {
                         {
@@ -458,19 +474,20 @@ const Home = () => {
                             "50" : fog
                         }[w_icon]
                     } />
-                    <br />
-                    <p>{weather}</p>
-                    <br />
-                    <p>미세먼지 : {dust}</p>
+                </div>
+                <div className="weather-description">
+                    <span class="weather-icon__weather">{weather}</span> <br/>
+                    <span class="weather-icon__airlevel">미세먼지: {dust}</span>
                 </div>
             </div>
             <br />
+        
             <div className="home__box">
                 <div className="mode">
                     <div className="mode__head">
                         <button onClick={onGotoMode}>
-                            <img className="mode-icon" src={modeIcon} />
-                            <p>모드</p>
+                            <img className="menu-icon" src={modeIcon} />
+                            <p className="menu_title">모드</p>
                         </button>
                     </div>
                     <br />
@@ -481,23 +498,34 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(0)} 
                                         style={{
-                                            backgroundColor : indoorMode ? 'blue' : 'white'
-                                        }}
-                                    >
-                                        <img className="control-mode" src={indoorIcon} />
+                                            backgroundColor : indoorMode ? 'cornflowerblue' : 'white'
+                                        }} >
+                                        <img className="control-mode" src={indoorIcon} style={{
+                                            filter : indoorMode ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : indoorMode ? 'white' : 'black'
+                                        }} >
+                                            실내 모드
+                                        </p>
                                     </button>
-                                    <p>실내 모드</p>
                                 </td>
                                 <td>
                                     <button 
                                         onClick = {() => onDoMode(1)} 
                                         style={{
-                                            backgroundColor : outdoorMode ? 'blue' : 'white'
+                                            backgroundColor : outdoorMode ? 'cornflowerblue' : 'white'
                                         }}
                                     >
-                                        <img className="control-mode" src={outdoorIcon} />
+                                        <img className="control-mode" src={outdoorIcon} style={{
+                                            filter : outdoorMode ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : outdoorMode ? 'white' : 'black'
+                                        }} >
+                                            외출 모드
+                                        </p>
                                     </button>
-                                    <p>외출 모드</p>
                                 </td>
                             </tr>
                             <tr>
@@ -505,23 +533,35 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(2)} 
                                         style={{
-                                            backgroundColor : ecoMode ? 'blue' : 'white'
+                                            backgroundColor : ecoMode ? 'cornflowerblue' : 'white'
                                         }}
                                     >
-                                        <img className="control-mode" src={ecoIcon} />
+                                        <img className="control-mode" src={ecoIcon} style={{
+                                            filter : ecoMode ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : ecoMode ? 'white' : 'black'
+                                        }} >
+                                            에코 모드
+                                        </p>
                                     </button>
-                                    <p>에코 모드</p>
                                 </td>
                                 <td>
                                     <button 
                                         onClick = {() => onDoMode(3)} 
                                         style={{
-                                            backgroundColor : nightMode ? 'blue' : 'white'
+                                            backgroundColor : nightMode ? 'cornflowerblue' : 'white'
                                         }}
                                     >
-                                        <img className="control-mode" src={nightIcon} />
+                                        <img className="control-mode" src={nightIcon} style={{
+                                            filter : nightMode ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : nightMode ? 'white' : 'black'
+                                        }} >
+                                            슬립 모드
+                                        </p>
                                     </button>
-                                    <p>슬립 모드</p>
                                 </td>
                             </tr>
                         </table>
@@ -530,8 +570,8 @@ const Home = () => {
                 <div className="appliance">
                     <div className="appliance__head">
                         <button onClick={onGotoAppliance}>
-                            <img className="appliance-icon" src={applianceIcon} />
-                            <p>가전</p>
+                            <img className="menu-icon" src={applianceIcon} />
+                            <p className="menu_title">가전</p>
                         </button>
                     </div>
                     <br />
@@ -543,65 +583,89 @@ const Home = () => {
                                         <button 
                                             onClick = {() => onDoApplience(0)} 
                                             style={{
-                                                backgroundColor : aircon ? 'blue' : 'white'
+                                                backgroundColor : aircon ? 'cornflowerblue' : 'white'
                                             }}
                                         >
-                                            <img className="control-appliance" src={airconIcon} />
+                                            <img className="control-appliance" src={airconIcon} style={{
+                                                filter : aircon ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : aircon ? 'white' : 'black'
+                                        }} >
+                                            에어컨
+                                        </p>
                                         </button>
-                                        <p>에어컨</p>
                                     </td>
                                     <td>
                                         <button 
                                             onClick = {() => onDoApplience(1)} 
                                             style={{
-                                                backgroundColor : light ? 'blue' : 'white'
+                                                backgroundColor : light ? 'cornflowerblue' : 'white'
                                             }}
                                         >
-                                            <img className="control-appliance" src={lightIcon} />
+                                            <img className="control-appliance" src={lightIcon} style={{
+                                                filter : light ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : light ? 'white' : 'black'
+                                        }} >
+                                            무드등
+                                        </p>
                                         </button>
-                                        <p>무드등</p>
                                     </td>
                                     <td>
                                         <button 
                                             onClick = {() => onDoApplience(2)} 
                                             style={{
-                                                backgroundColor : valve ? 'blue' : 'white'
+                                                backgroundColor : valve ? 'cornflowerblue' : 'white'
                                             }}
                                         >
-                                            <img className="control-appliance" src={valveIcon} />
+                                            <img className="control-appliance" src={valveIcon} style={{
+                                                filter : valve ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : valve ? 'white' : 'black'
+                                        }} >
+                                            가스밸브
+                                        </p>
                                         </button>
-                                        <p>가스밸브</p>
                                     </td>
                                     <td>
                                         <button 
                                             onClick = {() => onDoApplience(3)} 
                                             style={{
-                                                backgroundColor : window ? 'blue' : 'white'
+                                                backgroundColor : window ? 'cornflowerblue' : 'white'
                                             }}
                                         >
-                                            <img className="control-appliance" src={windowIcon} />
+                                            <img className="control-appliance" src={windowIcon} style={{
+                                                filter : window ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : window ? 'white' : 'black'
+                                        }} >
+                                            창문
+                                        </p>
                                         </button>
-                                        <p>창문</p>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <button>
+                                        <button class="button">
                                             추가
                                         </button>
                                     </td>
                                     <td>
-                                        <button>
+                                        <button class="button">
                                             추가
                                         </button>
                                     </td>
                                     <td>
-                                        <button>
+                                        <button class="button">
                                             추가
                                         </button>
                                     </td>
                                     <td>
-                                        <button>
+                                        <button class="button">
                                             추가
                                         </button>
                                     </td>

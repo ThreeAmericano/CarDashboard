@@ -8,6 +8,8 @@ var firebase = require('firebase').default; // firebase 라이브러리
 const service = new Service(pkgInfo.name);  // package.json 의 서비스 이름으로 서비스를 생성
 const logHeader = "[" + pkgInfo.name + "]"; // 서비스 이름으로 logHeader 지정
 
+//테스트중.
+
 const MQ_URL = 'amqp://rabbit:MQ321@211.179.42.130:5672';   // RabbitMQ 주소 지정 amqp://아이디:비밀번호@호스트:포트
 
 const firebaseConfig = {    // 우리 프로젝트 firebase 설정
