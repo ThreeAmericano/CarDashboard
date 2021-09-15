@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
 import "./Home.css"
+import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
 // Import Icon
@@ -509,7 +510,7 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(0)} 
                                         style={{
-                                            backgroundColor : indoorMode ? 'cornflowerblue' : 'white'
+                                            backgroundColor : indoorMode ? '#3264fe' : 'white'
                                         }} >
                                         <img className="control-mode" src={indoorIcon} style={{
                                             filter : indoorMode ? 'invert(1)' : 'invert(0)'
@@ -525,7 +526,7 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(1)} 
                                         style={{
-                                            backgroundColor : outdoorMode ? 'cornflowerblue' : 'white'
+                                            backgroundColor : outdoorMode ? '#3264fe' : 'white'
                                         }}
                                     >
                                         <img className="control-mode" src={outdoorIcon} style={{
@@ -544,7 +545,7 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(2)} 
                                         style={{
-                                            backgroundColor : ecoMode ? 'cornflowerblue' : 'white'
+                                            backgroundColor : ecoMode ? '#3264fe' : 'white'
                                         }}
                                     >
                                         <img className="control-mode" src={ecoIcon} style={{
@@ -561,7 +562,7 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(3)} 
                                         style={{
-                                            backgroundColor : nightMode ? 'cornflowerblue' : 'white'
+                                            backgroundColor : nightMode ? '#3264fe' : 'white'
                                         }}
                                     >
                                         <img className="control-mode" src={nightIcon} style={{
@@ -594,7 +595,7 @@ const Home = () => {
                                         <button 
                                             onClick = {() => onDoApplience(0)} 
                                             style={{
-                                                backgroundColor : aircon ? 'cornflowerblue' : 'white'
+                                                backgroundColor : aircon ? '#3264fe' : 'white'
                                             }}
                                         >
                                             <img className="control-appliance" src={airconIcon} style={{
@@ -611,7 +612,7 @@ const Home = () => {
                                         <button 
                                             onClick = {() => onDoApplience(1)} 
                                             style={{
-                                                backgroundColor : light ? 'cornflowerblue' : 'white'
+                                                backgroundColor : light ? '#3264fe' : 'white'
                                             }}
                                         >
                                             <img className="control-appliance" src={lightIcon} style={{
@@ -628,7 +629,7 @@ const Home = () => {
                                         <button 
                                             onClick = {() => onDoApplience(2)} 
                                             style={{
-                                                backgroundColor : valve ? 'cornflowerblue' : 'white'
+                                                backgroundColor : valve ? '#3264fe' : 'white'
                                             }}
                                         >
                                             <img className="control-appliance" src={valveIcon} style={{
@@ -645,7 +646,7 @@ const Home = () => {
                                         <button 
                                             onClick = {() => onDoApplience(3)} 
                                             style={{
-                                                backgroundColor : window ? 'cornflowerblue' : 'white'
+                                                backgroundColor : window ? '#3264fe' : 'white'
                                             }}
                                         >
                                             <img className="control-appliance" src={windowIcon} style={{

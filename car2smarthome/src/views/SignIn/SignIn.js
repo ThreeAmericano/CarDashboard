@@ -7,6 +7,7 @@ import faceIcon from '../../../resources/smarthome_icon/smile.png';
 var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
 
 import "./SignIn.css"
+import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
 const SignIn = () => {

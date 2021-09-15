@@ -5,6 +5,7 @@ import {useHistory} from "react-router-dom";
 //import Button from "../../components/Button/Button";
 
 import "./SignUp.css"
+import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
 const SignUp = () => {
@@ -31,19 +32,19 @@ const SignUp = () => {
             <div className="sign-up__box">
                 <h3>E-Mail 회원가입</h3>
                 <div className="input-box">
-                    <input type="email" value={email} onChange={onEmailChange} placeholder="이메일을 입력하세요." required />
+                    <input type="email" value={email} onChange={onEmailChange} maxlength='30' placeholder="이메일을 입력하세요." required />
                     <label for="email">E-mail</label>
                 </div>    
                 <div className="input-box">
-                    <input type="email" value={email} onChange={onEmailChange} placeholder="이름을 입력하세요." required />
+                    <input type="text" value={email} onChange={onEmailChange} maxlength='10'  placeholder="이름을 입력하세요." required />
                     <label for="email">Name</label>
                 </div>    
                 <div className="input-box">
-                    <input type="password" value={password} onChange={onPasswordChange} placeholder="비밀번호를 입력하세요." required />
+                    <input type="password" value={password} onChange={onPasswordChange} maxlength='30'  placeholder="비밀번호를 입력하세요." required />
                     <label for="password">Password</label>
                 </div>     
                 <div className="input-box">
-                    <input type="password" value={password} onChange={onPasswordChange} placeholder="비밀번호를 입력하세요." required />
+                    <input type="password" value={password} onChange={onPasswordChange} maxlength='30'  placeholder="비밀번호를 입력하세요." required />
                     <label for="password">Password Cert</label>
                 </div> 
                 <br />

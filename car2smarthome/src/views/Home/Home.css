@@ -1,12 +1,8 @@
-/*
-.home{
-    width: 90%;
-    height: 90%;
-    position: static;
-    margin: 0px auto;
-    background-color: white;
-}
-*/
+/* ===================================================================
+
+  - 상단메뉴 설정
+
+=================================================================== */
 .home__box td{
     height: 9rem;
 }
@@ -17,7 +13,8 @@
     grid-template-columns: 7% 24% 11% 30% 24%;
     grid-gap: 0.625rem;
     grid-auto-rows: minmax(100px, auto);
-    background-color: #D5DCE5;
+    /*background-color: #D5DCE5;*/
+    background-color: #D5DCE5
 }
 .back-button{
     display: block;
@@ -122,6 +119,13 @@
     margin-block-end: 0em;
     font-size: medium;
 }
+
+
+/* ===================================================================
+
+  - 제어부분 설정
+
+=================================================================== */
 .home__box{
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -163,6 +167,7 @@
 .mode__box button{
     border-radius: 10%;
     border: 1px solid lightgray;
+    transition: 0.1s;
 }
 .mode__box p{
     margin-block-end: 0em;
@@ -176,6 +181,7 @@
     border-radius: 10%;
     border: 1px solid lightgray;
     background-color: gray;
+    transition: 0.1s;
 }
 .appliance__box p{
     margin-block-end: 0em;
