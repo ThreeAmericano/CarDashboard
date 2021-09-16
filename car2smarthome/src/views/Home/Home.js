@@ -46,27 +46,31 @@ let i = 0;
 let pageNum = 0;
 
 async function getStoreDB() {
-    let i = 0;
+    try {
+        let i = 0;
 
-    console.log("[Home:store start]")
-    const querySnapshot = await getDocs(collection(storeDB, "modes"));
-    console.log("[Home:store listener] querySnapshot :", querySnapshot);
-    querySnapshot.forEach((doc) => {
-        console.log("[Home:store listener]", doc.id, " => ", doc.data());
-        
-        mode[i] = String(i+1); // 모드 번호
-        mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
-        mode[i] += String(doc.data().airconWindPower);  // 에어컨 강도 (0~9)
-        mode[i] += doc.data().lightEnable ? '1' : '0';  // 전등 상태 (0~1)
-        mode[i] += String(doc.data().lightBrightness);  // 전등 밝기 (1~9)
-        mode[i] += String(doc.data().lightColor);       // 전등 색상 ()
-        mode[i] += String(doc.data().lightMode-8);        // 전등 모드 (0~3)
-        mode[i] += doc.data().windowOpen ? '1' : '0';   // 창문 상태
-        mode[i] += doc.data().gasValveEnable ? '1' : '0';//가스 밸브 상태
-        console.log("[Home:store] mode",i+1,":",mode[i]); //.toString()
-
-        i++;
-    });
+        console.log("[Home:store start]")
+        const querySnapshot = await getDocs(collection(storeDB, "modes"));
+        console.log("[Home:store listener] querySnapshot :", querySnapshot);
+        querySnapshot.forEach((doc) => {
+            console.log("[Home:store listener]", doc.id, " => ", doc.data());
+            
+            mode[i] = String(i+1); // 모드 번호
+            mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
+            mode[i] += String(doc.data().airconWindPower);  // 에어컨 강도 (0~9)
+            mode[i] += doc.data().lightEnable ? '1' : '0';  // 전등 상태 (0~1)
+            mode[i] += String(doc.data().lightBrightness);  // 전등 밝기 (1~9)
+            mode[i] += String(doc.data().lightColor);       // 전등 색상 ()
+            mode[i] += String(doc.data().lightMode-8);        // 전등 모드 (0~3)
+            mode[i] += doc.data().windowOpen ? '1' : '0';   // 창문 상태
+            mode[i] += doc.data().gasValveEnable ? '1' : '0';//가스 밸브 상태
+            console.log("[Home:store] mode",i+1,":",mode[i]); //.toString()
+    
+            i++;
+        });
+    } catch(e) {
+        console.log("[Home:getStoreDB] error : ", e);
+    };
 };
 
 if(pageNum == 1) getStoreDB();
@@ -144,24 +148,26 @@ const Home = () => {
         };
     }, []);
 
-    const dbRef = ref(db);
-    onValue(dbRef, (snapshot) => {
-        let data = snapshot.val();
-        console.log("[Home:listener] oldDB :", oldDB);
-        console.log("[Home:listener] data :", data);
-        console.log("[Home:listener] oldDB == data :", oldDB == data);
+    if(pageNum == 1) {
+        const dbRef = ref(db);
+        onValue(dbRef, (snapshot) => {
+            let data = snapshot.val();
+            console.log("[Home:listener] oldDB :", oldDB);
+            console.log("[Home:listener] data :", data);
+            console.log("[Home:listener] oldDB == data :", oldDB == data);
 
-        if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
-            console.log("[Home:listener] 변화 없음");
-        } else {
-            console.log("[home : listener] old.smarthome.status :",oldDB.smarthome.status);
-            console.log("[home : listener] listener.smarthome.status :",data.smarthome.status);
-            oldDB = data;
-            setUI(data);
-        };
-    });
+            if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
+                console.log("[Home:listener] 변화 없음");
+            } else {
+                console.log("[home : listener] old.smarthome.status :",oldDB.smarthome.status);
+                console.log("[home : listener] listener.smarthome.status :",data.smarthome.status);
+                oldDB = data;
+                setUI(data);
+            };
+        });
 
-    getStoreDB();
+        getStoreDB();
+    }
     
     const ttsTest = (ment) => {
         console.log("[Home:ttsTest] test start");
@@ -366,6 +372,19 @@ const Home = () => {
         });
     }
 
+    const onGotoSchedule = () => {
+        console.log("[Home:onGotoSchedule] 스케줄 설정 페이지");
+        pageNum = 3;
+        //스케줄 설정 페이지
+        history.push({
+            pathname: '/schedule',
+            state: {
+                'name' : name,
+                'db' : oldDB
+            }
+        });
+    }
+
     const onGotoAppliance = () => {
         console.log("[Home:onGotoAppliance] 개별 가전 제어 페이지");
         //가전 제어 페이지
@@ -500,6 +519,10 @@ const Home = () => {
                         <button onClick={onGotoMode}>
                             <img className="menu-icon" src={modeIcon} />
                             <p className="menu_title">모드</p>
+                        </button>
+                        <button onClick={onGotoSchedule}>
+                            <img className="menu-icon" src={modeIcon} />
+                            <p className="menu_title">스케줄</p>
                         </button>
                     </div>
                     <br />

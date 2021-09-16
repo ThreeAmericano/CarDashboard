@@ -1,0 +1,213 @@
+.schedule-list{
+  width: 50%;
+  height: 500px;
+  overflow : scroll;
+}
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 34px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+/* ===================================================================
+
+  - 상단메뉴 설정
+
+=================================================================== */
+.mode-setting__head{
+    /*display:inline-flex;*/
+    display: grid;
+    grid-template-columns: 10% 16% 10% 10% 10% 10% 16% 10%;
+    grid-gap: 0.625rem;
+    grid-auto-rows: minmax(100px, auto);
+    background-color: #D5DCE5;
+}
+.mode-setting__head .title{
+    display: block;
+    grid-column: 3/7;
+    grid-row: 1;
+    text-align: center;
+}
+.mode-setting__head .back-button{
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    width: 3rem;
+    height: 3rem;
+    border: 0px;
+    margin: auto;
+    border-radius: 10%;
+    font-size: 2.5rem;
+}
+.mode-setting__head__mode{
+    display: block;
+    width: 5rem;
+    height: 5rem;
+    border: 0px;
+    margin: auto;
+    margin-bottom: 1rem;
+    border-radius: 10%;
+    font-size: 2.5rem;
+    transition: 0.1s;
+}
+.mode-setting__head__mode img{
+    width: 3rem;
+    height: 3rem;
+}
+.mode-setting__head__mode1{
+    grid-column: 3;
+    grid-row: 2;
+}
+.mode-setting__head__mode2{
+    grid-column: 4;
+    grid-row: 2;
+}
+.mode-setting__head__mode3{
+    grid-column: 5;
+    grid-row: 2;
+}
+.mode-setting__head__mode4{
+    grid-column: 6;
+    grid-row: 2;
+}
+.mode-setting__head .save-button{
+    display: block;
+    grid-column: 8;
+    grid-row: 1;
+    width: 3rem;
+    height: 3rem;
+    border: 0px;
+    margin: auto;
+    border-radius: 10%;
+    font-size: 2.5rem;
+}
+
+
+/* ===================================================================
+
+  - 제어부분 설정
+
+=================================================================== */
+.mode-setting__box{
+    width: 100%;
+    height: 90%;
+    display: flex;
+    align-items: center;
+}
+.mode-setting__box__left{
+    float: left;
+    width: 100%;
+    height: 100%;
+    padding: 3%;
+    text-align: center;
+}
+.mode-setting__box__light-setting{
+    float: right;
+    width: 100%;
+    height: 100%;
+    padding: 3%;
+    text-align: center;
+}
+
+.appliance_button{
+    transition: 0.1s;
+}
+.aircon-setting{
+    margin: auto;
+    padding: 50px 50px 50px 50px;
+}
+.light-setting{
+    margin: auto;
+    padding: 50px 50px 50px 50px;
+}
+.valveWindow-setting{
+    margin: auto;
+    padding: 50px 50px 50px 50px;
+}
+
+.label-lightmode-radio{
+    position: relative;
+    pointer-events: auto;
+    font-size: medium;
+}
+.label-lightmode-radio input[type="radio"]{
+    display:none;
+}
+.label-lightmode-radio input[type="radio"] + span{
+    display:inline-block;
+    background:none;
+    border:1px solid #dfdfdf;  
+    padding: 1rem;
+    margin: 0.3rem;
+    text-align:center;
+    /*
+    height:2rem;
+    line-height:33px;
+    */
+    font-weight:500;
+    cursor:pointer;
+    transition: 0.05s;
+}
+.label-lightmode-radio input[type="radio"]:checked + span{
+    border:1px solid cornflowerblue;
+    background:cornflowerblue;
+    color:#fff;
+}
+   

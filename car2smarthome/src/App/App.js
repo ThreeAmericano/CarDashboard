@@ -5,6 +5,7 @@ import SignIn from "../views/SignIn/SignIn";
 import SignUp from "../views/SignUp/SignUp";
 import Home from "../views/Home/Home";
 import Mode from "../views/Mode/Mode";
+import Schedule from "../views/Schedule/Schedule";
 
 const App = function () {
 	return(
@@ -22,6 +23,9 @@ const App = function () {
 					</Route>
 					<Route path="/mode">
 						<Mode />
+					</Route>
+					<Route path="/schedule">
+						<Schedule />
 					</Route>
 					<Redirect to="/" />
 				</Switch>
