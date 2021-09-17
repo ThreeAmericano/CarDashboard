@@ -94,7 +94,8 @@ const Mode = () => {
             pathname: '/home',
             state: {
                 'name' : name,
-                'db' : oldDB
+                'db' : oldDB,
+                'pageNum' : 1
             }
         });
     };

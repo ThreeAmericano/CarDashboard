@@ -22,6 +22,7 @@ import windowIcon from '../../../resources/smarthome_icon/window.png';
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc } from "../../firebase";
 
 let scheduleData = [];
+let selectedScheduleArray = [];
 let pageNum;
 let i;
 
@@ -33,30 +34,12 @@ async function getStoreDB() {
         //console.log("[Schedule:store listener] querySnapshot :", querySnapshot);
         querySnapshot.forEach((doc) => {
             console.log("[Schedule:store]", doc.id, " => ", doc.data());
-            /*
-            scheduleData[i] = {
-                "Daysofweek" : doc.data().Daysofweek,
-                "Enabled" : doc.data().Enabled,
-                "Start_time" : doc.data().Start_time,
-                "Title" : doc.data().Title,
-                "UID" : doc.data().UID,
-                "airconEnable" : doc.data().airconEnable,
-                "airconWindPower" : doc.data().airconWindPower,
-                "gasValveEnable" : doc.data().gasValveEnable,
-                "lightBrightness" : doc.data().lightBrightness,
-                "lightColor" : doc.data().lightColor,
-                "lightEnable" : doc.data().lightEnable,
-                "lightMode" : doc.data().lightMode,
-                "modeNum" : doc.data().modeNum,
-                "repeat" : doc.data().repeat,
-                "windowOpen" : doc.data().windowOpen
-            };*/
             scheduleData[i] = doc.data();
             i++;
         });
         console.log("[Schedule:getStoreDB] scheduleData :", scheduleData);
         console.log("[Schedule:getStoreDB] scheduleData.length :", scheduleData.length);
-        console.log("[Schedule:getStoreDB] scheduleData[0] :", scheduleData[0]);
+        console.log("[Schedule:getStoreDB] scheduleData[0].Daysofweek :", scheduleData[0].Daysofweek);
     } catch(e) {
         console.log("[Schedule:getStoreDB] error : ", e);
     };
@@ -72,6 +55,7 @@ const Schedule = () => {
     const oldDB = location.state.db;
 
     const [schedule, setSchedule] = useState('');//스케줄 테이블
+    const [scheduleEnable, setScheduleEnable] = useState();//스케줄 테이블
     const [selectedSchedule, setSelectedSchedule] = useState('');//선택한 스케줄
 
     const [selectedMode, setSelectedMode] = useState(0);
@@ -95,10 +79,12 @@ const Schedule = () => {
 
     useEffect(() => {
         pageNum = 3;
-        getStoreDB().then((res) => {
-            console.log("[Schedule:useEffect] .then(res) test :",res);
+        getStoreDB().then(() => {
+            console.log("[Schedule:useEffect]");
             setScheduleUI();
+            onSelectSchedule(0);
         });
+        selectedScheduleArray = new Array(scheduleData.length);
         console.log("[Schedule:useEffect] pageNum :",pageNum)
     }, []);
 
@@ -108,7 +94,8 @@ const Schedule = () => {
             pathname: '/home',
             state: {
                 'name' : name,
-                'db' : oldDB
+                'db' : oldDB,
+                'pageNum' : 1
             }
         });
     };
@@ -117,39 +104,51 @@ const Schedule = () => {
         try{  // 반환 받은 테이블 값을 설정
             scheduleList = scheduleData.map(
                 (item, index) => (
-                    <tr key={index}>
+                    <tr key={index} bgcolor={selectedScheduleArray[index] ? '#3264fe' : 'white'}>
                         <tr>
-                            <td>{item.Title}</td>
                             <td>
-                                <label class="switch">
-                                    <input type="checkbox" />
-                                    <span class="slider round"></span>
-                                </label>
+                                <input 
+                                    type="checkbox" 
+                                    checked={scheduleData[index].Enabled?"checked":""} 
+                                    onClick={() => onSetEnable(index)} 
+                                />
                             </td>
                             <td>
-                                <button onClick={() => setSelectedSchedule(index)}>
-                                    {index}번 선택
+                                <button className="" onClick={() => {
+                                    onSelectSchedule(index);
+                                    setScheduleUI();
+                                }}>
+                                    <span className="schedule_list_title">
+                                        {index}  {item.Title}
+                                    </span>
+                                    <br/>
+                                    <span className="schedule_list_date">
+                                        <span>
+                                            {item.Start_time}
+                                        </span>
+                                        <span>{
+                                            item.repeat?(item.Daysofweek[1]?"월 ":"")+(item.Daysofweek[2]?"화 ":"")+(item.Daysofweek[3]?"수 ":"")+(item.Daysofweek[4]?"목 ":"")+(item.Daysofweek[5]?"금 ":"")+(item.Daysofweek[6]?"토 ":"")+(item.Daysofweek[0]?"일 ":""):""
+                                        }</span>
+                                    </span>
                                 </button>
                             </td>
-                        </tr>
-                        <tr>
-                            <td>{item.Start_time}</td>
-                            <td>{item.Daysofweek}</td>
                         </tr>
                     </tr>
                 )
             );
             setSchedule(
-                <div className="schedule-list">
-                    <table border = '1' align='center'>
-                        {scheduleList}
-                    </table>
-                </div>
+                <table className="schedule_list_table" border = '1' align='center'>
+                    {scheduleList}
+                </table>
             );
         } catch (e) {
             console.log("[Schedule:setScheduleUI] error :", e);
         }
     };
+
+    const onSetEnable = (index) => {
+        scheduleData[index].Enabled = (!scheduleData[index].Enabled);
+    }
 
     const onSave = () => {
         if(i>1) {
@@ -157,32 +156,42 @@ const Schedule = () => {
             setScheduleUI();
         }
     };
-    
-    const onRadio = (num) => {
-        setlightColor(num);
-    }
 
-    const onSelectMode = (num) => {
+    const onSelectSchedule = (num) => {
         // 모드 선택 시 해당 모드 점등, 가전 선택 시 모드 선택 해제
-        /*
-        console.log("[Mode:onSelectMode] num :", num);
-        smarthome = mode[num].split('');//해당 모드의 가전 제어 값
-        setSelectedMode(num);
-        setIndoorMode(num==0?true:false);
-        setOutdoorMode(num==1?true:false);
-        setEcoMode(num==2?true:false);
-        setNightMode(num==3?true:false);
-        console.log("[Mode:onSelectMode] mode code :", mode[num]);
-        console.log("[Mode:onSelectMode] smarthome :", smarthome);
-        setAircon(Number(smarthome[1])?true:false);
-        setAirconValue(Number(smarthome[2]));
-        setLight(Number(smarthome[3])?true:false);
-        setlightValue(Number(smarthome[4]));
-        setlightColor(Number(smarthome[5]));
-        setlightMode(Number(smarthome[6]));
-        setWindow(Number(smarthome[7])?true:false);
-        setValve(Number(smarthome[8])?true:false);
-        */
+        setScheduleEnable(scheduleData[num].Enabled);
+        setSelectedMode(scheduleData[num].modeNum);
+        setAircon(scheduleData[num].aircon);
+        setAirconValue(scheduleData[num].airconValue);
+        setLight(scheduleData[num].lightEnable);
+        setlightValue(scheduleData[num].lightBrightness);
+        setlightColor(scheduleData[num].lightColor);
+        setlightMode(scheduleData[num].lightMode);
+        setWindow(scheduleData[num].windowOpen);
+        setValve(scheduleData[num].gasValveEnable);
+        setSelectedSchedule(num);
+        selectedScheduleArray = selectedScheduleArray.map(e => false);
+        selectedScheduleArray[num] = true;
+        console.log("selectedScheduleArray", selectedScheduleArray);
+        
+            /*
+            scheduleData[i] = {
+                "Daysofweek" : doc.data().Daysofweek,
+                "Enabled" : doc.data().Enabled,
+                "Start_time" : doc.data().Start_time,
+                "Title" : doc.data().Title,
+                "UID" : doc.data().UID,
+                "airconEnable" : doc.data().airconEnable,
+                "airconWindPower" : doc.data().airconWindPower,
+                "gasValveEnable" : doc.data().gasValveEnable,
+                "lightBrightness" : doc.data().lightBrightness,
+                "lightColor" : doc.data().lightColor,
+                "lightEnable" : doc.data().lightEnable,
+                "lightMode" : doc.data().lightMode,
+                "modeNum" : doc.data().modeNum,
+                "repeat" : doc.data().repeat,
+                "windowOpen" : doc.data().windowOpen
+            };*/
     }
 
     const onSelectApplience = (num) => {
@@ -213,120 +222,135 @@ const Schedule = () => {
             }
         }
     };
-    //(event) => setAirconValue(event.target.value)
-    //() => onRadio(1)
+    
     return(
         <div className="mode-setting">
-            <div className="mode-setting__head">
-                <h3 className="title">스케줄 설정 페이지</h3>
-                <button className="back-button" onClick={onGotoHome}>
-                    <span class="material-icons">reply</span>
-                </button>
-                <button className="mode-setting__head__mode mode-setting__head__mode1" 
-                    onClick = {() => onSelectMode(0)} 
-                    style={{
-                        backgroundColor : indoorMode ? '#3264fe' : 'white'
-                    }} >
-                    <img src={indoorIcon} style={{
-                        filter : indoorMode ? 'invert(1)' : 'invert(0)'
-                    }} />
-                </button>
-                <button  className="mode-setting__head__mode mode-setting__head__mode2" 
-                    onClick = {() => onSelectMode(1)} 
-                    style={{
-                        backgroundColor : outdoorMode ? '#3264fe' : 'white'
-                    }}>
-                    <img src={outdoorIcon} style={{
-                        filter : outdoorMode ? 'invert(1)' : 'invert(0)'
-                    }} />
-                </button>
-                <button  className="mode-setting__head__mode mode-setting__head__mode3" 
-                    onClick = {() => onSelectMode(2)} 
-                    style={{
-                        backgroundColor : ecoMode ? '#3264fe' : 'white'
-                    }}>
-                    <img src={ecoIcon} style={{
-                        filter : ecoMode ? 'invert(1)' : 'invert(0)'
-                    }} />
-                </button>
-                <button  className="mode-setting__head__mode mode-setting__head__mode4" 
-                    onClick = {() => onSelectMode(3)} 
-                    style={{
-                        backgroundColor : nightMode ? '#3264fe' : 'white'
-                    }}>
-                    <img src={nightIcon} style={{
-                        filter : nightMode ? 'invert(1)' : 'invert(0)'
-                    }} />
-                </button>
-                <button className="save-button" onClick = {onSave}>
-                    <span class="material-icons">save</span>
-                </button>
-            </div>
+        <div className="mode-setting__head">
+            <h3 className="title">스케줄 설정 페이지</h3>
+            <button className="back-button" onClick={onGotoHome}>
+                <span class="material-icons">reply</span>
+            </button>
+            <button className="mode-setting__head__mode mode-setting__head__mode1" 
+                onClick = {() => setIndoorMode(indoorMode?false:true)} 
+                style={{
+                    backgroundColor : indoorMode ? '#3264fe' : 'white'
+                }} >
+                <img src={indoorIcon} style={{
+                    filter : indoorMode ? 'invert(1)' : 'invert(0)'
+                }} />
+            </button>
+            <button  className="mode-setting__head__mode mode-setting__head__mode2" 
+                onClick = {() => setOutdoorMode(outdoorMode?false:true)} 
+                style={{
+                    backgroundColor : outdoorMode ? '#3264fe' : 'white'
+                }}>
+                <img src={outdoorIcon} style={{
+                    filter : outdoorMode ? 'invert(1)' : 'invert(0)'
+                }} />
+            </button>
+            <button  className="mode-setting__head__mode mode-setting__head__mode3" 
+                onClick = {() => setEcoMode(ecoMode?false:true)} 
+                style={{
+                    backgroundColor : ecoMode ? '#3264fe' : 'white'
+                }}>
+                <img src={ecoIcon} style={{
+                    filter : ecoMode ? 'invert(1)' : 'invert(0)'
+                }} />
+            </button>
+            <button  className="mode-setting__head__mode mode-setting__head__mode4" 
+                onClick = {() => setNightMode(nightMode?false:true)} 
+                style={{
+                    backgroundColor : nightMode ? '#3264fe' : 'white'
+                }}>
+                <img src={nightIcon} style={{
+                    filter : nightMode ? 'invert(1)' : 'invert(0)'
+                }} />
+            </button>
+            <button className="save-button" onClick = {onSave}>
+                <span class="material-icons">save</span>
+            </button>
+        </div>
 
-            <div className="mode-setting__box">
-                <div className="mode-setting__box__left">
-                    <div>
-                        <b>{schedule}</b>
-                    </div>
-                    <div className="aircon-setting">
-                        <p className="large_font">에어컨</p>
-                        <button 
-                            className="appliance_button" 
-                            onClick = {() => onSelectApplience(0)} 
-                            style={{
-                                backgroundColor : aircon ? '#3264fe' : 'white'
-                            }}
-                        >
-                            <img className="control-appliance" src={airconIcon} style={{
-                                filter : aircon ? 'invert(1)' : 'invert(0)'
-                            }} />
-                        </button>
-                        <br />
-                        <span>세기</span>
-                        <input 
-                            type="range" 
-                            id="airconInputValue" 
-                            name="airconInputValue"  
-                            value={airconValue}
-                            min="1" 
-                            max="9" 
-                            step="1" 
-                            onChange={(event) => setAirconValue(event.target.value)} 
-                        />
-                    </div>
-                    <div className="valve-window">
-                        <div className="valve-setting">
-                            <p className="large_font">가스벨브</p>
-                            <button 
-                                className="appliance_button" 
-                                onClick = {() => onSelectApplience(2)} 
-                                style={{
-                                    backgroundColor : valve ? '#3264fe' : 'white'
-                                }}
-                            >
-                                <img className="control-appliance" src={valveIcon} style={{
-                                    filter : valve ? 'invert(1)' : 'invert(0)'
-                                }} />
-                            </button>
-                        </div>
-                        <div className="window-setting">
-                            <p className="large_font">창문</p>
-                            <button 
-                                className="appliance_button" 
-                                onClick = {() => onSelectApplience(3)} 
-                                style={{
-                                    backgroundColor : window ? '#3264fe' : 'white'
-                                }}
-                            >
-                                <img className="control-appliance" src={windowIcon} style={{
-                                    filter : window ? 'invert(1)' : 'invert(0)'
-                                }} />
-                            </button>
-                        </div>
-                    </div>
+        <div className="mode-setting__box">
+            <div className="mode-setting__box__left">
+                <h3>스케쥴 리스트</h3>
+                <div>
+                    {schedule}
                 </div>
-            
-                <div className="mode-setting__box__light-setting">
+            </div>
+            <div className="mode-setting__box__light-setting">
+                <h3>제어보이</h3>
+
+                <div>
+                    <span>
+                        <input type="date" />
+                    </span>
+                    <span>
+                        <input type="checkbox" />
+                        <input type="checkbox" />
+                        <input type="checkbox" />
+                        <input type="checkbox" />
+                        <input type="checkbox" />
+                        <input type="checkbox" />
+                        <input type="checkbox" />
+                    </span>
+                    <input type="time" />
+                </div>
+
+
+                <div className="aircon-setting">
+                    <p className="large_font">에어컨</p>
+                    <button 
+                        className="appliance_button" 
+                        onClick = {() => onSelectApplience(0)} 
+                        style={{
+                            backgroundColor : aircon ? '#3264fe' : 'white'
+                        }}
+                    >
+                        <img className="schedule-control-appliance" src={airconIcon} style={{
+                            filter : aircon ? 'invert(1)' : 'invert(0)'
+                        }} />
+                    </button>
+                    <span>세기</span>
+                    <input 
+                        type="range" 
+                        id="airconInputValue" 
+                        name="airconInputValue"  
+                        value={airconValue}
+                        min="1" 
+                        max="9" 
+                        step="1" 
+                        onChange={(event) => setAirconValue(event.target.value)} 
+                    />
+                </div>
+                <div className="valve-window">
+                    <span className="large_font">가스벨브</span>
+                    <button 
+                        className="appliance_button" 
+                        onClick = {() => onSelectApplience(2)} 
+                        style={{
+                            backgroundColor : valve ? '#3264fe' : 'white'
+                        }}
+                    >
+                        <img className="schedule-control-appliance" src={valveIcon} style={{
+                            filter : valve ? 'invert(1)' : 'invert(0)'
+                        }} />
+                    </button>
+                    <span className="large_font">창문</span>
+                    <button 
+                        className="appliance_button" 
+                        onClick = {() => onSelectApplience(3)} 
+                        style={{
+                            backgroundColor : window ? '#3264fe' : 'white'
+                        }}
+                    >
+                        <img className="schedule-control-appliance" src={windowIcon} style={{
+                            filter : window ? 'invert(1)' : 'invert(0)'
+                        }} />
+                    </button>
+                </div>
+
+                <div>
                     <p className="large_font">무드등</p>
                     <button 
                         className="appliance_button" 
@@ -335,11 +359,10 @@ const Schedule = () => {
                             backgroundColor : light ? '#3264fe' : 'white'
                         }}
                     >
-                        <img className="control-appliance" src={lightIcon} style={{
+                        <img className="schedule-control-appliance" src={lightIcon} style={{
                             filter : light ? 'invert(1)' : 'invert(0)'
                         }} />
                     </button>
-                    <br />
                     <span>밝기</span>
                     <input 
                         type="range" 
@@ -365,6 +388,7 @@ const Schedule = () => {
                         <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
                     </div>
                     <br />
+                    
                     <div>
                         <span>모드 선택</span><br/>
                         <label className="label-lightmode-radio">
@@ -385,8 +409,10 @@ const Schedule = () => {
                         </label>
                     </div>
                 </div>
+
             </div>
         </div>
+    </div>
     );
 }
 

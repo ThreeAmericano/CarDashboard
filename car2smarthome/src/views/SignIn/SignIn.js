@@ -49,7 +49,8 @@ const SignIn = () => {
                 pathname: '/home',
                 state: {
                     'name' : name,
-                    'db' : returnValue.db
+                    'db' : returnValue.db,
+                    'pageNum' : 1
                 }
             });
 

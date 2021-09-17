@@ -1,6 +1,7 @@
 //import React from 'react';
 import {HashRouter as Router, Redirect, Route, Switch} from "react-router-dom";
 
+
 import SignIn from "../views/SignIn/SignIn";
 import SignUp from "../views/SignUp/SignUp";
 import Home from "../views/Home/Home";
@@ -15,16 +16,16 @@ const App = function () {
 					<Route exact path="/">
 						<SignIn />
 					</Route>
-					<Route path="/sign-up">
+					<Route exact path="/sign-up">
 						<SignUp />
 					</Route>
-					<Route path="/home">
+					<Route exact path="/home">
 						<Home />
 					</Route>
-					<Route path="/mode">
+					<Route exact path="/mode">
 						<Mode />
 					</Route>
-					<Route path="/schedule">
+					<Route exact path="/schedule">
 						<Schedule />
 					</Route>
 					<Redirect to="/" />

@@ -51,9 +51,9 @@ async function getStoreDB() {
 
         console.log("[Home:store start]")
         const querySnapshot = await getDocs(collection(storeDB, "modes"));
-        console.log("[Home:store listener] querySnapshot :", querySnapshot);
+        //console.log("[Home:store listener] querySnapshot :", querySnapshot);
         querySnapshot.forEach((doc) => {
-            console.log("[Home:store listener]", doc.id, " => ", doc.data());
+            //console.log("[Home:store listener]", doc.id, " => ", doc.data());
             
             mode[i] = String(i+1); // 모드 번호
             mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
@@ -95,10 +95,13 @@ const Home = () => {
     const [valve, setValve] = useState(false);
     const [window, setWindow] = useState(false);
 
+    pageNum = location.state.pageNum;
+    console.log("[Home] pageNum :", pageNum);
+
     useEffect(() => {
         console.log("[Home:useEffect] 컴포넌트가 화면에 나타남");
         // 초기값 설정
-        pageNum = 1;
+        pageNum = location.state.pageNum;
         setName(location.state.name);
         ttsTest(String(location.state.name)+"님 안녕하세요");
 
@@ -152,17 +155,18 @@ const Home = () => {
         const dbRef = ref(db);
         onValue(dbRef, (snapshot) => {
             let data = snapshot.val();
-            console.log("[Home:listener] oldDB :", oldDB);
-            console.log("[Home:listener] data :", data);
-            console.log("[Home:listener] oldDB == data :", oldDB == data);
+            //console.log("[Home:listener] oldDB :", oldDB);
+            //console.log("[Home:listener] data :", data);
+            //console.log("[Home:listener] oldDB == data :", oldDB == data);
 
             if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
                 console.log("[Home:listener] 변화 없음");
             } else {
-                console.log("[home : listener] old.smarthome.status :",oldDB.smarthome.status);
-                console.log("[home : listener] listener.smarthome.status :",data.smarthome.status);
-                oldDB = data;
+                console.log("[Home:listener] 변화 있음");
+                console.log("[home : listener] old smarthome :",oldDB.smarthome.status);
+                console.log("[home : listener] new smarthome :",data.smarthome.status);
                 setUI(data);
+                oldDB = data;
             };
         });
 
@@ -197,6 +201,8 @@ const Home = () => {
         let listenWTemp = data.sensor.openweather.temp;
         
         let listenHome = data.smarthome.status;
+
+        console.log("[Home:setUI] listenHome :",listenHome);
                      
         setTemp(listenTemp);
         setHumi(listenHumi);
@@ -213,21 +219,28 @@ const Home = () => {
             default : break;
         }
 
-        if(Number(listenHome[1]) < 2) {
-            setAircon(Number(listenHome[1])?true:false);
+        if(Number(listenHome[1]) != 2) {
+            setAircon(Number(listenHome[1])==1?true:false);
         };
-        if(Number(listenHome[3]) < 2) {
-            setLight(Number(listenHome[3])?true:false);
+        if(Number(listenHome[3]) != 2) {
+            setLight(Number(listenHome[3])==1?true:false);
         };
-        if(Number(listenHome[7]) < 2) {
-            setWindow(Number(listenHome[7])?true:false);
+        if(Number(listenHome[7]) != 2) {
+            setWindow(Number(listenHome[7])==1?true:false);
         };
-        if(Number(listenHome[8]) < 2) {
-            setValve(Number(listenHome[8])?true:false);
+        if(Number(listenHome[8]) != 2) {
+            console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
+            console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
+            setValve(Number(listenHome[8])==1?true:false);
         };
 
         if(Number(listenHome[0])>0) onDoMode(Number(listenHome[0])-1);
-        else modeTurnOff;
+        else {
+            onDoMode(4);
+            modeTurnOff;
+        } 
+        
+        console.log("[Home:setUI] 함수 종료");
     };
 
     const modeTurnOff = () => {
@@ -239,12 +252,50 @@ const Home = () => {
 
     const onDoMode = (num) => {
         console.log("[Home:onDoMode] num :", num);
+        switch (num) {
+            case 0 : {
+                modeTurnOff();
+                setIndoorMode(indoorMode?false:true);
+                sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+                break;
+            }
+            case 1 : {
+                modeTurnOff();
+                setOutdoorMode(outdoorMode?false:true);
+                sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+                break;
+            }
+            case 2 : {
+                modeTurnOff();
+                setEcoMode(ecoMode?false:true);
+                sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+                break;
+            }
+            case 3 : {
+                modeTurnOff();
+                setNightMode(nightMode?false:true);
+                sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+                break;
+            }
+            default : {
+                console.log("[Home:onDoMode] switch default");
+                modeTurnOff();
+                break;
+            }
+        };
+        
+        console.log("[Home:onDoMode] num<4?mode[num]:num :", num<4?mode[num]:num);
+        /*
         setIndoorMode(num==0?(indoorMode?false:true):false);
         setOutdoorMode(num==1?(outdoorMode?false:true):false);
         setEcoMode(num==2?(ecoMode?false:true):false);
         setNightMode(num==3?(nightMode?false:true):false);
-        console.log("[Home:onDoMode] mode code :", mode[num]);
-        sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+        */
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /*
         switch(num) {
             case 0 : {
@@ -367,7 +418,8 @@ const Home = () => {
             pathname: '/mode',
             state: {
                 'name' : name,
-                'db' : oldDB
+                'db' : oldDB,
+                'pageNum' : pageNum
             }
         });
     }
@@ -380,7 +432,8 @@ const Home = () => {
             pathname: '/schedule',
             state: {
                 'name' : name,
-                'db' : oldDB
+                'db' : oldDB,
+                'pageNum' : pageNum
             }
         });
     }
@@ -470,6 +523,10 @@ const Home = () => {
                 <button className="back-button" onClick={onGotoSignin}>
                     <span class="material-icons">reply</span>
                 </button>
+                
+                <p className="profile">
+                    <span class="material-icons">account_circle</span>
+                </p>
                 <p className="name">
                     <span className="name_top">{name}님,</span>
                     <p className="name_small">안녕하세요.</p>
@@ -623,12 +680,12 @@ const Home = () => {
                                         >
                                             <img className="control-appliance" src={airconIcon} style={{
                                                 filter : aircon ? 'invert(1)' : 'invert(0)'
-                                        }} />
-                                        <p style={{
-                                            color : aircon ? 'white' : 'black'
-                                        }} >
-                                            에어컨
-                                        </p>
+                                            }} />
+                                            <p style={{
+                                                color : aircon ? 'white' : 'black'
+                                            }} >
+                                                에어컨
+                                            </p>
                                         </button>
                                     </td>
                                     <td>
@@ -640,12 +697,12 @@ const Home = () => {
                                         >
                                             <img className="control-appliance" src={lightIcon} style={{
                                                 filter : light ? 'invert(1)' : 'invert(0)'
-                                        }} />
-                                        <p style={{
-                                            color : light ? 'white' : 'black'
-                                        }} >
-                                            무드등
-                                        </p>
+                                            }} />
+                                            <p style={{
+                                                color : light ? 'white' : 'black'
+                                            }} >
+                                                무드등
+                                            </p>
                                         </button>
                                     </td>
                                     <td>
@@ -657,12 +714,12 @@ const Home = () => {
                                         >
                                             <img className="control-appliance" src={valveIcon} style={{
                                                 filter : valve ? 'invert(1)' : 'invert(0)'
-                                        }} />
-                                        <p style={{
-                                            color : valve ? 'white' : 'black'
-                                        }} >
-                                            가스밸브
-                                        </p>
+                                            }} />
+                                            <p style={{
+                                                color : valve ? 'white' : 'black'
+                                            }} >
+                                                가스밸브
+                                            </p>
                                         </button>
                                     </td>
                                     <td>
@@ -674,12 +731,12 @@ const Home = () => {
                                         >
                                             <img className="control-appliance" src={windowIcon} style={{
                                                 filter : window ? 'invert(1)' : 'invert(0)'
-                                        }} />
-                                        <p style={{
-                                            color : window ? 'white' : 'black'
-                                        }} >
-                                            창문
-                                        </p>
+                                            }} />
+                                            <p style={{
+                                                color : window ? 'white' : 'black'
+                                            }} >
+                                                창문
+                                            </p>
                                         </button>
                                     </td>
                                 </tr>
@@ -710,6 +767,7 @@ const Home = () => {
                     </div>
                 </div>
             </div>
+            <p>{"[HTML] valve : "+valve}</p>
         </div>
     );
 }
