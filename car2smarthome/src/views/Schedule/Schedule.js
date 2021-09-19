@@ -131,12 +131,12 @@ const Schedule = () => {
                                     onSelectSchedule(index);
                                 }}>
                                     <span className="schedule_list_title">
-                                        {index}  {item.Title}
+                                        {"["+String(index)+"번] "}  {item.Title}
                                     </span>
                                     <br/>
                                     <span className="schedule_list_date">
                                         <span>
-                                            {item.Start_time}
+                                            {item.Start_time.substring(0,2)+":"+item.Start_time.substring(2,4)}
                                         </span>
                                         <span>{
                                             item.repeat?(item.Daysofweek[1]?"월 ":"")+(item.Daysofweek[2]?"화 ":"")+(item.Daysofweek[3]?"수 ":"")+(item.Daysofweek[4]?"목 ":"")+(item.Daysofweek[5]?"금 ":"")+(item.Daysofweek[6]?"토 ":"")+(item.Daysofweek[0]?"일 ":""):""
@@ -187,7 +187,11 @@ const Schedule = () => {
         setRepeat(scheduleData[num].repeat);
         setDaysofweek(scheduleData[num].Daysofweek);
         setStartTime(scheduleData[num].Start_time.substring(0,2)+":"+scheduleData[num].Start_time.substring(2,4));
-        if(scheduleData[num].repeat == false) setActivedate(scheduleData[num].Active_date.replace(".", "-"));/////////////////////////////////1개만 바뀜
+        if(scheduleData[num].repeat == false) {
+            console.log("[Schedule:onSelectSchedule] Active_date.replace(/\./g, "-") :", scheduleData[num].Active_date.replace(/\./g, "-"));
+            
+            setActivedate(scheduleData[num].Active_date.replace(/\./g, "-"));
+        }
         
         setSelectedSchedule(num);
         console.log("selectedScheduleArray", selectedScheduleArray);
