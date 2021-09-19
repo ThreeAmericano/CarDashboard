@@ -98,8 +98,6 @@ const Home = ({match}) => {
     const [window, setWindow] = useState(false);
 
     useEffect(() => {
-        console.log("[Home:useEffect] 컴포넌트가 화면에 나타남");
-        console.log("[Home:useEffect] match :", match);
         // 초기값 설정
         pageNum = 1;
         setName(location.state.name);
@@ -145,10 +143,12 @@ const Home = ({match}) => {
 
         if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
         else modeTurnOff;
-
+        
+/*
         return() => {
             console.log("[Home:useEffect] 컴포넌트가 화면에서 사라짐");
         };
+        */
     }, []);
 
     if(pageNum == 1) {
@@ -203,43 +203,43 @@ const Home = ({match}) => {
         let listenHome = data.smarthome.status;
 
         console.log("[Home:setUI] listenHome :",listenHome);
-                     
-        setTemp(listenTemp);
-        setHumi(listenHumi);
+        () => {
+            setTemp(listenTemp);
+            setHumi(listenHumi);
 
-        setW_icon(listenIcon);
-        setWeather(listenDescription+", "+listenWTemp+"°C")
-        
-        switch(listenAir) {
-            case 1 : setDust("매우좋음"); break;
-            case 2 : setDust("좋음"); break;
-            case 3 : setDust("보통"); break;
-            case 4 : setDust("나쁨"); break;
-            case 5 : setDust("매우나쁨"); break;
-            default : break;
-        }
+            setW_icon(listenIcon);
+            setWeather(listenDescription+", "+listenWTemp+"°C")
+            
+            switch(listenAir) {
+                case 1 : setDust("매우좋음"); break;
+                case 2 : setDust("좋음"); break;
+                case 3 : setDust("보통"); break;
+                case 4 : setDust("나쁨"); break;
+                case 5 : setDust("매우나쁨"); break;
+                default : break;
+            }
 
-        if(Number(listenHome[1]) != 2) {
-            setAircon(Number(listenHome[1])==1?true:false);
-        };
-        if(Number(listenHome[3]) != 2) {
-            setLight(Number(listenHome[3])==1?true:false);
-        };
-        if(Number(listenHome[7]) != 2) {
-            setWindow(Number(listenHome[7])==1?true:false);
-        };
-        if(Number(listenHome[8]) != 2) {
-            console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
-            console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
-            setValve(Number(listenHome[8])==1?true:false);
-        };
+            if(Number(listenHome[1]) != 2) {
+                setAircon(Number(listenHome[1])==1?true:false);
+            };
+            if(Number(listenHome[3]) != 2) {
+                setLight(Number(listenHome[3])==1?true:false);
+            };
+            if(Number(listenHome[7]) != 2) {
+                setWindow(Number(listenHome[7])==1?true:false);
+            };
+            if(Number(listenHome[8]) != 2) {
+                console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
+                console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
+                setValve(Number(listenHome[8])==1?true:false);
+            };
 
-        if(Number(listenHome[0])>0) onDoMode(Number(listenHome[0])-1);
-        else {
-            onDoMode(4);
-            modeTurnOff;
-        } 
-        
+            if(Number(listenHome[0])>0) onDoMode(Number(listenHome[0])-1);
+            else {
+                onDoMode(4);
+                modeTurnOff;
+            } 
+        };        
         console.log("[Home:setUI] 함수 종료");
     };
 

@@ -13,19 +13,19 @@ const App = function () {
 		<div>
 			<Router>
 				<Switch>
-					<Route exact path="/" match='0'>
+					<Route exact path="/">
 						<SignIn />
 					</Route>
-					<Route exact path="/sign-up"  match={1}>
+					<Route exact path="/sign-up">
 						<SignUp />
 					</Route>
-					<Route exact path="/home"  match={2}>
+					<Route exact path="/home">
 						<Home />
 					</Route>
-					<Route exact path="/mode"  match={3}>
+					<Route exact path="/mode">
 						<Mode />
 					</Route>
-					<Route exact path="/schedule"  match={4}>
+					<Route exact path="/schedule">
 						<Schedule />
 					</Route>
 					<Redirect to="/" />

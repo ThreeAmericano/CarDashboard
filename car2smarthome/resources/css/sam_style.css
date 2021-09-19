@@ -220,7 +220,46 @@ h3{
 
 /* ===================================================================
 
-  - Range 입력 설정
+  - Toggle Button (checkbox) 입력 설정
 
 =================================================================== */
+.toggle_checkbox{
+    position: absolute;
+    left: -1000%;
+}
 
+.toggle_label {
+    display: block;
+    position: relative;
+    width: 200px;
+    height: 60px;
+    background: #d3d4d3;
+    border-radius: 60px;
+    transition: background .4s;
+}
+
+.toggle_label:after {
+    content: "";
+    position: absolute;
+    left:7.5px;
+    top:50%;
+    width:45px;
+    height: 45px;
+    border-radius: 100%;
+    background: #fff;
+    transform: translateY(-50%);
+    box-shadow: 1px 3px 4px rgba(0,0,0,.1);
+    transition:all .4s;
+}
+
+.toggle_checkbox:checked + .toggle_label {
+    background: #4fbe79;
+}
+
+.toggle_checkbox:checked + .toggle_label:after {
+    left:calc(100% - 52.5px);
+}
+
+.toggle_label span {
+    display: none;
+}

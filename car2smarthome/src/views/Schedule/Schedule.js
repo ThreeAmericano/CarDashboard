@@ -21,8 +21,13 @@ import windowIcon from '../../../resources/smarthome_icon/window.png';
 //var webOSBridge = new WebOSServiceBridge();
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc } from "../../firebase";
 
+// 현재 체크 박스 체크 안됨
+// 스케줄 추가 기능
+// 토글 스위치로 가전제어 or 모드 스케줄 선택
+// 
+
 let scheduleData = [];
-let selectedScheduleArray = [];
+let selectedScheduleArray = [true];
 let pageNum;
 let i;
 
@@ -54,6 +59,11 @@ const Schedule = () => {
     const name = location.state.name;
     const oldDB = location.state.db;
 
+    const [titleName, setTitleName] = useState();
+    const [daysofweek, setDaysofweek] = useState([false, false, false, false, false, false, false]);
+    const [startTime, setStartTime] = useState();
+    const [activeDate, setActivedate] = useState();
+
     const [schedule, setSchedule] = useState('');//스케줄 테이블
     const [scheduleEnable, setScheduleEnable] = useState();//스케줄 테이블
     const [selectedSchedule, setSelectedSchedule] = useState('');//선택한 스케줄
@@ -75,6 +85,8 @@ const Schedule = () => {
     const [lightColor, setlightColor] = useState(0);
     const [lightMode, setlightMode] = useState(0);
 
+    const [repeat, setRepeat] = useState();
+
     let scheduleList;
 
     useEffect(() => {
@@ -85,6 +97,7 @@ const Schedule = () => {
             onSelectSchedule(0);
         });
         selectedScheduleArray = new Array(scheduleData.length);
+        selectedScheduleArray[0] = true;
         console.log("[Schedule:useEffect] pageNum :",pageNum)
     }, []);
 
@@ -116,7 +129,6 @@ const Schedule = () => {
                             <td>
                                 <button className="" onClick={() => {
                                     onSelectSchedule(index);
-                                    setScheduleUI();
                                 }}>
                                     <span className="schedule_list_title">
                                         {index}  {item.Title}
@@ -158,7 +170,10 @@ const Schedule = () => {
     };
 
     const onSelectSchedule = (num) => {
+        selectedScheduleArray = selectedScheduleArray.map(e => false);
+        selectedScheduleArray[num] = true;
         // 모드 선택 시 해당 모드 점등, 가전 선택 시 모드 선택 해제
+        setTitleName(scheduleData[num].Title);
         setScheduleEnable(scheduleData[num].Enabled);
         setSelectedMode(scheduleData[num].modeNum);
         setAircon(scheduleData[num].aircon);
@@ -169,9 +184,12 @@ const Schedule = () => {
         setlightMode(scheduleData[num].lightMode);
         setWindow(scheduleData[num].windowOpen);
         setValve(scheduleData[num].gasValveEnable);
+        setRepeat(scheduleData[num].repeat);
+        setDaysofweek(scheduleData[num].Daysofweek);
+        setStartTime(scheduleData[num].Start_time.substring(0,2)+":"+scheduleData[num].Start_time.substring(2,4));
+        if(scheduleData[num].repeat == false) setActivedate(scheduleData[num].Active_date.replace(".", "-"));/////////////////////////////////1개만 바뀜
+        
         setSelectedSchedule(num);
-        selectedScheduleArray = selectedScheduleArray.map(e => false);
-        selectedScheduleArray[num] = true;
         console.log("selectedScheduleArray", selectedScheduleArray);
         
             /*
@@ -273,140 +291,185 @@ const Schedule = () => {
 
         <div className="mode-setting__box">
             <div className="mode-setting__box__left">
-                <h3>스케쥴 리스트</h3>
-                <div>
-                    {schedule}
-                </div>
+                {schedule}
             </div>
+
             <div className="mode-setting__box__light-setting">
-                <h3>제어보이</h3>
-
-                <div>
-                    <span>
-                        <input type="date" />
-                    </span>
-                    <span>
-                        <input type="checkbox" />
-                        <input type="checkbox" />
-                        <input type="checkbox" />
-                        <input type="checkbox" />
-                        <input type="checkbox" />
-                        <input type="checkbox" />
-                        <input type="checkbox" />
-                    </span>
-                    <input type="time" />
-                </div>
-
-
-                <div className="aircon-setting">
-                    <p className="large_font">에어컨</p>
-                    <button 
-                        className="appliance_button" 
-                        onClick = {() => onSelectApplience(0)} 
-                        style={{
-                            backgroundColor : aircon ? '#3264fe' : 'white'
-                        }}
-                    >
-                        <img className="schedule-control-appliance" src={airconIcon} style={{
-                            filter : aircon ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                    <span>세기</span>
-                    <input 
-                        type="range" 
-                        id="airconInputValue" 
-                        name="airconInputValue"  
-                        value={airconValue}
-                        min="1" 
-                        max="9" 
-                        step="1" 
-                        onChange={(event) => setAirconValue(event.target.value)} 
-                    />
-                </div>
-                <div className="valve-window">
-                    <span className="large_font">가스벨브</span>
-                    <button 
-                        className="appliance_button" 
-                        onClick = {() => onSelectApplience(2)} 
-                        style={{
-                            backgroundColor : valve ? '#3264fe' : 'white'
-                        }}
-                    >
-                        <img className="schedule-control-appliance" src={valveIcon} style={{
-                            filter : valve ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                    <span className="large_font">창문</span>
-                    <button 
-                        className="appliance_button" 
-                        onClick = {() => onSelectApplience(3)} 
-                        style={{
-                            backgroundColor : window ? '#3264fe' : 'white'
-                        }}
-                    >
-                        <img className="schedule-control-appliance" src={windowIcon} style={{
-                            filter : window ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                </div>
-
-                <div>
-                    <p className="large_font">무드등</p>
-                    <button 
-                        className="appliance_button" 
-                        onClick = {() => onSelectApplience(1)} 
-                        style={{
-                            backgroundColor : light ? '#3264fe' : 'white'
-                        }}
-                    >
-                        <img className="schedule-control-appliance" src={lightIcon} style={{
-                            filter : light ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                    <span>밝기</span>
-                    <input 
-                        type="range" 
-                        id="lightInputValue" 
-                        name="lightInputValue" 
-                        value={lightValue}
-                        min="1" 
-                        max="9" 
-                        step="1" 
-                        onChange={(event) => setlightValue(event.target.value)} 
-                    />
-                    <br />
-                    <div>
-                        <span>색 선택</span><br/>
-                        <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
-                        <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
-                        <input type="radio" className="color-blue"  name="color-select" value="3" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==3?"checked":""}/>
-                        <input type="radio" className="color-green"  name="color-select" value="4" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==4?"checked":""}/>
-                        <br/>
-                        <input type="radio" className="color-yellow"  name="color-select" value="5" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==5?"checked":""}/>
-                        <input type="radio" className="color-purple"  name="color-select" value="6" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==6?"checked":""}/>
-                        <input type="radio" className="color-orange"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
-                        <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
+                <div class="setting-box-title">
+                    <div class="title">
+                        <h3>{titleName}</h3>
+                        <input class="toggle_checkbox" type="checkbox" id="chk1"/>
+                        <label class="toggle_label" for="chk1">
+                            <span>뻨유맨</span>
+                        </label>
                     </div>
-                    <br />
+                    <div class="date">
+                        {repeat?
+                            <span>
+                                <input type="checkbox" checked={daysofweek[0]?"checked":""}/>
+                                <input type="checkbox" checked={daysofweek[1]?"checked":""}/>
+                                <input type="checkbox" checked={daysofweek[2]?"checked":""}/>
+                                <input type="checkbox" checked={daysofweek[3]?"checked":""}/>
+                                <input type="checkbox" checked={daysofweek[4]?"checked":""}/>
+                                <input type="checkbox" checked={daysofweek[5]?"checked":""}/>
+                                <input type="checkbox" checked={daysofweek[6]?"checked":""}/>
+                            </span>:
+                            <span>
+                                <input type="date" value={activeDate}/>
+                            </span>
+                        }
+                        <input type="time" value={startTime}/>
+                    </div>
+                </div>
+                <hr class="row_line" />
+
+                
+                <div class="setting-box-windowvalve">
+                    <div class="title">
+                        창문/가스밸브
+                    </div>
+                    <div class="content-box">
+                        <div class="window">
+                            <button 
+                                className="appliance_button" 
+                                onClick = {() => onSelectApplience(3)} 
+                                style={{
+                                    backgroundColor : window ? '#3264fe' : 'white'
+                                }}
+                            >
+                                <img className="schedule-control-appliance" src={windowIcon} style={{
+                                    filter : window ? 'invert(1)' : 'invert(0)'
+                                }} />
+                            </button>
+                        </div>
+                        <div class="valve">
+                            <button 
+                                className="appliance_button" 
+                                onClick = {() => onSelectApplience(2)} 
+                                style={{
+                                    backgroundColor : valve ? '#3264fe' : 'white'
+                                }}
+                            >
+                                <img className="schedule-control-appliance" src={valveIcon} style={{
+                                    filter : valve ? 'invert(1)' : 'invert(0)'
+                                }} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <hr class="row_line" />
+                
+                
+                <div class="setting-box-aircon">
+                    <div class="title">
+                        에어컨
+                    </div>
+                    <div class="content-box">
+                        <div class="enable-button">
+                            <button 
+                                className="appliance_button" 
+                                onClick = {() => onSelectApplience(0)} 
+                                style={{
+                                    backgroundColor : aircon ? '#3264fe' : 'white'
+                                }}
+                            >
+                                <img className="schedule-control-appliance" src={airconIcon} style={{
+                                    filter : aircon ? 'invert(1)' : 'invert(0)'
+                                }} />
+                            </button>
+                        </div>
+                        <div class="power-level">
+                            <input 
+                                type="range" 
+                                id="airconInputValue" 
+                                name="airconInputValue"  
+                                value={airconValue}
+                                min="1" 
+                                max="9" 
+                                step="1" 
+                                onChange={(event) => setAirconValue(event.target.value)} 
+                            />
+                        </div>
+                    </div>
+                </div>
+                <hr class="row_line" />
+
+                
+                <div class="setting-box-light">
+                    <div class="title">
+                        무드등
+                    </div>
+                    <div class="content-box">
+                        <div>
+                            <div class="enable-button">
+                                <button 
+                                    className="appliance_button" 
+                                    onClick = {() => onSelectApplience(1)} 
+                                    style={{
+                                        backgroundColor : light ? '#3264fe' : 'white'
+                                    }}
+                                >
+                                    <img className="schedule-control-appliance" src={lightIcon} style={{
+                                        filter : light ? 'invert(1)' : 'invert(0)'
+                                    }} />
+                                </button>      
+                            </div>
+                            <div class="power-level">
+                                <input 
+                                    type="range" 
+                                    id="lightInputValue" 
+                                    name="lightInputValue" 
+                                    value={lightValue}
+                                    min="1" 
+                                    max="9" 
+                                    step="1" 
+                                    onChange={(event) => setlightValue(event.target.value)} 
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     
-                    <div>
-                        <span>모드 선택</span><br/>
-                        <label className="label-lightmode-radio">
-                            <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
-                            <span>일반모드</span> 
-                        </label>
-                        <label className="label-lightmode-radio">
-                            <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
-                            <span>슬립모드</span> 
-                        </label>
-                        <label className="label-lightmode-radio">
-                            <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
-                            <span>파티모드</span> 
-                        </label>
-                        <label className="label-lightmode-radio">
-                            <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="4" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
-                            <span>트리모드</span> 
-                        </label>
+                    
+                <div class="setting-box-lightdetail">
+                    <div class="title">
+                        -
+                    </div>
+                    <div class="content-box">
+                        <div>
+                            <div class="color-selection">
+                                <span>색 선택</span><br/>
+                                <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
+                                <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
+                                <input type="radio" className="color-blue"  name="color-select" value="3" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==3?"checked":""}/>
+                                <input type="radio" className="color-green"  name="color-select" value="4" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==4?"checked":""}/>
+                                <br/>
+                                <input type="radio" className="color-yellow"  name="color-select" value="5" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==5?"checked":""}/>
+                                <input type="radio" className="color-purple"  name="color-select" value="6" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==6?"checked":""}/>
+                                <input type="radio" className="color-orange"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
+                                <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
+                            </div>
+                            <div class="mode-selection">
+                                <span>모드 선택</span><br/>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
+                                    <span>일반모드</span> 
+                                </label>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                    <span>슬립모드</span> 
+                                </label>
+                                <br/>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
+                                    <span>파티모드</span> 
+                                </label>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="4" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
+                                    <span>트리모드</span> 
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
