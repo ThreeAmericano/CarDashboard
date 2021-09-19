@@ -23,8 +23,8 @@ const firebaseConfig = {    // 우리 프로젝트 firebase 설정
     measurementId: "G-WEWQJ2NQSB"
 };
 firebase.initializeApp(firebaseConfig);// firebase 초기 설정
-
-var dbRef = firebase.database().ref();
+/*
+var dbRef = firebase.database().ref();  // firebase RealTime DB Listener
 dbRef.on('value', (snapshot) => {
     const data = snapshot.val();
     console.log("[Service] listener :",data);
@@ -36,7 +36,7 @@ dbRef.on('value', (snapshot) => {
     //});
     //service.call(url, params);
 });
-
+*/
 
 service.register("listener", function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
@@ -79,7 +79,7 @@ async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함�
     };
 };
 
-async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값을 받아온다.)
+async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값을 받아온다.)
     try {
         let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
         let channel = await connection.createChannel();       // 채널 생성
@@ -105,7 +105,7 @@ async function consumeMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는
             return String(msg.name);
         }
     } catch(e) {
-        console.log("[Service:consumeMqtt] error : ", e);
+        console.log("[Service:getMqtt] error : ", e);
     };
 };
 
@@ -172,9 +172,92 @@ service.register("getDB", async function(message) {    // signIn 서비스
             Response: db
         });
     } catch(e) {
-        console.log("[Service:consumeMqtt] error : ", e);
+        console.log("[Service:getDB] error : ", e);
     };
 });
+
+service.register("facerSignIn", async function(message) {    // signIn 서비스
+    try {
+        // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
+        console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/facerSignIn");
+        console.log("[Service] In facerSignIn callback");
+
+        console.log("[Service] facer",message.payload.facer);
+
+        const queue = "webos.car";
+        let returnMsg;
+
+        const msg = JSON.stringify({
+            "Producer" : "car",
+            "command" : "start_facer"
+        });
+
+        await sendMqttFunc("webos.topic", "webos.server.info", msg);  // 서버로 얼굴인식 시작 명령어를 보낸다.
+        console.log("[Service] sendMqtt end in service");
+
+        async function facerSigninMqtt() {                   // await를 위해 비동기 함수로 만들어 실행
+            returnMsg = await facerGetMqtt(queue);       // 이름 수신 (서버는 uid를 받으면 이름을 보낸다.)
+            console.log("[Service] facerGetMqtt end in service");
+        };
+
+        await facerSigninMqtt();//위 비동기 함수
+        console.log("[Service] returnMsg :", returnMsg);
+
+        let db = await firebaseRTdb();
+        console.log("[Service] name, result :", returnMsg.name, returnMsg.result);
+        console.log("[Service] db:",db);
+
+        message.respond({
+            returnValue: true,
+            Response: {
+                "name" : returnMsg.name,
+                "result" : returnMsg.result,
+                "db" : db
+            }
+        });
+    } catch(e) {
+        console.log("[Service:facerSignIn] error : ", e);
+    };
+});
+
+async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값을 받아온다.)
+    try {
+        let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
+        let channel = await connection.createChannel();       // 채널 생성
+        let response = await channel.assertQueue(queue, {durable:true});    // Queue 연결
+        let msg = '';
+
+        await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 wait
+
+        response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
+        //console.log("[Service:facerGetMQTT] response.content.toString() :", response.content.toString());
+        //msg = JSON.parse(response.content.toString());  // json으로 파싱
+        //console.log("[Service:facerGetMQTT] msg :",msg);
+        while(!response) {
+            await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 wait
+            console.log("[Service:facerGetMQTT] 얼굴인식 수신 대기")
+            try {
+                response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
+                //console.log("[Service:facerGetMQTT while] response :", response);
+                console.log("[Service:facerGetMQTT while] response.content.toString() :", response.content.toString());
+                if(response.content.toString()) {
+                    msg = JSON.parse(response.content.toString());  // json으로 파싱
+                    console.log("[Service:facerGetMQTT while] msg :",msg);
+                    channel.ack(response);  // queue 소진하기
+                    return msg;
+                    //console.log("[Service:facerGetMQTT] response.content.toString() :",response.content.toString());
+                }
+            } catch (e) {
+                console.log("[Service:facerGetMQTT] get 하는 중 e :",e);
+            };
+        };
+/*        console.log("[Service:facerGetMQTT] msg :",msg);
+        channel.ack(response);  // queue 소진하기
+        return String(msg);*/
+    } catch(e) {
+        console.log("[Service:getMqtt] error : ", e);
+    };
+};
 
 service.register("signIn", async function(message) {    // signIn 서비스
     try {
@@ -201,8 +284,8 @@ service.register("signIn", async function(message) {    // signIn 서비스
         console.log("[Service] sendMqtt end in service");
 
         async function signinMqtt() {                   // await를 위해 비동기 함수로 만들어 실행
-            returnMsg = await consumeMqtt(queue);       // 이름 수신 (서버는 uid를 받으면 이름을 보낸다.)
-            console.log("[Service] consumeMqtt end in service");
+            returnMsg = await getMqtt(queue);       // 이름 수신 (서버는 uid를 받으면 이름을 보낸다.)
+            console.log("[Service] getMqtt end in service");
             console.log("[Service] name :", returnMsg);
         };
 
@@ -219,7 +302,7 @@ service.register("signIn", async function(message) {    // signIn 서비스
             }
         });
     } catch(e) {
-        console.log("[Service:consumeMqtt] error : ", e);
+        console.log("[Service:signIn] error : ", e);
     };
     
 });
@@ -241,28 +324,10 @@ service.register("sendMqtt", async function(message) {  // MQTT 송신 서비스
             Response: "Send Complete"
         });
     } catch(e) {
-        console.log("[Service:consumeMqtt] error : ", e);
+        console.log("[Service:sendMqtt] error : ", e);
     };
     
 });
-/*
-service.register("consumeMqtt", async function(message) {  // MQTT 수신 서비스
-    // Exchange, routingKey, msg를 받아 송신한다.
-    console.log(logHeader, "SERVICE_METHOD_CALLED:/consumeMqtt");
-    console.log("In consumeMqtt callback");
-
-    const queue = message.payload.queue;
-    
-    await sendMqttFunc(exchange, routingKey, msg);
-
-    let data = await consumeMqtt(queue);
-
-    message.respond({
-        returnValue: true,
-        Response: "data"
-    });
-});
-*/
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------

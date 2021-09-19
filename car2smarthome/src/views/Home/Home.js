@@ -75,9 +75,11 @@ async function getStoreDB() {
 
 if(pageNum == 1) getStoreDB();
 
-const Home = () => {
+const Home = ({match}) => {
     const history = useHistory();
     const location = useLocation();
+    console.log("[Home] match :", match);
+    
     const [name, setName] = useState();
     const [temp, setTemp] = useState();
     const [humi, setHumi] = useState();
@@ -95,13 +97,11 @@ const Home = () => {
     const [valve, setValve] = useState(false);
     const [window, setWindow] = useState(false);
 
-    pageNum = location.state.pageNum;
-    console.log("[Home] pageNum :", pageNum);
-
     useEffect(() => {
         console.log("[Home:useEffect] 컴포넌트가 화면에 나타남");
+        console.log("[Home:useEffect] match :", match);
         // 초기값 설정
-        pageNum = location.state.pageNum;
+        pageNum = 1;
         setName(location.state.name);
         ttsTest(String(location.state.name)+"님 안녕하세요");
 
@@ -767,7 +767,6 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-            <p>{"[HTML] valve : "+valve}</p>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 import faceIcon from '../../../resources/smarthome_icon/smile.png';
 
@@ -13,6 +13,7 @@ import "../../../resources/css/sam_style.css"
 const SignIn = () => {
     // 로그인 페이지
     const history = useHistory();   // 페이지 이동에 사용된다.
+    //const location = useLocation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -36,6 +37,7 @@ const SignIn = () => {
             "password":password
         });
       
+        //createToast("이메일 로그인 중")
         webOSBridge.call(url, params);
         webOSBridge.onservicecallback = signInCallback;
         function signInCallback(msg){
@@ -45,16 +47,19 @@ const SignIn = () => {
 
             name = returnValue.name;
 
-            history.push({
-                pathname: '/home',
-                state: {
-                    'name' : name,
-                    'db' : returnValue.db,
-                    'pageNum' : 1
-                }
-            });
-
-        }
+            if(name == "fail") {
+                createToast("로그인 실패");
+            } else {
+                history.push({
+                    pathname: '/home',
+                    state: {
+                        'name' : name,
+                        'db' : returnValue.db,
+                        'pageNum' : 1
+                    }
+                });
+            };
+        };
         console.log("[SignIn:onSignIn] onSignIn function end");
     };
 
@@ -71,10 +76,46 @@ const SignIn = () => {
 
     const onFaceSignIn = () => {
         console.log("[SignIn:onFaceSignIn] onFaceSignIn function excuted");
-        ttsTest();
-        createToast("토스트 테스트");
-        startAssistant();
-        GetState();
+        let name, result;
+
+        var url = 'luna://com.ta.car2smarthome.service/facerSignIn'; // JS 서비스의 signIn 서비스를 이용한다.
+        var params = JSON.stringify({
+            "facer":"start"
+        });
+      
+        //createToast("얼굴인식 로그인 중 (1 ~ 2분 동안 작동 금지)");
+
+        webOSBridge.call(url, params);
+        webOSBridge.onservicecallback = facerSignInCallback;
+        function facerSignInCallback(msg){
+            var response = JSON.parse(msg); 
+            console.log("[SignIn:onFaceSignIn callback] response :", response);
+            let returnValue = response.Response;
+            console.log("[SignIn:onFaceSignIn callback] returnValue :", returnValue);
+
+            result = returnValue.result;
+            name = returnValue.name;
+
+            if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
+                createToast("로그인 실패");
+            } else {
+                history.push({
+                    pathname: '/home',
+                    state: {
+                        'name' : name,
+                        'db' : returnValue.db,
+                        'pageNum' : 1
+                    }
+                });
+            };
+        };
+        console.log("[SignIn:onFaceSignIn] onSignIn function end");
+    
+
+        //ttsTest();
+        //createToast("토스트 테스트");
+        //startAssistant();
+        //GetState();
         //await visionSignIn();
         // 얼굴인식 시작 mqtt를 server로 보냄
         //let startFaceSignIn = "start msg to server"; // 실행코드 넣기
