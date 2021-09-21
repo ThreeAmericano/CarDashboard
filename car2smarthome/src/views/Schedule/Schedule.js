@@ -18,32 +18,7 @@ import lightIcon from '../../../resources/smarthome_icon/light.png';
 import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
-//var webOSBridge = new WebOSServiceBridge();
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
-
-// 현재 체크 박스 체크 안됨
-// 스케줄 추가 기능
-// 토글 스위치로 가전제어 or 모드 스케줄 선택
-// 
-
-/*
-scheduleData[i] = {
-    "Daysofweek" : doc.data().Daysofweek,
-    "Enabled" : doc.data().Enabled,
-    "Start_time" : doc.data().Start_time,
-    "Title" : doc.data().Title,
-    "UID" : doc.data().UID,
-    "airconEnable" : doc.data().airconEnable,
-    "airconWindPower" : doc.data().airconWindPower,
-    "gasValveEnable" : doc.data().gasValveEnable,
-    "lightBrightness" : doc.data().lightBrightness,
-    "lightColor" : doc.data().lightColor,
-    "lightEnable" : doc.data().lightEnable,
-    "lightMode" : doc.data().lightMode,
-    "modeNum" : doc.data().modeNum,
-    "repeat" : doc.data().repeat,
-    "windowOpen" : doc.data().windowOpen
-};*/
 
 let scheduleData = [];
 let docID = [];
@@ -142,32 +117,7 @@ const Schedule = () => {
             }
         });
     };
-    /*
-    <input 
-        type="checkbox" 
-        checked={scheduleData[index].Enabled?"checked":""} 
-        onClick={() => onSetEnable(index)} 
-    />
-     */
-    //bgcolor={selectedScheduleArray[index] ? '#3264fe' : 'white'}
-    /*
-    onClick={() => {
-        onSelectSchedule(index);
-        setSelectedSchedule(index);
-        test = test.map(e => false);
-        test[index] = true;
-    }} 
-    style={{backgroundColor : (test[index]) ? '#3264fe' : 'white'}}>
-    */
-    /*
-    <td>
-        <input 
-            type="checkbox" 
-            checked={scheduleData[index].Enabled?"checked":""} 
-            onClick={() => {onSetEnable(index);}} 
-        />
-    </td>
-    */
+    
     const setScheduleUI = () => {
         // 반환 받은 테이블 값을 설정
         scheduleList = scheduleData.map(
@@ -199,7 +149,7 @@ const Schedule = () => {
         setSchedule(
             <table className="schedule_list_table" border = '1' align='center'>
                 <tr>
-                    <input type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="문서명을 입력하세요." required />
+                    <input type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="추가할 문서명을 입력하세요." required />
                 </tr>
                 {scheduleList}
             </table>
@@ -266,7 +216,9 @@ const Schedule = () => {
             saveScheduleData["Active_date"] = activeDate.replace(/\-/g,".");
             
             console.log("[Schedule:onSave] docID[selectedSchedule] :", docID[selectedSchedule]); 
-            console.log("[Schedule:onSave] saveScheduleData :", saveScheduleData);        
+            console.log("[Schedule:onSave] saveScheduleData :", saveScheduleData);    
+            
+            scheduleData[selectedSchedule]=saveScheduleData;
 
             // firestore 에 저장
             setDoc(doc(storeDB, "schedule_mode", String(docID[selectedSchedule])),saveScheduleData);
@@ -282,7 +234,7 @@ const Schedule = () => {
 
             // firestore 에서 삭제
             deleteDoc(doc(storeDB, "schedule_mode", String(docID[selectedSchedule]))); 
-            
+
             scheduleData.splice(selectedSchedule,1);
             docID.splice(selectedSchedule,1);
 
@@ -300,7 +252,6 @@ const Schedule = () => {
     const onSelectSchedule = (num) => {
         setSelectedSchedule(num);
         
-        //console.log("scheduleData[num].Daysofweek :", scheduleData[num].Daysofweek);
         if(scheduleData[num].repeat) {
             setSun(scheduleData[num].Daysofweek[0]);
             setMon(scheduleData[num].Daysofweek[1]);
@@ -399,7 +350,8 @@ const Schedule = () => {
                     <div class="title">
                         <h3 class="schedule_title_h3">{titleName}</h3>
 
-                        <input class="toggle_checkbox" type="checkbox" id="chk1" onChange={() => {setScheduleEnable(scheduleEnable?false:true);scheduleData[num].Enabled}} checked={scheduleEnable?"checked":""} />
+                        <input class="toggle_checkbox" type="checkbox" id="chk1"
+                            onChange={() => {setScheduleEnable(scheduleEnable?false:true);}} checked={scheduleEnable?"checked":""} />
                         <label class="toggle_label" for="chk1">
                             <span>사용온오프 스위치</span>
                         </label>

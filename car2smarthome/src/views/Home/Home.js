@@ -503,17 +503,17 @@ const Home = () => {
 
     const onGotoSetting = () => {
         console.log("[Home:onGotoSetting] 스케줄 설정 페이지");
-/*
+
         pageNum = 4;
         //스케줄 설정 페이지
         history.push({
-            pathname: '/setting',
+            pathname: '/alarm',
             state: {
                 'name' : name,
                 'db' : oldDB,
                 'pageNum' : pageNum
             }
-        });*/
+        });
     }
 
     const onGotoAppliance = () => {
