@@ -69,6 +69,7 @@ async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함�
         console.log("[Service]  [x] Sent %s:'%s'", routingKey, msg);
 
         setTimeout(() => {                                      // timeout 되면 채널과 연결 닫음
+            console.log("[Service:sendMqttFunc] tiemout");
             channel.close();
             connection.close();
         }, 500);
@@ -80,9 +81,9 @@ async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함�
 };
 
 async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값을 받아온다.)
+    let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
+    let channel = await connection.createChannel();       // 채널 생성
     try {
-        let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
-        let channel = await connection.createChannel();       // 채널 생성
 
         let response = await channel.assertQueue(queue, {durable:true});    // Queue 연결
 
@@ -106,6 +107,9 @@ async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값
         }
     } catch(e) {
         console.log("[Service:getMqtt] error : ", e);
+        channel.ack(response);  // queue 소진하기
+        channel.close();
+        connection.close();
     };
 };
 
@@ -120,6 +124,22 @@ async function firebaseLogin(email, password) { // firebase 로그인 함수
         return uid;
     } catch(err) {
         console.log("[Service] firebase singin function failed");
+        console.log("[Service] err :", err);
+    }
+};
+
+async function firebaseSignup(email, password) { // firebase 사인업 함수
+    try {   // 로그인하고 UID 값을 받아온다.
+        console.log("[Service] firebase signup function start");
+        //const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password)
+        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+
+        console.log("[Service] user :", user);
+        console.log("[Service] firebase signup function success");
+        return user;
+    } catch(err) {
+        console.log("[Service] firebase signup function failed");
         console.log("[Service] err :", err);
     }
 };
@@ -258,6 +278,39 @@ async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있�
         console.log("[Service:getMqtt] error : ", e);
     };
 };
+
+service.register("signUp", async function(message) {    // signIn 서비스
+    try {
+        // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
+        console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/signUp");
+
+        let email = message.payload.email;
+        let password = message.payload.password;
+        let name = message.payload.name;
+
+        let user = await firebaseSignup(email, password); // 이메일, 비밀번호로 firebase 회원가입
+
+        const msg = JSON.stringify({
+            "Producer" : "car",
+            "command" : "signup",
+            "UID" : user.uid,
+            "name" : name
+        });
+
+        await sendMqttFunc("webos.topic", "webos.server.info", msg);  // 서버로 uid 값을 보낸다.
+        console.log("[Service] sendMqtt end in service");
+        
+        message.respond({
+            returnValue: true,
+            Response: {
+                "user" : user
+            }
+        });
+    } catch(e) {
+        console.log("[Service:signUp] error : ", e);
+    };
+    
+});
 
 service.register("signIn", async function(message) {    // signIn 서비스
     try {

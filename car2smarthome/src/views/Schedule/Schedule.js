@@ -158,33 +158,37 @@ const Schedule = () => {
 
     const onAddDoc = () => {
         try {
-            console.log("[Schedule:onAddDoc] addDocName :", addDocName);
+            if(addDocName) {
+                console.log("[Schedule:onAddDoc] addDocName :", addDocName);
 
-            let addDocData = {
-                "Daysofweek" : [false, false, false, false, false, false, false],
-                "Enabled" : false,
-                "Start_time" : "0000",
-                "Title" : addDocName,
-                "UID" : "12345678",
-                "airconEnable" : false,
-                "airconWindPower" : 0,
-                "gasValveEnable" : false,
-                "lightBrightness" : 5,
-                "lightColor" : 2,
-                "lightEnable" : false,
-                "lightMode" : 0,
-                "modeNum" : 0,
-                "repeat" : true,
-                "windowOpen" : false
-            };
-
-            scheduleData.push(addDocData);
-            docID.push(addDocName);
-
-            // firestore 에 추가
-            setDoc(doc(storeDB, "schedule_mode", addDocName),addDocData);
-           
-            setScheduleUI();
+                let addDocData = {
+                    "Daysofweek" : [false, false, false, false, false, false, false],
+                    "Enabled" : false,
+                    "Start_time" : "0000",
+                    "Title" : addDocName,
+                    "UID" : "12345678",
+                    "airconEnable" : false,
+                    "airconWindPower" : 0,
+                    "gasValveEnable" : false,
+                    "lightBrightness" : 5,
+                    "lightColor" : 2,
+                    "lightEnable" : false,
+                    "lightMode" : 0,
+                    "modeNum" : 0,
+                    "repeat" : true,
+                    "windowOpen" : false
+                };
+    
+                scheduleData.push(addDocData);
+                docID.push(addDocName);
+    
+                // firestore 에 추가
+                setDoc(doc(storeDB, "schedule_mode", addDocName),addDocData);
+               
+                setScheduleUI();
+            } else {
+                console.log("[Schedule:onAddDoc] 이름이 없습니다.");
+            }            
         } catch (e) {
             console.log("[Schedule:onAddDoc] error :", e);   
         };

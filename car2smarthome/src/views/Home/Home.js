@@ -470,7 +470,7 @@ const Home = () => {
     const onGotoSignin = () => {
         console.log("[Home:onGotoSignin] 뒤로 돌아가기");
         pageNum = 0;
-        history.goBack();
+        history.replace('/');
     }
 
     const onGotoMode = () => {
