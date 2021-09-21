@@ -133,7 +133,7 @@ const Schedule = () => {
                                 <br/>
                                 <span className="schedule_list_date">
                                     <span>
-                                        {item.Start_time.substring(0,2)+":"+item.Start_time.substring(2,4)}
+                                        {item.Start_time.substring(0,2)+":"+item.Start_time.substring(2,4)+" "}
                                     </span>
                                     <span>{
                                         item.repeat?(item.Daysofweek[1]?"월 ":"")+(item.Daysofweek[2]?"화 ":"")+(item.Daysofweek[3]?"수 ":"")+(item.Daysofweek[4]?"목 ":"")+(item.Daysofweek[5]?"금 ":"")+(item.Daysofweek[6]?"토 ":"")+(item.Daysofweek[0]?"일 ":""):""
@@ -149,7 +149,13 @@ const Schedule = () => {
         setSchedule(
             <table className="schedule_list_table" border = '1' align='center'>
                 <tr>
-                    <input type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="추가할 문서명을 입력하세요." required />
+                    <td>
+                        <input className="schedule_list_add_title" type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="추가할 문서명을 입력하세요." required />
+
+                        <button className="schedule_list_add_button" onClick={onAddDoc}>
+                            <span class="material-icons">add_box</span>
+                        </button>
+                    </td>
                 </tr>
                 {scheduleList}
             </table>
@@ -331,10 +337,6 @@ const Schedule = () => {
                 스케쥴
             </button>
 
-            <button className="add-button" onClick={onAddDoc}>
-                <span class="material-icons">add</span>
-            </button>
-
             <button className="delete-button" onClick={onDeleteDoc}>
                 <span class="material-icons">delete</span>
             </button>
@@ -354,10 +356,35 @@ const Schedule = () => {
                     <div class="title">
                         <h3 class="schedule_title_h3">{titleName}</h3>
 
+                        <span>사용하기</span>
                         <input class="toggle_checkbox" type="checkbox" id="chk1"
                             onChange={() => {setScheduleEnable(scheduleEnable?false:true);}} checked={scheduleEnable?"checked":""} />
                         <label class="toggle_label" for="chk1">
                             <span>사용온오프 스위치</span>
+                        </label>
+                        <br/>
+
+                        <span>모드제어</span>
+                        <input class="toggle_checkbox" type="checkbox" id="chk2"
+                        onChange={() => {
+                            if(checkMyProfile) {
+                                setCheckMyProfile(false);
+                                modeTurnOff();
+                            } else {
+                                setCheckMyProfile(true);
+                                setModeNum(scheduleData[selectedSchedule].modeNum);
+                                switch(scheduleData[selectedSchedule].modeNum) {
+                                    case 1 : {modeTurnOff(); setIndoorMode(true); break;}
+                                    case 2 : {modeTurnOff(); setOutdoorMode(true); break;}
+                                    case 3 : {modeTurnOff(); setEcoMode(true); break;}
+                                    case 4 : {modeTurnOff(); setNightMode(true); break;}
+                                    default : {modeTurnOff(); setIndoorMode(true); break;}
+                                }
+                            }
+                        }}
+                        checked={checkMyProfile?"checked":""}/>
+                        <label class="toggle_label" for="chk2">
+                            <span>모드로할지 개별제어로 할지 고르는 스위치</span>
                         </label>
 
                     </div>
@@ -382,27 +409,7 @@ const Schedule = () => {
                 </div>
                 <hr class="row_line" />
 
-                <input class="toggle_checkbox" type="checkbox" id="chk2"
-                    onChange={() => {
-                        if(checkMyProfile) {
-                            setCheckMyProfile(false);
-                            modeTurnOff();
-                        } else {
-                            setCheckMyProfile(true);
-                            setModeNum(scheduleData[selectedSchedule].modeNum);
-                            switch(scheduleData[selectedSchedule].modeNum) {
-                                case 1 : {modeTurnOff(); setIndoorMode(true); break;}
-                                case 2 : {modeTurnOff(); setOutdoorMode(true); break;}
-                                case 3 : {modeTurnOff(); setEcoMode(true); break;}
-                                case 4 : {modeTurnOff(); setNightMode(true); break;}
-                                default : {modeTurnOff(); setIndoorMode(true); break;}
-                            }
-                        }
-                    }}
-                    checked={checkMyProfile?"checked":""}/>
-                <label class="toggle_label" for="chk2">
-                    <span>모드로할지 개별제어로 할지 고르는 스위치</span>
-                </label>
+
 {checkMyProfile?
                 <div class="" > 
                     <div class="setting-box-windowvalve">
@@ -554,8 +561,9 @@ const Schedule = () => {
                     </div>
                 </div>
 :
-                <div class=""> 
-                    <button className="mode-setting__head__mode mode-setting__head__mode1" 
+                <div class="">
+                    <p> 
+                    <button className="mode-setting__schedule__mode mode-setting__schedule__mode1" 
                         onClick = {() => {
                             modeTurnOff();
                             setIndoorMode(indoorMode?false:true);
@@ -568,7 +576,7 @@ const Schedule = () => {
                             filter : indoorMode ? 'invert(1)' : 'invert(0)'
                         }} />
                     </button>
-                    <button  className="mode-setting__head__mode mode-setting__head__mode2" 
+                    <button  className="mode-setting__schedule__mode mode-setting__schedule__mode2" 
                         onClick = {() => {
                             modeTurnOff();
                             setOutdoorMode(outdoorMode?false:true);
@@ -581,7 +589,9 @@ const Schedule = () => {
                             filter : outdoorMode ? 'invert(1)' : 'invert(0)'
                         }} />
                     </button>
-                    <button  className="mode-setting__head__mode mode-setting__head__mode3" 
+                    <br/>
+
+                    <button  className="mode-setting__schedule__mode mode-setting__schedule__mode3" 
                         onClick = {() => {
                             modeTurnOff();
                             setEcoMode(ecoMode?false:true);
@@ -594,7 +604,7 @@ const Schedule = () => {
                             filter : ecoMode ? 'invert(1)' : 'invert(0)'
                         }} />
                     </button>
-                    <button  className="mode-setting__head__mode mode-setting__head__mode4" 
+                    <button  className="mode-setting__schedule__mode mode-setting__schedule__mode4" 
                         onClick = {() => {
                             modeTurnOff();
                             setNightMode(nightMode?false:true);
@@ -607,6 +617,7 @@ const Schedule = () => {
                             filter : nightMode ? 'invert(1)' : 'invert(0)'
                         }} />
                     </button>
+                    </p>
                 </div>
 }
             </div>

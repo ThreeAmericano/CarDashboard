@@ -132,88 +132,6 @@ input:checked + .slider:before {
   font-size: 2.5rem;
 }
 
-/*
-옛날꺼 !!
-.mode-setting__head{
-  display: grid;
-  grid-template-columns: 10% 16% 10% 10% 10% 10% 16% 10%;
-  grid-gap: 0.625rem;
-  grid-auto-rows: minmax(100px, auto);
-  background-color: #D5DCE5;
-}
-.mode-setting__head .title{
-  display: block;
-  grid-column: 3/7;
-  grid-row: 1;
-  text-align: center;
-}
-.mode-setting__head .back-button{
-  display: block;
-  grid-column: 1;
-  grid-row: 1;
-  width: 3rem;
-  height: 3rem;
-  border: 0px;
-  margin: auto;
-  border-radius: 10%;
-  font-size: 2.5rem;
-}
-.mode-setting__head__mode{
-  display: block;
-  width: 5rem;
-  height: 5rem;
-  border: 0px;
-  margin: auto;
-  margin-bottom: 1rem;
-  border-radius: 10%;
-  font-size: 2.5rem;
-  transition: 0.1s;
-}
-.mode-setting__head__mode img{
-  width: 3rem;
-  height: 3rem;
-}
-.mode-setting__head__mode1{
-  grid-column: 3;
-  grid-row: 2;
-}
-.mode-setting__head__mode2{
-  grid-column: 4;
-  grid-row: 2;
-}
-.mode-setting__head__mode3{
-  grid-column: 5;
-  grid-row: 2;
-}
-.mode-setting__head__mode4{
-  grid-column: 6;
-  grid-row: 2;
-}
-.mode-setting__head .delete-button{
-  display: block;
-  grid-column: 7;
-  grid-row: 1;
-  width: 3rem;
-  height: 3rem;
-  border: 0px;
-  margin: auto;
-  border-radius: 10%;
-  font-size: 2.5rem;
-}
-.mode-setting__head .save-button{
-  display: block;
-  grid-column: 8;
-  grid-row: 1;
-  width: 3rem;
-  height: 3rem;
-  border: 0px;
-  margin: auto;
-  border-radius: 10%;
-  font-size: 2.5rem;
-}
-*/
-
-
 
 
 /* ===================================================================
@@ -262,7 +180,7 @@ input:checked + .slider:before {
 }
 .mode-setting__box__left{
   float: left;
-  width: 30%;
+  width: 50%;
   height: 28rem;
   padding: 0px;
   text-align: center;
@@ -273,7 +191,7 @@ input:checked + .slider:before {
 }
 .mode-setting__box__light-setting{
   float: right;
-  width: 70%;
+  width: 50%;
   height: 100%;
   padding: 0px;
   text-align: center;
@@ -310,182 +228,13 @@ input:checked + .slider:before {
 
 
 
-.setting-box-title{
-  display: inline-block;
-  width: 95%;
-  margin: 1rem;
-}
-.setting-box-title div.title{
-  width:50%;
-  float:left;
-}
-.setting-box-title div.date{
-  width:50%;
-  float:right;
-  text-align: right;
-}
-.setting-box-title .daysofweek{
-  zoom:2;
-}
-.schedule_date{
-  zoom: 1.5;
-  border: 0px;
-  border-bottom: 2px dotted skyblue;
-}
-.schedule_time{
-  zoom: 1.5;
-  border: 0px;
-  border-bottom: 2px dotted skyblue;
-  margin: 1rem;
-}
-
-
-.setting-box-windowvalve{
-  display: inline-block;
-  width: 100%;
-}
-.setting-box-windowvalve div.title{
-  width:20%;
-  float:left;
-}
-.setting-box-windowvalve div.content-box{
-  width:80%;
-  float:left;
-}
-.setting-box-windowvalve div.window{
-  width:50%;
-  float:left;
-}
-.setting-box-windowvalve div.valve{
-  width:50%;
-  float:right;
-}
-
-.setting-box-aircon{
-  display: inline-block;
-  width: 100%;
-}
-.setting-box-aircon div.title{
-  width:20%;
-  float:left;
-}
-.setting-box-aircon div.content-box{
-  width:80%;
-  float:left;
-}
-.setting-box-aircon div.enable-button{
-  width:20%;
-  float:left;
-}
-.setting-box-aircon div.power-level{
-  width:80%;
-  float:right;
-}
-
-
-.setting-box-light{
-  display: inline-block;
-  width: 100%;
-}
-.setting-box-light div.title{
-  width:20%;
-  float:left;
-}
-.setting-box-light div.content-box{
-  width:80%;
-  float:left;
-}
-.setting-box-light div.top{
-  float:top;
-}
-.setting-box-light div.enable-button{
-  width:20%;
-  float:left;
-}
-.setting-box-light div.power-level{
-  width:80%;
-  float:right;
-}
-
-
-.setting-box-lightdetail{
-  display: inline-block;
-  width: 100%;
-}
-.setting-box-lightdetail div.title{
-  width:20%;
-  float:left;
-}
-.setting-box-lightdetail div.content-box{
-  width:80%;
-  float:left;
-}
-.setting-box-lightdetail div.color-selection{
-  width:50%;
-  float:left;
-}
-.setting-box-lightdetail div.mode-selection{
-  width:50%;
-  float:right;
-}
-
-
-
 /* ===================================================================
 - 제어부분 상세 설정
 =================================================================== */
-.schedule_title_h3{
-  text-align: left;
+.alarmlist_item_inform{
+  font-size: large;
 }
-.appliance_button{
-  transition: 0.1s;
+.alarmlist_item_date{
+  font-size: small;
+  color: gray;
 }
-.schedule-control-appliance{
-  width: 3rem;
-  height: 3rem;
-}
-.aircon-setting{
-  margin: auto;
-  padding: 50px 50px 50px 50px;
-}
-.valveWindow-setting{
-  margin: auto;
-  padding: 50px 50px 50px 50px;
-}
-.valve-setting .window-setting{
-  display: inline-block;
-}
-
-.light-setting{
-  margin: auto;
-  padding: 50px 50px 50px 50px;
-}
-.label-lightmode-radio{
-  position: relative;
-  pointer-events: auto;
-  font-size: medium;
-}
-.label-lightmode-radio input[type="radio"]{
-  display:none;
-}
-.label-lightmode-radio input[type="radio"] + span{
-  display:inline-block;
-  background:none;
-  border:1px solid #dfdfdf;  
-  padding: 1rem;
-  margin: 0.3rem;
-  text-align:center;
-  /*
-  height:2rem;
-  line-height:33px;
-  */
-  font-weight:500;
-  cursor:pointer;
-  transition: 0.05s;
-}
-.label-lightmode-radio input[type="radio"]:checked + span{
-  border:1px solid cornflowerblue;
-  background:cornflowerblue;
-  color:#fff;
-}
- 

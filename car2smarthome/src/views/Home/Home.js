@@ -519,6 +519,17 @@ const Home = () => {
     const onGotoAppliance = () => {
         console.log("[Home:onGotoAppliance] 개별 가전 제어 페이지");
         //가전 제어 페이지
+
+        pageNum = 5;
+        //스케줄 설정 페이지
+        history.push({
+            pathname: '/appliance',
+            state: {
+                'name' : name,
+                'db' : oldDB,
+                'pageNum' : pageNum
+            }
+        });
         //history.push('/');
 /*
         //firebase test

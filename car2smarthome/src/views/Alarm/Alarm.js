@@ -79,12 +79,14 @@ const Alarm = () => {
                 <tr key={index} >
                     <tr>
                         <td>
-                            <p>
-                                {item.date}
-                            </p>
-                            <p>
+                            <p className="alarmlist_item_inform">
                                 {item.inform}
                             </p>
+                            <p className="alarmlist_item_date">
+                                {item.date}
+                            </p>
+                        </td>
+                        <td>
                             <p>
                                 <img className="control-mode" 
                                     src={
@@ -110,22 +112,9 @@ const Alarm = () => {
     return(
         <div className="mode-setting">
         <div className="mode-setting__head">
-            <h3 className="title">알람 목록 페이지</h3>
+            <h3 className="title">설정페이지</h3>
             <button className="back-button" onClick={onGotoHome}>
                 <span class="material-icons">reply</span>
-            </button>
-
-            <button className="mode-setting__head__navigation mode-setting__head__mode_button">
-                <span class="material-icons">star</span>
-                모드
-            </button>
-            <button className="mode-setting__head__navigation mode-setting__head__schedule_button">
-                <span class="material-icons">pending_actions</span>
-                스케쥴
-            </button>
-
-            <button className="add-button">
-                <span class="material-icons">add</span>
             </button>
 
             <button className="delete-button">
@@ -139,11 +128,28 @@ const Alarm = () => {
 
         <div className="mode-setting__box">
             <div className="mode-setting__box__left">
+                <h3>가전 알람 목록</h3>
                 {alarm}
             </div>
 
             <div className="mode-setting__box__light-setting">
-                UI 모드 설정
+                <h3>UI 모드 설정</h3>
+                <p>사용자이름</p>
+                <p>
+                    다크모드
+                    <input class="toggle_checkbox" type="checkbox" id="chk1"/>
+                    <label class="toggle_label" for="chk1">
+                        <span>다크모드</span>
+                    </label>
+                </p>
+                <p>
+                    무엇일까
+                    <input class="toggle_checkbox" type="checkbox" id="chk2"/>
+                    <label class="toggle_label" for="chk2">
+                        <span>뭘넣어야하나요</span>
+                    </label>
+                </p>
+
             </div>                    
         </div>
     </div>
