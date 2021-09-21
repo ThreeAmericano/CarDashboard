@@ -6,12 +6,7 @@ import "./Home.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
-// Import Icon
-//import { FiChevronsLeft } from "react-icons/fi";
-//import { AiOutlinePlus } from "react-icons/ai";
-
 // 날씨
-
 import sunny from '../../../resources/weather_icon/sunny.png';
 import littlecloudy from '../../../resources/weather_icon/littlecloudy.png';
 import cloudy from '../../../resources/weather_icon/cloudy.png';
@@ -28,6 +23,8 @@ import indoorIcon from '../../../resources/smarthome_icon/indoor.png';
 import outdoorIcon from '../../../resources/smarthome_icon/outdoor.png';
 import ecoIcon from '../../../resources/smarthome_icon/eco_energy.png';
 import nightIcon from '../../../resources/smarthome_icon/night.png';
+
+import scheduleIcon from '../../../resources/smarthome_icon/schedule.png'
 
 import applianceIcon from '../../../resources/smarthome_icon/gear.png'
 import airconIcon from '../../../resources/smarthome_icon/air_conditioner.png';
@@ -75,10 +72,9 @@ async function getStoreDB() {
 
 if(pageNum == 1) getStoreDB();
 
-const Home = ({match}) => {
+const Home = () => {
     const history = useHistory();
     const location = useLocation();
-    console.log("[Home] match :", match);
     
     const [name, setName] = useState();
     const [temp, setTemp] = useState();
@@ -95,11 +91,17 @@ const Home = ({match}) => {
     const [aircon, setAircon] = useState(false);
     const [light, setLight] = useState(false);
     const [valve, setValve] = useState(false);
-    const [window, setWindow] = useState(false);
+    const [windowAppli, setWindow] = useState(false);
 
     useEffect(() => {
+        console.log("[Home:useEffect] useEffect 실행");
         // 초기값 설정
         pageNum = 1;
+
+        stopAssistant();
+        startAssistant();
+        GetState();
+
         setName(location.state.name);
         ttsTest(String(location.state.name)+"님 안녕하세요");
 
@@ -144,11 +146,12 @@ const Home = ({match}) => {
         if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
         else modeTurnOff;
         
-/*
         return() => {
+            stopAssistant();
             console.log("[Home:useEffect] 컴포넌트가 화면에서 사라짐");
+            console.log("[Home:useEffect] pageNum :", pageNum);
         };
-        */
+        
     }, []);
 
     if(pageNum == 1) {
@@ -171,7 +174,67 @@ const Home = ({match}) => {
         });
 
         getStoreDB();
-    }
+    };
+
+    const startAssistant = () => {
+        let url = 'luna://com.webos.service.ai.voice/start';
+
+     //   webOSBridge.onservicecallback = JSONCallback;
+
+        let params = {
+            "mode":"continuous",
+            "keywordDetect":"true",
+        };
+
+        console.log("[siginin:startAssistant] before startAssistant call");
+        webOSBridge.call(url, JSON.stringify(params));
+        console.log("[siginin:startAssistant] after startAssistant call");
+/*
+        function JSONCallback(msg) {
+            console.log("before-parse-response");
+            var response = JSON.parse(msg);
+            console.log(response);
+        };*/
+    };
+
+    const GetState = () => {
+        var url = 'luna://com.webos.service.ai.voice/getResponse';
+
+  //      webOSBridge.onservicecallback = JSONCallback;
+
+        var params = {
+            "subscribe": true
+        };
+
+        console.log("[siginin:GetState] before GetState call");
+        webOSBridge.call(url, JSON.stringify(params));
+        console.log("[siginin:GetState] after GetState call");
+/*
+        function JSONCallback(msg) {
+            console.log("before-parse-response");
+            var response = JSON.parse(msg);
+            console.log(response);
+        };*/
+    };
+
+    const stopAssistant = () => {
+        let url = 'luna://com.webos.service.ai.voice/stop';
+
+    //    webOSBridge.onservicecallback = JSONCallback;
+
+        let params = {
+        };
+
+        console.log("[siginin:stopAssistant] before stopAssistant call");
+        webOSBridge.call(url, JSON.stringify(params));
+        console.log("[siginin:stopAssistant] after stopAssistant call");
+
+    /*    function JSONCallback(msg) {
+            console.log("before-parse-response");
+            var response = JSON.parse(msg);
+            console.log(response);
+        };*/
+    };
     
     const ttsTest = (ment) => {
         console.log("[Home:ttsTest] test start");
@@ -203,43 +266,43 @@ const Home = ({match}) => {
         let listenHome = data.smarthome.status;
 
         console.log("[Home:setUI] listenHome :",listenHome);
-        () => {
-            setTemp(listenTemp);
-            setHumi(listenHumi);
+        
+        setTemp(listenTemp);
+        setHumi(listenHumi);
 
-            setW_icon(listenIcon);
-            setWeather(listenDescription+", "+listenWTemp+"°C")
+        setW_icon(listenIcon);
+        setWeather(listenDescription+", "+listenWTemp+"°C")
             
-            switch(listenAir) {
-                case 1 : setDust("매우좋음"); break;
-                case 2 : setDust("좋음"); break;
-                case 3 : setDust("보통"); break;
-                case 4 : setDust("나쁨"); break;
-                case 5 : setDust("매우나쁨"); break;
-                default : break;
-            }
+        switch(listenAir) {
+            case 1 : setDust("매우좋음"); break;
+            case 2 : setDust("좋음"); break;
+            case 3 : setDust("보통"); break;
+            case 4 : setDust("나쁨"); break;
+            case 5 : setDust("매우나쁨"); break;
+            default : break;
+        }
 
-            if(Number(listenHome[1]) != 2) {
-                setAircon(Number(listenHome[1])==1?true:false);
-            };
-            if(Number(listenHome[3]) != 2) {
-                setLight(Number(listenHome[3])==1?true:false);
-            };
-            if(Number(listenHome[7]) != 2) {
-                setWindow(Number(listenHome[7])==1?true:false);
-            };
-            if(Number(listenHome[8]) != 2) {
-                console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
-                console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
-                setValve(Number(listenHome[8])==1?true:false);
-            };
+        if(Number(listenHome[1]) != 2) {
+            setAircon(Number(listenHome[1])==1?true:false);
+        };
+        if(Number(listenHome[3]) != 2) {
+            setLight(Number(listenHome[3])==1?true:false);
+        };
+        if(Number(listenHome[7]) != 2) {
+            setWindow(Number(listenHome[7])==1?true:false);
+        };
+        if(Number(listenHome[8]) != 2) {
+            console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
+            console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
+            setValve(Number(listenHome[8])==1?true:false);
+        };
 
-            if(Number(listenHome[0])>0) onDoMode(Number(listenHome[0])-1);
-            else {
-                onDoMode(4);
-                modeTurnOff;
-            } 
-        };        
+        if(Number(listenHome[0])>0){
+            onDoMode(Number(listenHome[0])-1);
+        } else {
+            onDoMode(4);
+            modeTurnOff;
+        } 
         console.log("[Home:setUI] 함수 종료");
     };
 
@@ -389,14 +452,14 @@ const Home = ({match}) => {
             };
             case 3 : {
                 modeTurnOff();
-                if(window) {
+                if(windowAppli) {
                     setWindow(false);
                     command = "022222202";
                 } else {
                     setWindow(true);
                     command = "022222212";
                 }
-                console.log("[Home:onDoApplience] window :", window);
+                console.log("[Home:onDoApplience] windowAppli :", windowAppli);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
@@ -407,7 +470,7 @@ const Home = ({match}) => {
     const onGotoSignin = () => {
         console.log("[Home:onGotoSignin] 뒤로 돌아가기");
         pageNum = 0;
-        history.push('/');
+        history.goBack();
     }
 
     const onGotoMode = () => {
@@ -436,6 +499,21 @@ const Home = ({match}) => {
                 'pageNum' : pageNum
             }
         });
+    }
+
+    const onGotoSetting = () => {
+        console.log("[Home:onGotoSetting] 스케줄 설정 페이지");
+/*
+        pageNum = 4;
+        //스케줄 설정 페이지
+        history.push({
+            pathname: '/setting',
+            state: {
+                'name' : name,
+                'db' : oldDB,
+                'pageNum' : pageNum
+            }
+        });*/
     }
 
     const onGotoAppliance = () => {
@@ -507,13 +585,19 @@ const Home = ({match}) => {
 
         webOSBridge.onservicecallback = toastCallback;
         function toastCallback(msg){
+
+            if(response.provider == "googleassistant") {
+                console.log("before-parse-response");
+                var response = JSON.parse(msg);
+                console.log(response);
+                return null;
+            }
+
             var response = JSON.parse(msg); 
             console.log("[SignIn:createToast callback] response :", response);
         }
-    }
-    //<FiChevronsLeft size="40" color="#000"/>
-    //<AiOutlinePlus size="130" color="#000" />
-    
+    };
+
     return(
         <div className="home">
             <audio id="tts">
@@ -524,9 +608,6 @@ const Home = ({match}) => {
                     <span class="material-icons">reply</span>
                 </button>
                 
-                <p className="profile">
-                    <span class="material-icons">account_circle</span>
-                </p>
                 <p className="name">
                     <span className="name_top">{name}님,</span>
                     <p className="name_small">안녕하세요.</p>
@@ -567,6 +648,10 @@ const Home = ({match}) => {
                     <span class="weather-icon__weather">{weather}</span> <br/>
                     <span class="weather-icon__airlevel">미세먼지: {dust}</span>
                 </div>
+                
+                <button className="setting-button" onClick={onGotoSetting}>
+                    <span class="material-icons">settings</span>
+                </button>
             </div>
             <br />
         
@@ -578,7 +663,7 @@ const Home = ({match}) => {
                             <p className="menu_title">모드</p>
                         </button>
                         <button onClick={onGotoSchedule}>
-                            <img className="menu-icon" src={modeIcon} />
+                            <img className="menu-icon" src={scheduleIcon} />
                             <p className="menu_title">스케줄</p>
                         </button>
                     </div>
@@ -726,14 +811,14 @@ const Home = ({match}) => {
                                         <button 
                                             onClick = {() => onDoApplience(3)} 
                                             style={{
-                                                backgroundColor : window ? '#3264fe' : 'white'
+                                                backgroundColor : windowAppli ? '#3264fe' : 'white'
                                             }}
                                         >
                                             <img className="control-appliance" src={windowIcon} style={{
-                                                filter : window ? 'invert(1)' : 'invert(0)'
+                                                filter : windowAppli ? 'invert(1)' : 'invert(0)'
                                             }} />
                                             <p style={{
-                                                color : window ? 'white' : 'black'
+                                                color : windowAppli ? 'white' : 'black'
                                             }} >
                                                 창문
                                             </p>

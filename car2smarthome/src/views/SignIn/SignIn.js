@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
 import faceIcon from '../../../resources/smarthome_icon/smile.png';
@@ -16,6 +16,15 @@ const SignIn = () => {
     //const location = useLocation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+
+    useEffect(() => {
+        // 초기값 설정
+        //console.log("[Signin: useEffect] 음성인식 시작")
+        return() => {
+            console.log("[Signin: useEffect] 닫힘")
+        };
+    }); 
 
     const onEmailChange = (event) => {  // 이메일 작성이 감지되면 이메일 변수에 값을 넣는다.
         const {target : {value}} = event;
@@ -89,6 +98,14 @@ const SignIn = () => {
         webOSBridge.onservicecallback = facerSignInCallback;
         function facerSignInCallback(msg){
             var response = JSON.parse(msg); 
+
+            if(response.provider == "googleassistant") {
+                console.log("before-parse-response");
+                var response = JSON.parse(msg);
+                console.log(response);
+                return null;
+            }
+
             console.log("[SignIn:onFaceSignIn callback] response :", response);
             let returnValue = response.Response;
             console.log("[SignIn:onFaceSignIn callback] returnValue :", returnValue);
@@ -110,17 +127,8 @@ const SignIn = () => {
             };
         };
         console.log("[SignIn:onFaceSignIn] onSignIn function end");
-    
-
-        //ttsTest();
-        //createToast("토스트 테스트");
-        //startAssistant();
-        //GetState();
-        //await visionSignIn();
-        // 얼굴인식 시작 mqtt를 server로 보냄
-        //let startFaceSignIn = "start msg to server"; // 실행코드 넣기
-        //sendMqtt("webos.topic", "start_facer", startFaceSignIn);
     };
+
     const sendMqtt = (exchange, routingKey, msg) => {
         // JS 서비스의 sendMqtt 서비스를 이용하여 MQTT 메세지를 보낸다.
         console.log("[SignIn:sendMqtt] displayReponse function excuted");

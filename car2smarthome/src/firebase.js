@@ -1,6 +1,6 @@
 import * as firebase from "firebase/app";
 import { getDatabase, ref, onValue} from "firebase/database";
-import { getFirestore, doc, getDocs, onSnapshot, collection, setDoc } from "firebase/firestore";
+import { getFirestore, doc, getDocs, onSnapshot, collection, setDoc, deleteDoc } from "firebase/firestore";
 //import * as  firestore from "firebase/firestore";
 
 const firebaseConfig = {    // 우리 프로젝트 firebase 설정
@@ -19,4 +19,4 @@ const db = getDatabase();
 const storeDB = getFirestore();
 
 export default firebase;
-export {db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc};
+export {db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc};

@@ -5,261 +5,262 @@
 
 =================================================================== */
 body{
-    background-color: #bda5a5;
-    font-family: 'Do Hyeon', sans-serif;
+  background-color: #bda5a5;
+  font-family: 'Do Hyeon', sans-serif;
 }
 h3{
-  font-size: 2rem;
-  margin: 0.1rem;
+font-size: 2rem;
+margin: 0.1rem;
 }
 .large_font{
-  font-size: large;
-  margin: 0.1rem;
+font-size: large;
+margin: 0.1rem;
 }
 .sign-in, .sign-up, .home, .mode-setting{
-    display:'inline-block';
-    width: 100%;
-    height: 100%;
-    position: relative;
-    margin: 0px auto;
-    align-items: center;
-    background-color: white;
+  display:'inline-block';
+  width: 100%;
+  height: 100%;
+  position: relative;
+  margin: 0px auto;
+  align-items: center;
+  background-color: white;
 }
 
 
 /* ===================================================================
 
-  - 버튼 설정
+- 버튼 설정
 
 =================================================================== */
 .button {
-  background-color: #3264fe; /* Blue */
-  border: none;
-  border-radius: 2%;
-  color: white;
-  padding: 4% 15%;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: large;
-  margin: 4px 2px;
-  cursor: pointer;
-  opacity: 0.8;
-  transition: 0.3s;
+background-color: #3264fe; /* Blue */
+border: none;
+border-radius: 2%;
+color: white;
+padding: 4% 15%;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: large;
+margin: 4px 2px;
+cursor: pointer;
+opacity: 0.8;
+transition: 0.3s;
 }
 
 .button:hover {
-	opacity: 1;
+opacity: 1;
 }
 
 
 /* ===================================================================
 
-  - 라디오 버튼 설정
+- 라디오 버튼 설정
 
 =================================================================== */
-  input[type='radio'] {
-    -webkit-appearance:none;
-    width:3rem;
-    height:3rem;
-    /* border: 5px solid red; */
-    border-radius:50%;
-    outline:none;
-    background:#e6e6e6;
-    transition: 0.05s;
-    margin: 0.3rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-  input[type='radio']:before {
-    content:'';
-    display:block;
-    width:1.5rem;
-    height:1.5rem;
-    margin: 20% auto;  
-    border-radius:50%;
-  }
-
-  .color-white:checked{
-    background:white;
-        filter: drop-shadow(0px 0px 5px lightgray);
-  }
-  .color-red:checked{
-    background:red;
-        filter: drop-shadow(0px 0px 5px red);
-  }
-  .color-blue:checked{
-    background:blue;
-        filter: drop-shadow(0px 0px 5px blue);
-  }
-  .color-green:checked{
-    background:green;  
-      filter: drop-shadow(0px 0px 5px green);
-  }
-  .color-yellow:checked{
-    background:yellow;
-    filter: drop-shadow(0px 0px 5px yellow);
-  }
-  .color-purple:checked{
-    background:purple; 
-       filter: drop-shadow(0px 0px 5px purple);
-  }
-  .color-orange:checked{
-    background:orange;   
-     filter: drop-shadow(0px 0px 5px orange);
-  }
-  .color-skyblue:checked{
-    background:skyblue;   
-     filter: drop-shadow(0px 0px 5px skyblue);
-  }
-
-  .color-white:before{
-    background:white
+input[type='radio'] {
+  -webkit-appearance:none;
+  width:2rem;
+  height:2rem;
+  /* border: 5px solid red; */
+  border-radius:50%;
+  outline:none;
+  background:#e6e6e6;
+  transition: 0.05s;
+  margin: 0.3rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
-  .color-red:before{
-    background:red;
-  }
-  .color-blue:before{
-    background:blue;
-  }
-  .color-green:before{
-    background:green;
-  }
-  .color-yellow:before{
-    background:yellow;
-  }
-  .color-purple:before{
-    background:purple;
-  }
-  .color-orange:before{
-    background:orange;
-  }
-  .color-skyblue:before{
-    background:skyblue;
-  }
+input[type='radio']:before {
+  content:'';
+  display:block;
+  width:1.5rem;
+  height:1.5rem;
+  margin: 20% auto;  
+  border-radius:50%;
+}
+
+.color-white:checked{
+  background:white;
+      filter: drop-shadow(0px 0px 5px lightgray);
+}
+.color-red:checked{
+  background:red;
+      filter: drop-shadow(0px 0px 5px red);
+}
+.color-blue:checked{
+  background:blue;
+      filter: drop-shadow(0px 0px 5px blue);
+}
+.color-green:checked{
+  background:green;  
+    filter: drop-shadow(0px 0px 5px green);
+}
+.color-yellow:checked{
+  background:yellow;
+  filter: drop-shadow(0px 0px 5px yellow);
+}
+.color-purple:checked{
+  background:purple; 
+     filter: drop-shadow(0px 0px 5px purple);
+}
+.color-orange:checked{
+  background:orange;   
+   filter: drop-shadow(0px 0px 5px orange);
+}
+.color-skyblue:checked{
+  background:skyblue;   
+   filter: drop-shadow(0px 0px 5px skyblue);
+}
+
+.color-white:before{
+  background:white
+}
+.color-red:before{
+  background:red;
+}
+.color-blue:before{
+  background:blue;
+}
+.color-green:before{
+  background:green;
+}
+.color-yellow:before{
+  background:yellow;
+}
+.color-purple:before{
+  background:purple;
+}
+.color-orange:before{
+  background:orange;
+}
+.color-skyblue:before{
+  background:skyblue;
+}
 
 
 /* ===================================================================
 
-  - TEXT BOX 입력 설정
+- TEXT BOX 입력 설정
 
 =================================================================== */
 .input{
-    background:transparent; 
-    border:none; 
-    border-bottom: solid 1px #ccc; 
-    padding:20px 0px 5px 0px;
-    font-size:14pt; 
-    width: 100%;
-    height: 110px;
+  background:transparent; 
+  border:none; 
+  border-bottom: solid 1px #ccc; 
+  padding:20px 0px 5px 0px;
+  font-size:14pt; 
+  width: 100%;
+  height: 110px;
 }
 .input::placeholder{
-    color:transparent; 
+  color:transparent; 
 }
 .input:placeholder-shown + label{ 
-    color:#aaa; 
-    font-size:14pt; 
-    top:15px; 
+  color:#aaa; 
+  font-size:14pt; 
+  top:15px; 
 }
 .input:focus + label{ 
-    color:#8aa1a1; 
-    font-size:10pt; 
-    pointer-events: none; 
-    position: absolute; 
-    left:0px; 
-    top:0px; 
-    transition: all 0.2s ease ; 
-    -webkit-transition: all 0.2s ease; 
-    -moz-transition: all 0.2s ease; 
-    -o-transition: all 0.2s ease; 
+  color:#8aa1a1; 
+  font-size:10pt; 
+  pointer-events: none; 
+  position: absolute; 
+  left:0px; 
+  top:0px; 
+  transition: all 0.2s ease ; 
+  -webkit-transition: all 0.2s ease; 
+  -moz-transition: all 0.2s ease; 
+  -o-transition: all 0.2s ease; 
 }
 .input:focus, input:not(:placeholder-shown){ 
-    border-bottom: solid 1px #8aa1a1; 
-    outline:none; 
+  border-bottom: solid 1px #8aa1a1; 
+  outline:none; 
 }
 
 
 .input-box{ 
-    position:relative; 
-    margin:10px 0; 
+  position:relative; 
+  margin:10px 0; 
 }
 .input-box input{
-    background:transparent; 
-    border:none; 
-    border-bottom: solid 1px #ccc; 
-    padding:20px 0px 5px 0px;
-    font-size:14pt; 
-    width: 100%;
-    height: 110px;
+  background:transparent; 
+  border:none; 
+  border-bottom: solid 1px #ccc; 
+  padding:20px 0px 5px 0px;
+  font-size:14pt; 
+  width: 100%;
+  height: 110px;
 }
 .input-box input::placeholder{
-    color:transparent; 
+  color:transparent; 
 }
 .input-box input:placeholder-shown + label, label{ 
-    color:#aaa; 
-    font-size:14pt; 
-    top:15px; 
+  color:#aaa; 
+  font-size:14pt; 
+  top:15px; 
 }
 .input-box input:focus + label, label{ 
-    color:#8aa1a1; 
-    font-size:10pt; 
-    pointer-events: none; 
-    position: absolute; 
-    left:0px; 
-    top:0px; 
-    transition: all 0.2s ease ; 
-    -webkit-transition: all 0.2s ease; 
-    -moz-transition: all 0.2s ease; 
-    -o-transition: all 0.2s ease; 
+  color:#8aa1a1; 
+  font-size:10pt; 
+  pointer-events: none; 
+  position: absolute; 
+  left:0px; 
+  top:0px; 
+  transition: all 0.2s ease ; 
+  -webkit-transition: all 0.2s ease; 
+  -moz-transition: all 0.2s ease; 
+  -o-transition: all 0.2s ease; 
 }
 .input-box input:focus, input:not(:placeholder-shown){ 
-    border-bottom: solid 1px #8aa1a1; 
-    outline:none; 
+  border-bottom: solid 1px #8aa1a1; 
+  outline:none; 
 }
 
 
 /* ===================================================================
 
-  - Toggle Button (checkbox) 입력 설정
+- Toggle Button (checkbox) 입력 설정
 
 =================================================================== */
 .toggle_checkbox{
-    position: absolute;
-    left: -1000%;
+  position: absolute;
+  left: -1000%;
 }
 
 .toggle_label {
-    display: block;
-    position: relative;
-    width: 200px;
-    height: 60px;
-    background: #d3d4d3;
-    border-radius: 60px;
-    transition: background .4s;
+  display: block;
+  position: relative;
+  width: 200px;
+  height: 60px;
+  background: #d3d4d3;
+  border-radius: 60px;
+  transition: background .4s;
+  pointer-events: auto;
 }
 
 .toggle_label:after {
-    content: "";
-    position: absolute;
-    left:7.5px;
-    top:50%;
-    width:45px;
-    height: 45px;
-    border-radius: 100%;
-    background: #fff;
-    transform: translateY(-50%);
-    box-shadow: 1px 3px 4px rgba(0,0,0,.1);
-    transition:all .4s;
+  content: "";
+  position: absolute;
+  left:7.5px;
+  top:50%;
+  width:45px;
+  height: 45px;
+  border-radius: 100%;
+  background: #fff;
+  transform: translateY(-50%);
+  box-shadow: 1px 3px 4px rgba(0,0,0,.1);
+  transition:all .4s;
 }
 
 .toggle_checkbox:checked + .toggle_label {
-    background: #4fbe79;
+  background: #4fbe79;
 }
 
 .toggle_checkbox:checked + .toggle_label:after {
-    left:calc(100% - 52.5px);
+  left:calc(100% - 52.5px);
 }
 
 .toggle_label span {
-    display: none;
+  display: none;
 }

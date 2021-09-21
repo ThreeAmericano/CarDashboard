@@ -90,7 +90,7 @@ const Mode = () => {
 
     const onGotoHome = () => {
         pageNum = 1;
-        history.push({
+        history.replace({
             pathname: '/home',
             state: {
                 'name' : name,

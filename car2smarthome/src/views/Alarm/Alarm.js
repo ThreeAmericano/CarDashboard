@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 
-import "./Schedule.css"
+import "./Alarm.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 //import "../../../resources/script/access_document.js"
@@ -19,7 +19,7 @@ import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
 //var webOSBridge = new WebOSServiceBridge();
-import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
+import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc } from "../../firebase";
 
 // 현재 체크 박스 체크 안됨
 // 스케줄 추가 기능
@@ -46,9 +46,10 @@ scheduleData[i] = {
 };*/
 
 let scheduleData = [];
-let docID = [];
+let selectedScheduleArray = [];
 let pageNum;
 let i;
+let daysofweek = [false, false, false, false, false, false, false];
 
 async function getStoreDB() {
     try {
@@ -58,7 +59,6 @@ async function getStoreDB() {
         //console.log("[Schedule:store listener] querySnapshot :", querySnapshot);
         querySnapshot.forEach((doc) => {
             //console.log("[Schedule:store]", doc.id, " => ", doc.data());
-            docID[i] = doc.id;
             scheduleData[i] = doc.data();
             i++;
         });
@@ -72,36 +72,27 @@ async function getStoreDB() {
 
 if(pageNum == 3) getStoreDB();
 
-const Schedule = () => {
+const Alarm = () => {
     const history = useHistory();
     const location = useLocation();
 
     const name = location.state.name;
     const oldDB = location.state.db;
 
-    const [checkMyProfile, setCheckMyProfile] = useState(false);
-
-    const [addDocName, setAddDocName] = useState(); //useState(""); 하면 글자 안써짐
+    const [schedultState, setScheduleState] = useState(); // useState JSON 하나로 만드는 테스트
+    const [checkMyProfile, setCheckMyProfile] = useState();
 
     const [titleName, setTitleName] = useState();
     //const [daysofweek, setDaysofweek] = useState([]);
     const [startTime, setStartTime] = useState();
     const [activeDate, setActivedate] = useState();
-    const [UID, setUID] = useState();
-
-    const [sun, setSun] = useState();
-    const [mon, setMon] = useState();
-    const [tue, setTue] = useState();
-    const [wed, setWed] = useState();
-    const [thr, setThr] = useState();
-    const [fri, setFri] = useState();
-    const [sat, setSat] = useState();
 
     const [schedule, setSchedule] = useState('');//스케줄 테이블
     const [scheduleEnable, setScheduleEnable] = useState();//스케줄 테이블
     const [selectedSchedule, setSelectedSchedule] = useState(0);//선택한 스케줄
 
-    const [modeNum, setModeNum] = useState(0);
+    const [selectedMode, setSelectedMode] = useState(0);
+
     const [indoorMode, setIndoorMode] = useState(false);
     const [outdoorMode, setOutdoorMode] = useState(false);
     const [ecoMode, setEcoMode] = useState(false);
@@ -125,9 +116,12 @@ const Schedule = () => {
         pageNum = 3;
         getStoreDB().then(() => {
             console.log("[Schedule:useEffect]");
+            setScheduleState(scheduleData);
             onSelectSchedule(0);
             setScheduleUI();
         });
+        selectedScheduleArray = new Array(scheduleData.length);
+        //selectedScheduleArray[0] = true;
         console.log("[Schedule:useEffect] pageNum :",pageNum)
     }, []);
 
@@ -142,6 +136,8 @@ const Schedule = () => {
             }
         });
     };
+
+    let test = [];
     /*
     <input 
         type="checkbox" 
@@ -149,186 +145,112 @@ const Schedule = () => {
         onClick={() => onSetEnable(index)} 
     />
      */
-    //bgcolor={selectedScheduleArray[index] ? '#3264fe' : 'white'}
-    /*
-    onClick={() => {
-        onSelectSchedule(index);
-        setSelectedSchedule(index);
-        test = test.map(e => false);
-        test[index] = true;
-    }} 
-    style={{backgroundColor : (test[index]) ? '#3264fe' : 'white'}}>
-    */
-    /*
-    <td>
-        <input 
-            type="checkbox" 
-            checked={scheduleData[index].Enabled?"checked":""} 
-            onClick={() => {onSetEnable(index);}} 
-        />
-    </td>
-    */
+//bgcolor={selectedScheduleArray[index] ? '#3264fe' : 'white'}
+/*
+onClick={() => {
+                                        onSelectSchedule(index);
+                                        setSelectedSchedule(index);
+                                        test = test.map(e => false);
+                                        test[index] = true;
+                                    }} 
+                                    style={{backgroundColor : (test[index]) ? '#3264fe' : 'white'}}>
+                                    */
     const setScheduleUI = () => {
-        // 반환 받은 테이블 값을 설정
-        scheduleList = scheduleData.map(
-            (item, index) => (
-                <tr key={index} >
-                    <tr>
-                        <td>
-                            <button className="schedule_list_button" 
-                                onClick={() => {onSelectSchedule(index)}}>
-                                <span className="schedule_list_title">
-                                    {"["+String(index)+"번] "}  {item.Title}
-                                </span>
-                                <br/>
-                                <span className="schedule_list_date">
-                                    <span>
-                                        {item.Start_time.substring(0,2)+":"+item.Start_time.substring(2,4)}
+        try{  // 반환 받은 테이블 값을 설정
+            scheduleList = scheduleData.map(
+                (item, index) => (
+                    <tr key={index} >
+                        <tr>
+                            <td>
+                                <input 
+                                    type="checkbox" 
+                                    checked={scheduleData[index].Enabled?"checked":""} 
+                                    onClick={() => {onSetEnable(index)}} 
+                                />
+                            </td>
+                            <td>
+                                <button className="schedule_list_button" 
+                                    onClick={() => {
+                                        onSelectSchedule(index);
+                                    }}>
+                                    <span className="schedule_list_title">
+                                        {"["+String(index)+"번] "}  {item.Title}
                                     </span>
-                                    <span>{
-                                        item.repeat?(item.Daysofweek[1]?"월 ":"")+(item.Daysofweek[2]?"화 ":"")+(item.Daysofweek[3]?"수 ":"")+(item.Daysofweek[4]?"목 ":"")+(item.Daysofweek[5]?"금 ":"")+(item.Daysofweek[6]?"토 ":"")+(item.Daysofweek[0]?"일 ":""):""
-                                    }</span>
-                                </span>
-                            </button>
-                        </td>
+                                    <br/>
+                                    <span className="schedule_list_date">
+                                        <span>
+                                            {item.Start_time.substring(0,2)+":"+item.Start_time.substring(2,4)}
+                                        </span>
+                                        <span>{
+                                            item.repeat?(item.Daysofweek[1]?"월 ":"")+(item.Daysofweek[2]?"화 ":"")+(item.Daysofweek[3]?"수 ":"")+(item.Daysofweek[4]?"목 ":"")+(item.Daysofweek[5]?"금 ":"")+(item.Daysofweek[6]?"토 ":"")+(item.Daysofweek[0]?"일 ":""):""
+                                        }</span>
+                                    </span>
+                                </button>
+                            </td>
+                        </tr>
                     </tr>
-                </tr>
-            )
-        );
+                )
+            );
 
-        setSchedule(
-            <table className="schedule_list_table" border = '1' align='center'>
-                <tr>
-                    <input type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="문서명을 입력하세요." required />
-                </tr>
-                {scheduleList}
-            </table>
-        );
-    };
-
-    const onAddDoc = () => {
-        try {
-            console.log("[Schedule:onAddDoc] addDocName :", addDocName);
-
-            let addDocData = {
-                "Daysofweek" : [false, false, false, false, false, false, false],
-                "Enabled" : false,
-                "Start_time" : "0000",
-                "Title" : addDocName,
-                "UID" : "12345678",
-                "airconEnable" : false,
-                "airconWindPower" : 0,
-                "gasValveEnable" : false,
-                "lightBrightness" : 5,
-                "lightColor" : 2,
-                "lightEnable" : false,
-                "lightMode" : 0,
-                "modeNum" : 0,
-                "repeat" : true,
-                "windowOpen" : false
-            };
-
-            scheduleData.push(addDocData);
-            docID.push(addDocName);
-
-            // firestore 에 추가
-            setDoc(doc(storeDB, "schedule_mode", addDocName),addDocData);
-           
-            setScheduleUI();
+            setSchedule(
+                <table className="schedule_list_table" border = '1' align='center'>
+                    {scheduleList}
+                </table>
+            );
         } catch (e) {
-            console.log("[Schedule:onAddDoc] error :", e);   
-        };
+            console.log("[Schedule:setScheduleUI] error :", e);
+        }
     };
+
+    const onSetEnable = (index) => {
+        scheduleData[index].Enabled = scheduleData[index].Enabled?false:true;
+    }
 
     const onSave = () => {
+        /*
         try {
-            console.log("[Schedule:onSave] clicked");
-
-            let saveScheduleData = {
-                "Enabled" : scheduleEnable,
-                "Start_time" : startTime.replace(":",""),
-                "Title" : titleName,
-                "UID" : UID,
-                "airconEnable" : aircon,
-                "airconWindPower" : airconValue,
-                "gasValveEnable" : valve,
-                "lightBrightness" : lightValue,
-                "lightColor" : lightColor,
-                "lightEnable" : light,
-                "lightMode" : lightMode,
-                "modeNum" : modeNum,
-                "repeat" : repeat,
-                "windowOpen" :window
-            };
-
-            repeat?
-            saveScheduleData["Daysofweek"] = [sun, mon, tue, wed, thr, fri, sat]:
-            saveScheduleData["Active_date"] = activeDate.replace(/\-/g,".");
-            
-            console.log("[Schedule:onSave] docID[selectedSchedule] :", docID[selectedSchedule]); 
-            console.log("[Schedule:onSave] saveScheduleData :", saveScheduleData);        
-
-            // firestore 에 저장
-            setDoc(doc(storeDB, "schedule_mode", String(docID[selectedSchedule])),saveScheduleData);
-            setScheduleUI(); 
-        } catch (e) {
-            console.log("[Schedule:onSave] error :", e);   
+            i=0;
+            console.log("[Schedule:store start]")
+            const querySnapshot = await getDocs(collection(storeDB, "schedule_mode"));
+            //console.log("[Schedule:store listener] querySnapshot :", querySnapshot);
+            querySnapshot.forEach((doc) => {
+                //console.log("[Schedule:store]", doc.id, " => ", doc.data());
+                scheduleData[i] = doc.data();
+                i++;
+            });
+            //console.log("[Schedule:getStoreDB] scheduleData :", scheduleData);
+            //console.log("[Schedule:getStoreDB] scheduleData.length :", scheduleData.length);
+            //console.log("[Schedule:getStoreDB] scheduleData[0].Daysofweek :", scheduleData[0].Daysofweek);
+        } catch(e) {
+            console.log("[Schedule:getStoreDB] error : ", e);
         };
-    };
-
-    const onDeleteDoc = () => {
-        try {
-            console.log("[Schedule:onDeleteDoc] clicked");
-
-            // firestore 에서 삭제
-            deleteDoc(doc(storeDB, "schedule_mode", String(docID[selectedSchedule]))); 
-            
-            scheduleData.splice(selectedSchedule,1);
-            docID.splice(selectedSchedule,1);
-
+        */
+        
+        if(i>1) {
+            console.log("[Schedule:onSave] clicked")
             setScheduleUI();
-        } catch (e) {
-            console.log("[Schedule:onAddDoc] error :", e);   
-        };
-    };
-
-    const onAddDocNameChange = (event) => {  // 문서 추가 이름 작성이 감지되면 변수에 값을 넣는다.
-        const {target : {value}} = event;
-        setAddDocName(value);
+        }
     };
 
     const onSelectSchedule = (num) => {
         setSelectedSchedule(num);
-        
-        //console.log("scheduleData[num].Daysofweek :", scheduleData[num].Daysofweek);
-        if(scheduleData[num].repeat) {
-            setSun(scheduleData[num].Daysofweek[0]);
-            setMon(scheduleData[num].Daysofweek[1]);
-            setTue(scheduleData[num].Daysofweek[2]);
-            setWed(scheduleData[num].Daysofweek[3]);
-            setThr(scheduleData[num].Daysofweek[4]);
-            setFri(scheduleData[num].Daysofweek[5]);
-            setSat(scheduleData[num].Daysofweek[6]);
-        } else  {
-            setActivedate(scheduleData[num].Active_date.replace(/\./g,"-"));
-        }
+        selectedScheduleArray = selectedScheduleArray.map(e => false);
+        selectedScheduleArray[num] = true;
+        daysofweek = scheduleData[num].Daysofweek;
+        setScheduleState(scheduleData[num]); // 이거 하나로 퉁 칠수 있을까?
         // 모드 선택 시 해당 모드 점등, 가전 선택 시 모드 선택 해제
         setTitleName(scheduleData[num].Title);
         setScheduleEnable(scheduleData[num].Enabled);
-        setUID(scheduleData[num].UID);
-        setModeNum(0);
-        setCheckMyProfile(true); //모드면 false / 가전이면 true
-
+        setSelectedMode(scheduleData[num].modeNum);
+        setCheckMyProfile(scheduleData[num].modeNum>0?false:true);
         if(scheduleData[num].modeNum>0){
-            setCheckMyProfile(false);
             setIndoorMode(scheduleData[num].modeNum==1?true:false);
             setOutdoorMode(scheduleData[num].modeNum==2?true:false);
             setEcoMode(scheduleData[num].modeNum==3?true:false);
             setNightMode(scheduleData[num].modeNum==4?true:false);
-            setModeNum(scheduleData[num].modeNum);
-        };
-        setAircon(scheduleData[num].airconEnable);
-        setAirconValue(scheduleData[num].airconWindPower);
+        }
+        setAircon(scheduleData[num].aircon);
+        setAirconValue(scheduleData[num].airconValue);
         setLight(scheduleData[num].lightEnable);
         setlightValue(scheduleData[num].lightBrightness);
         setlightColor(scheduleData[num].lightColor);
@@ -336,28 +258,40 @@ const Schedule = () => {
         setWindow(scheduleData[num].windowOpen);
         setValve(scheduleData[num].gasValveEnable);
         setRepeat(scheduleData[num].repeat);
+        console.log("scheduleData[num].Daysofweek :", scheduleData[num].Daysofweek);
+        console.log("daysofweek :", daysofweek);
         setStartTime(scheduleData[num].Start_time.substring(0,2)+":"+scheduleData[num].Start_time.substring(2,4));
+        if(scheduleData[num].repeat == false) setActivedate(scheduleData[num].Active_date.replace(/\./g,"-"));
     }
 
     const onSelectApplience = (num) => {
         switch(num) {
-            case 0 : {setAircon(aircon?false:true); break;} 
-            case 1 : {setLight(light?false:true); break;} 
-            case 2 : {setValve(valve?false:true); break;} 
-            case 3 : {setWindow(window?false:true); break;} 
-            default : {console.log("[Schedule:onSelectApplience] switch default"); break;}
+            case 0 : {
+                //smarthome[1] = Number(smarthome[0])?'0':'1';
+                setAircon(aircon?false:true); 
+                break;
+            } 
+            case 1 : {
+                //smarthome[3] = Number(smarthome[3])?'0':'1';
+                setLight(light?false:true);
+                break;
+            } 
+            case 2 : {
+                //smarthome[8] = Number(smarthome[8])?'0':'1';
+                setValve(valve?false:true);
+                break;
+            } 
+            case 3 : {
+                //smarthome[7] = Number(smarthome[7])?'0':'1';
+                setWindow(window?false:true);
+                break;
+            } 
+            default : {
+                console.log("[Schedule:onSelectApplience] switch default");
+                break;
+            }
         }
     };
-
-    const modeTurnOff = () => {
-        setIndoorMode(false);
-        setOutdoorMode(false);
-        setEcoMode(false);
-        setNightMode(false);
-        setModeNum(0);
-    };
-
-    //style={{display: checkMyProfile?"block":"none"}}
     
     return(
         <div className="mode-setting">
@@ -376,11 +310,7 @@ const Schedule = () => {
                 스케쥴
             </button>
 
-            <button className="add-button" onClick={onAddDoc}>
-                <span class="material-icons">add</span>
-            </button>
-
-            <button className="delete-button" onClick={onDeleteDoc}>
+            <button className="delete-button" onClick = {onSave}>
                 <span class="material-icons">delete</span>
             </button>
 
@@ -399,7 +329,7 @@ const Schedule = () => {
                     <div class="title">
                         <h3 class="schedule_title_h3">{titleName}</h3>
 
-                        <input class="toggle_checkbox" type="checkbox" id="chk1" onChange={() => {setScheduleEnable(scheduleEnable?false:true);scheduleData[num].Enabled}} checked={scheduleEnable?"checked":""} />
+                        <input class="toggle_checkbox" type="checkbox" id="chk1" checked={scheduleEnable?"checked":""} onclick={setScheduleEnable(scheduleEnable?false:true)}/>
                         <label class="toggle_label" for="chk1">
                             <span>사용온오프 스위치</span>
                         </label>
@@ -408,47 +338,77 @@ const Schedule = () => {
                     <div class="date">
                         {repeat?
                             <span>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setSun(sun?false:true)}} checked={sun?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setMon(mon?false:true)}} checked={mon?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setTue(tue?false:true)}} checked={tue?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setWed(wed?false:true)}} checked={wed?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setThr(thr?false:true)}} checked={thr?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setFri(fri?false:true)}} checked={fri?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setSat(sat?false:true)}} checked={sat?"checked":""}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[0]?"checked":""} onclick={(event) => daysofweek[0] = (event.target.checked?true:false)}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[1]?"checked":""} onclick={(event) => daysofweek[1] = (event.target.checked?true:false)}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[2]?"checked":""} onclick={(event) => daysofweek[2] = (event.target.checked?true:false)}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[3]?"checked":""} onclick={(event) => daysofweek[3] = (event.target.checked?true:false)}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[4]?"checked":""} onclick={(event) => daysofweek[4] = (event.target.checked?true:false)}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[5]?"checked":""} onclick={(event) => daysofweek[5] = (event.target.checked?true:false)}/>
+                                <input class="daysofweek" type="checkbox" checked={daysofweek[6]?"checked":""} onclick={(event) => daysofweek[6] = (event.target.checked?true:false)}/>
                             </span>:
                             <span>
-                                <input class="schedule_date" type="date" value={activeDate} onChange={(event) => setActivedate(event.target.value)} />
+                                <input class="schedule_date" type="date" value={activeDate}/>
                             </span>
                         }
                         <br/>
-                        <input class="schedule_time" type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} />
+                        <input class="schedule_time" type="time" value={startTime}/>
                     </div>
                 </div>
                 <hr class="row_line" />
 
-                <input class="toggle_checkbox" type="checkbox" id="chk2"
-                    onChange={() => {
-                        if(checkMyProfile) {
-                            setCheckMyProfile(false);
-                            modeTurnOff();
-                        } else {
-                            setCheckMyProfile(true);
-                            setModeNum(scheduleData[selectedSchedule].modeNum);
-                            switch(scheduleData[selectedSchedule].modeNum) {
-                                case 1 : {modeTurnOff(); setIndoorMode(true); break;}
-                                case 2 : {modeTurnOff(); setOutdoorMode(true); break;}
-                                case 3 : {modeTurnOff(); setEcoMode(true); break;}
-                                case 4 : {modeTurnOff(); setNightMode(true); break;}
-                                default : {modeTurnOff(); setIndoorMode(true); break;}
-                            }
-                        }
-                    }}
-                    checked={checkMyProfile?"checked":""}/>
+
+
+
+
+                <input class="toggle_checkbox" type="checkbox" id="chk2" onClick={(event) => setCheckMyProfile(event.target.value)}/>
                 <label class="toggle_label" for="chk2">
                     <span>모드로할지 개별제어로 할지 고르는 스위치</span>
                 </label>
-{checkMyProfile?
-                <div class="" > 
+
+                <div class="" style={{display: checkMyProfile?"none":"block"}}> 
+                    <button className="mode-setting__head__mode mode-setting__head__mode1" 
+                    onClick = {() => setIndoorMode(indoorMode?false:true)} 
+                    style={{
+                        backgroundColor : indoorMode ? '#3264fe' : 'white'
+                    }} >
+                    <img src={indoorIcon} style={{
+                        filter : indoorMode ? 'invert(1)' : 'invert(0)'
+                    }} />
+                    </button>
+                    <button  className="mode-setting__head__mode mode-setting__head__mode2" 
+                        onClick = {() => setOutdoorMode(outdoorMode?false:true)} 
+                        style={{
+                            backgroundColor : outdoorMode ? '#3264fe' : 'white'
+                        }}>
+                        <img src={outdoorIcon} style={{
+                            filter : outdoorMode ? 'invert(1)' : 'invert(0)'
+                        }} />
+                    </button>
+                    <button  className="mode-setting__head__mode mode-setting__head__mode3" 
+                        onClick = {() => setEcoMode(ecoMode?false:true)} 
+                        style={{
+                            backgroundColor : ecoMode ? '#3264fe' : 'white'
+                        }}>
+                        <img src={ecoIcon} style={{
+                            filter : ecoMode ? 'invert(1)' : 'invert(0)'
+                        }} />
+                    </button>
+                    <button  className="mode-setting__head__mode mode-setting__head__mode4" 
+                        onClick = {() => setNightMode(nightMode?false:true)} 
+                        style={{
+                            backgroundColor : nightMode ? '#3264fe' : 'white'
+                        }}>
+                        <img src={nightIcon} style={{
+                            filter : nightMode ? 'invert(1)' : 'invert(0)'
+                        }} />
+                    </button>
+                </div>
+                
+
+
+
+
+                <div class="" style={{display: checkMyProfile?"block":"none"}}> 
                     <div class="setting-box-windowvalve">
                         <div class="title">
                             창문/가스밸브
@@ -597,66 +557,10 @@ const Schedule = () => {
                         </div>
                     </div>
                 </div>
-:
-                <div class=""> 
-                    <button className="mode-setting__head__mode mode-setting__head__mode1" 
-                        onClick = {() => {
-                            modeTurnOff();
-                            setIndoorMode(indoorMode?false:true);
-                            setModeNum(indoorMode?0:1);
-                        }} 
-                        style={{
-                            backgroundColor : indoorMode ? '#3264fe' : 'white'
-                        }} >
-                        <img src={indoorIcon} style={{
-                            filter : indoorMode ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                    <button  className="mode-setting__head__mode mode-setting__head__mode2" 
-                        onClick = {() => {
-                            modeTurnOff();
-                            setOutdoorMode(outdoorMode?false:true);
-                            setModeNum(outdoorMode?0:2);
-                        }}
-                        style={{
-                            backgroundColor : outdoorMode ? '#3264fe' : 'white'
-                        }}>
-                        <img src={outdoorIcon} style={{
-                            filter : outdoorMode ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                    <button  className="mode-setting__head__mode mode-setting__head__mode3" 
-                        onClick = {() => {
-                            modeTurnOff();
-                            setEcoMode(ecoMode?false:true);
-                            setModeNum(ecoMode?0:3);
-                        }} 
-                        style={{
-                            backgroundColor : ecoMode ? '#3264fe' : 'white'
-                        }}>
-                        <img src={ecoIcon} style={{
-                            filter : ecoMode ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                    <button  className="mode-setting__head__mode mode-setting__head__mode4" 
-                        onClick = {() => {
-                            modeTurnOff();
-                            setNightMode(nightMode?false:true);
-                            setModeNum(nightMode?0:4);
-                        }} 
-                        style={{
-                            backgroundColor : nightMode ? '#3264fe' : 'white'
-                        }}>
-                        <img src={nightIcon} style={{
-                            filter : nightMode ? 'invert(1)' : 'invert(0)'
-                        }} />
-                    </button>
-                </div>
-}
             </div>
         </div>
     </div>
     );
 }
 
-export default Schedule;
+export default Alarm;

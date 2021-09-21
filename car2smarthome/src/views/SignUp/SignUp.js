@@ -24,7 +24,7 @@ const SignUp = () => {
     };
 
     const onCancel = () => {
-        history.push('/');
+        history.replace('/');
     }
 
     return(

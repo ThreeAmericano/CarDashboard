@@ -8,7 +8,7 @@
 .home__head{
     display: grid;
     /*grid-template-columns: repeat(4, 1fr); 총합96%, 나머지4%는 갭으로생성. */
-    grid-template-columns: 7% 24% 11% 30% 24%;
+    grid-template-columns: 7% 22% 11% 23% 24% 9%; 
     grid-gap: 0.625rem;
     grid-auto-rows: minmax(100px, auto);
     /*background-color: #D5DCE5;*/
@@ -25,14 +25,9 @@
     border-radius: 10%;
     font-size: 2.5rem;
 }
-.profile{
-    grid-column: 2;
-    grid-row: 1;
-    margin: auto;
-}
 .name{
     grid-column: 2;
-    grid-row: 2 / 3;
+    grid-row: 1 / 3;
     margin: auto;
 }
 .name_top{
@@ -121,6 +116,17 @@
     margin-block-start: 0em;
     margin-block-end: 0em;
     font-size: medium;
+}
+.setting-button{
+    display: block;
+    grid-column: 6;
+    grid-row: 1 / 2;
+    width: 3rem;
+    height: 3rem;
+    border: 0px;
+    margin: auto;
+    border-radius: 10%;
+    font-size: 2.5rem;
 }
 
 
