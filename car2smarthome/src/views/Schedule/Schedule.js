@@ -22,7 +22,7 @@ import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc
 
 let scheduleData = [];
 let docID = [];
-let pageNum;
+let pageNum = 0;
 let i;
 
 async function getStoreDB() {
@@ -39,9 +39,9 @@ async function getStoreDB() {
         });
         //console.log("[Schedule:getStoreDB] scheduleData :", scheduleData);
         //console.log("[Schedule:getStoreDB] scheduleData.length :", scheduleData.length);
-        //console.log("[Schedule:getStoreDB] scheduleData[0].Daysofweek :", scheduleData[0].Daysofweek);
+        //console.log("[Schedule:getStoreDB] scheduleData[0].daysOfWeek :", scheduleData[0].daysOfWeek);
     } catch(e) {
-        console.log("[Schedule:getStoreDB] error : ", e);
+        console.log("[Schedule:getStoreDB] error : ", e);   
     };
 };
 
@@ -59,10 +59,9 @@ const Schedule = () => {
     const [addDocName, setAddDocName] = useState(); //useState(""); 하면 글자 안써짐
 
     const [titleName, setTitleName] = useState();
-    //const [daysofweek, setDaysofweek] = useState([]);
+    //const [daysOfWeek, setdaysOfWeek] = useState([]);
     const [startTime, setStartTime] = useState();
     const [activeDate, setActivedate] = useState();
-    const [UID, setUID] = useState();
 
     const [sun, setSun] = useState();
     const [mon, setMon] = useState();
@@ -128,15 +127,17 @@ const Schedule = () => {
                             <button className="schedule_list_button" 
                                 onClick={() => {onSelectSchedule(index)}}>
                                 <span className="schedule_list_title">
-                                    {"["+String(index)+"번] "}  {item.Title}
+                                    {item.title}
+                                    <br />
+                                    {item.name}
                                 </span>
                                 <br/>
                                 <span className="schedule_list_date">
                                     <span>
-                                        {item.Start_time.substring(0,2)+":"+item.Start_time.substring(2,4)+" "}
+                                        {item.startTime.substring(0,2)+":"+item.startTime.substring(2,4)+" "}
                                     </span>
                                     <span>{
-                                        item.repeat?(item.Daysofweek[1]?"월 ":"")+(item.Daysofweek[2]?"화 ":"")+(item.Daysofweek[3]?"수 ":"")+(item.Daysofweek[4]?"목 ":"")+(item.Daysofweek[5]?"금 ":"")+(item.Daysofweek[6]?"토 ":"")+(item.Daysofweek[0]?"일 ":""):""
+                                        item.repeat?(item.daysOfWeek[1]?"월 ":"")+(item.daysOfWeek[2]?"화 ":"")+(item.daysOfWeek[3]?"수 ":"")+(item.daysOfWeek[4]?"목 ":"")+(item.daysOfWeek[5]?"금 ":"")+(item.daysOfWeek[6]?"토 ":"")+(item.daysOfWeek[0]?"일 ":""):""
                                     }</span>
                                 </span>
                             </button>
@@ -148,15 +149,6 @@ const Schedule = () => {
 
         setSchedule(
             <table className="schedule_list_table" border = '1' align='center'>
-                <tr>
-                    <td>
-                        <input className="schedule_list_add_title" type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="추가할 문서명을 입력하세요." required />
-
-                        <button className="schedule_list_add_button" onClick={onAddDoc}>
-                            <span class="material-icons">add_box</span>
-                        </button>
-                    </td>
-                </tr>
                 {scheduleList}
             </table>
         );
@@ -168,11 +160,11 @@ const Schedule = () => {
                 console.log("[Schedule:onAddDoc] addDocName :", addDocName);
 
                 let addDocData = {
-                    "Daysofweek" : [false, false, false, false, false, false, false],
-                    "Enabled" : false,
-                    "Start_time" : "0000",
-                    "Title" : addDocName,
-                    "UID" : "12345678",
+                    "daysOfWeek" : [false, false, false, false, false, false, false],
+                    "enabled" : false,
+                    "startTime" : "0000",
+                    "title" : addDocName,
+                    "name" : name,
                     "airconEnable" : false,
                     "airconWindPower" : 0,
                     "gasValveEnable" : false,
@@ -205,10 +197,10 @@ const Schedule = () => {
             console.log("[Schedule:onSave] clicked");
 
             let saveScheduleData = {
-                "Enabled" : scheduleEnable,
-                "Start_time" : startTime.replace(":",""),
-                "Title" : titleName,
-                "UID" : UID,
+                "enabled" : scheduleEnable,
+                "startTime" : startTime.replace(":",""),
+                "title" : titleName,
+                "name" : name,
                 "airconEnable" : aircon,
                 "airconWindPower" : airconValue,
                 "gasValveEnable" : valve,
@@ -222,8 +214,8 @@ const Schedule = () => {
             };
 
             repeat?
-            saveScheduleData["Daysofweek"] = [sun, mon, tue, wed, thr, fri, sat]:
-            saveScheduleData["Active_date"] = activeDate.replace(/\-/g,".");
+            saveScheduleData["daysOfWeek"] = [sun, mon, tue, wed, thr, fri, sat]:
+            saveScheduleData["activeDate"] = activeDate.replace(/\-/g,".");
             
             console.log("[Schedule:onSave] docID[selectedSchedule] :", docID[selectedSchedule]); 
             console.log("[Schedule:onSave] saveScheduleData :", saveScheduleData);    
@@ -263,20 +255,19 @@ const Schedule = () => {
         setSelectedSchedule(num);
         
         if(scheduleData[num].repeat) {
-            setSun(scheduleData[num].Daysofweek[0]);
-            setMon(scheduleData[num].Daysofweek[1]);
-            setTue(scheduleData[num].Daysofweek[2]);
-            setWed(scheduleData[num].Daysofweek[3]);
-            setThr(scheduleData[num].Daysofweek[4]);
-            setFri(scheduleData[num].Daysofweek[5]);
-            setSat(scheduleData[num].Daysofweek[6]);
+            setSun(scheduleData[num].daysOfWeek[0]);
+            setMon(scheduleData[num].daysOfWeek[1]);
+            setTue(scheduleData[num].daysOfWeek[2]);
+            setWed(scheduleData[num].daysOfWeek[3]);
+            setThr(scheduleData[num].daysOfWeek[4]);
+            setFri(scheduleData[num].daysOfWeek[5]);
+            setSat(scheduleData[num].daysOfWeek[6]);
         } else  {
-            setActivedate(scheduleData[num].Active_date.replace(/\./g,"-"));
+            setActivedate(scheduleData[num].activeDate.replace(/\./g,"-"));
         }
         // 모드 선택 시 해당 모드 점등, 가전 선택 시 모드 선택 해제
-        setTitleName(scheduleData[num].Title);
-        setScheduleEnable(scheduleData[num].Enabled);
-        setUID(scheduleData[num].UID);
+        setTitleName(scheduleData[num].title);
+        setScheduleEnable(scheduleData[num].enabled);
         setModeNum(0);
         setCheckMyProfile(true); //모드면 false / 가전이면 true
 
@@ -297,7 +288,7 @@ const Schedule = () => {
         setWindow(scheduleData[num].windowOpen);
         setValve(scheduleData[num].gasValveEnable);
         setRepeat(scheduleData[num].repeat);
-        setStartTime(scheduleData[num].Start_time.substring(0,2)+":"+scheduleData[num].Start_time.substring(2,4));
+        setStartTime(scheduleData[num].startTime.substring(0,2)+":"+scheduleData[num].startTime.substring(2,4));
     }
 
     const onSelectApplience = (num) => {
@@ -348,6 +339,10 @@ const Schedule = () => {
 
         <div className="mode-setting__box">
             <div className="mode-setting__box__left">
+                <input className="schedule_list_add_title" type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="추가할 문서명을 입력하세요." required />
+                <button className="schedule_list_add_button" onClick={onAddDoc}>
+                    <span class="material-icons">add_box</span>
+                </button>
                 {schedule}
             </div>
 
@@ -386,18 +381,26 @@ const Schedule = () => {
                         <label class="toggle_label" for="chk2">
                             <span>모드로할지 개별제어로 할지 고르는 스위치</span>
                         </label>
+                        <br />
+
+                        <span>반복</span>
+                        <input class="toggle_checkbox" type="checkbox" id="chk3"
+                            onChange={() => {setRepeat(repeat?false:true);}} checked={repeat?"checked":""} />
+                        <label class="toggle_label" for="chk3">
+                            <span>repeat 온오프 스위치</span>
+                        </label>
 
                     </div>
                     <div class="date">
                         {repeat?
                             <span>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setSun(sun?false:true)}} checked={sun?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setMon(mon?false:true)}} checked={mon?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setTue(tue?false:true)}} checked={tue?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setWed(wed?false:true)}} checked={wed?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setThr(thr?false:true)}} checked={thr?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setFri(fri?false:true)}} checked={fri?"checked":""}/>
-                                <input class="daysofweek" type="checkbox" onChange={() => {setSat(sat?false:true)}} checked={sat?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setSun(sun?false:true)}} checked={sun?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setMon(mon?false:true)}} checked={mon?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setTue(tue?false:true)}} checked={tue?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setWed(wed?false:true)}} checked={wed?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setThr(thr?false:true)}} checked={thr?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setFri(fri?false:true)}} checked={fri?"checked":""}/>
+                                <input class="daysOfWeek" type="checkbox" onChange={() => {setSat(sat?false:true)}} checked={sat?"checked":""}/>
                             </span>:
                             <span>
                                 <input class="schedule_date" type="date" value={activeDate} onChange={(event) => setActivedate(event.target.value)} />
