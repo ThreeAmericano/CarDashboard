@@ -18,22 +18,22 @@ const App = function () {
 					<Route exact path="/">
 						<SignIn />
 					</Route>
-					<Route exact path="/sign-up">
+					<Route path="/sign-up">
 						<SignUp />
 					</Route>
-					<Route exact path="/home">
+					<Route path="/home">
 						<Home />
 					</Route>
-					<Route exact path="/mode">
+					<Route path="/mode">
 						<Mode />
 					</Route>
-					<Route exact path="/schedule">
+					<Route path="/schedule">
 						<Schedule />
 					</Route>
-					<Route exact path="/alarm">
+					<Route path="/alarm">
 						<Alarm />
 					</Route>
-					<Route exact path="/appliance">
+					<Route path="/appliance">
 						<Appliance />
 					</Route>
 					<Redirect to="/" />

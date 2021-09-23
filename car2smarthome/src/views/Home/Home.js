@@ -55,10 +55,10 @@ async function getStoreDB() {
             mode[i] = String(i+1); // 모드 번호
             mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
             mode[i] += String(doc.data().airconWindPower);  // 에어컨 강도 (0~9)
-            mode[i] += doc.data().lightEnable ? '1' : '0';  // 전등 상태 (0~1)
-            mode[i] += String(doc.data().lightBrightness);  // 전등 밝기 (1~9)
-            mode[i] += String(doc.data().lightColor);       // 전등 색상 ()
-            mode[i] += String(doc.data().lightMode-8);        // 전등 모드 (0~3)
+            mode[i] += doc.data().lightEnable ? '1' : '0';  // 무드등 상태 (0~1)
+            mode[i] += String(doc.data().lightBrightness);  // 무드등 밝기 (1~9)
+            mode[i] += String(doc.data().lightColor);       // 무드등 색상 ()
+            mode[i] += String(doc.data().lightMode-8);      // 무드등 모드 (0~3)
             mode[i] += doc.data().windowOpen ? '1' : '0';   // 창문 상태
             mode[i] += doc.data().gasValveEnable ? '1' : '0';//가스 밸브 상태
             console.log("[Home:store] mode",i+1,":",mode[i]); //.toString()
@@ -83,15 +83,23 @@ const Home = () => {
     const [w_icon,setW_icon] = useState();
     const [dust, setDust] = useState();
 
-    const [indoorMode, setIndoorMode] = useState(false);
-    const [outdoorMode, setOutdoorMode] = useState(false);
-    const [ecoMode, setEcoMode] = useState(false);
-    const [nightMode, setNightMode] = useState(false);
+    const [indoorMode, setIndoorMode] = useState();
+    const [outdoorMode, setOutdoorMode] = useState();
+    const [ecoMode, setEcoMode] = useState();
+    const [nightMode, setNightMode] = useState();
     
-    const [aircon, setAircon] = useState(false);
-    const [light, setLight] = useState(false);
-    const [valve, setValve] = useState(false);
-    const [windowAppli, setWindow] = useState(false);
+    const [aircon, setAircon] = useState();
+    const [light, setLight] = useState();
+    const [valve, setValve] = useState();
+    const [window, setWindow] = useState();
+
+    
+
+    let prevHome = [false, false, false, false];
+
+    useEffect(() => {
+        console.log("[useEffect:aircon] aircon :", aircon);
+    },[aircon]);
 
     useEffect(() => {
         console.log("[Home:useEffect] useEffect 실행");
@@ -103,7 +111,7 @@ const Home = () => {
         GetState();
 
         setName(location.state.name);
-        ttsTest(String(location.state.name)+"님 안녕하세요");
+        tts(String(location.state.name)+"님 안녕하세요");
 
         oldDB = location.state.db;
         console.log("[Home:useEffect] oldDB :",oldDB);
@@ -126,15 +134,19 @@ const Home = () => {
 
         if(Number(smarthome[1]) < 2) {
             setAircon(Number(smarthome[1])?true:false);
+            prevHome[0] = Number(smarthome[1])?true:false;
         };
         if(Number(smarthome[3]) < 2) {
             setLight(Number(smarthome[3])?true:false);
+            prevHome[1] = Number(smarthome[3])?true:false;
         };
         if(Number(smarthome[7]) < 2) {
             setWindow(Number(smarthome[7])?true:false);
+            prevHome[2] = Number(smarthome[7])?true:false;
         };
         if(Number(smarthome[8]) < 2) {
             //setValve(Number(smarthome[8])?true:false);
+            prevHome[3] = Number(smarthome[8])?true:false;
             if(Number(smarthome[8])) {
                 setValve(true);
                 createToast("가스밸브가 잠기지 않았습니다.")                
@@ -152,7 +164,7 @@ const Home = () => {
             console.log("[Home:useEffect] pageNum :", pageNum);
         };
         
-    }, []);
+    }, [location]);
 
     if(pageNum == 1) {
         const dbRef = ref(db);
@@ -166,14 +178,16 @@ const Home = () => {
                 console.log("[Home:listener] 변화 없음");
             } else {
                 console.log("[Home:listener] 변화 있음");
-                console.log("[home : listener] old smarthome :",oldDB.smarthome.status);
-                console.log("[home : listener] new smarthome :",data.smarthome.status);
-                setUI(data);
                 oldDB = data;
+                //console.log("[home : listener] old smarthome :",oldDB.smarthome.status);
+                //console.log("[home : listener] new smarthome :",data.smarthome.status);
+                console.log("[home : listener] before aircon :",aircon);
+                setUI(data);
+                console.log("[home : listener] after aircon :",aircon);
             };
         });
 
-        getStoreDB();
+        //getStoreDB();
     };
 
     const startAssistant = () => {
@@ -236,9 +250,8 @@ const Home = () => {
         };*/
     };
     
-    const ttsTest = (ment) => {
-        console.log("[Home:ttsTest] test start");
-        console.log("[Home:ttsTest] ment :", ment);
+    const tts = (ment) => {
+        console.log("[Home:tts] ment :", ment);
     
         var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
         var params = {
@@ -248,8 +261,6 @@ const Home = () => {
         };
           
         webOSBridge.call(url, JSON.stringify(params));
-
-        console.log("[Home:ttsTest] test end");
     }
     
     
@@ -283,18 +294,48 @@ const Home = () => {
         }
 
         if(Number(listenHome[1]) != 2) {
-            setAircon(Number(listenHome[1])==1?true:false);
+            let onOff = Number(listenHome[1])==1?true:false;
+            console.log("[Home:setUI] prevHome[0], onOff :",prevHome[0],",",onOff);
+            if(prevHome[0] != onOff) {
+                prevHome[0] = onOff;
+                setAircon(onOff);
+                let comment = onOff ? "에어컨이 켜졌습니다" : "에어컨이 꺼졌습니다";
+                createToast(comment);
+                tts(comment);
+            };
         };
         if(Number(listenHome[3]) != 2) {
-            setLight(Number(listenHome[3])==1?true:false);
+            let onOff = Number(listenHome[3])==1?true:false;
+            console.log("[Home:setUI] prevHome[1], onOff :",prevHome[1],",",onOff);
+            if(prevHome[1] != onOff) {
+                prevHome[1] = onOff;
+                setLight(onOff);
+                let comment = (onOff) ? "무드등이 켜졌습니다" : "무드등이 꺼졌습니다";
+                createToast(comment);
+                tts(comment);
+            };
         };
         if(Number(listenHome[7]) != 2) {
-            setWindow(Number(listenHome[7])==1?true:false);
+            let onOff = Number(listenHome[7])==1?true:false;
+            console.log("[Home:setUI] prevHome[2], onOff :",prevHome[2],",",onOff);
+            if(prevHome[2] != onOff) {
+                prevHome[2] = onOff;
+                setWindow(onOff);
+                let comment = (onOff) ? "창문이 열렸습니다" : "창문이 닫혔습니다";
+                createToast(comment);
+                tts(comment);
+            };
         };
         if(Number(listenHome[8]) != 2) {
-            console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
-            console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
-            setValve(Number(listenHome[8])==1?true:false);
+            let onOff = Number(listenHome[8])==1?true:false;
+            console.log("[Home:setUI] prevHome[3], onOff :",prevHome[3],",",onOff);
+            if(prevHome[3] != onOff) {
+                prevHome[3] = onOff;
+                setValve(onOff);
+                let comment = (onOff) ? "가스밸브가 열렸습니다" : "가스밸브가 닫혔습니다";
+                createToast(comment);
+                tts(comment);
+            };
         };
 
         if(Number(listenHome[0])>0){
@@ -452,14 +493,14 @@ const Home = () => {
             };
             case 3 : {
                 modeTurnOff();
-                if(windowAppli) {
+                if(window) {
                     setWindow(false);
                     command = "022222202";
                 } else {
                     setWindow(true);
                     command = "022222212";
                 }
-                console.log("[Home:onDoApplience] windowAppli :", windowAppli);
+                console.log("[Home:onDoApplience] window :", window);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
                 break;
             };
@@ -593,22 +634,24 @@ const Home = () => {
             "message":String(ment)
         };
         webOSBridge.call(url, JSON.stringify(params));
-
-        webOSBridge.onservicecallback = toastCallback;
-        function toastCallback(msg){
-
-            if(response.provider == "googleassistant") {
-                console.log("before-parse-response");
-                var response = JSON.parse(msg);
-                console.log(response);
-                return null;
-            }
-
-            var response = JSON.parse(msg); 
-            console.log("[SignIn:createToast callback] response :", response);
-        }
+        
+        webOSBridge.onservicecallback = serviceCallback;
+        function serviceCallback(msg){
+            try {
+                if(response.provider == "googleassistant") {
+                    console.log("before-parse-response");
+                    var response = JSON.parse(msg);
+                    console.log(response);
+                    return null;
+                }
+            } catch (e) {
+                var response = JSON.parse(msg); 
+                console.log("[Home:callback] response :", response);
+            };            
+        };        
     };
 
+                //console.log("[Home:callback] e :", e);
     return(
         <div className="home">
             <audio id="tts">
@@ -822,14 +865,14 @@ const Home = () => {
                                         <button 
                                             onClick = {() => onDoApplience(3)} 
                                             style={{
-                                                backgroundColor : windowAppli ? '#3264fe' : 'white'
+                                                backgroundColor : window ? '#3264fe' : 'white'
                                             }}
                                         >
                                             <img className="control-appliance" src={windowIcon} style={{
-                                                filter : windowAppli ? 'invert(1)' : 'invert(0)'
+                                                filter : window ? 'invert(1)' : 'invert(0)'
                                             }} />
                                             <p style={{
-                                                color : windowAppli ? 'white' : 'black'
+                                                color : window ? 'white' : 'black'
                                             }} >
                                                 창문
                                             </p>
