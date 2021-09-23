@@ -79,16 +79,8 @@ const Alarm = () => {
                 <tr key={index} >
                     <tr>
                         <td>
-                            <p className="alarmlist_item_inform">
-                                {item.inform}
-                            </p>
-                            <p className="alarmlist_item_date">
-                                {item.date}
-                            </p>
-                        </td>
-                        <td>
                             <p>
-                                <img className="control-mode" 
+                                <img className="appliance_img" 
                                     src={
                                         item.icon == "aircon_icon"?aircon_icon:
                                         item.icon == "light_icon"?light_icon:
@@ -97,62 +89,97 @@ const Alarm = () => {
                                     } />
                             </p>
                         </td>
+                        <td className="appliance_inform_td">
+                            <span className="alarmlist_item_inform">
+                                {item.inform}
+                            </span>
+                            <br/>
+                            <span className="alarmlist_item_date">
+                                {item.date}
+                            </span>
+                        </td>
                     </tr>
                 </tr>
             )
         );
 
         setAlarm(
-            <table className="schedule_list_table" border = '1' align='center'>
+            <table className="alarm_list_table" border = '1' align='center'>
                 {alarmList}
             </table>
         );
     };
     
     return(
-        <div className="mode-setting">
-        <div className="mode-setting__head">
-            <h3 className="title">설정페이지</h3>
-            <button className="back-button" onClick={onGotoHome}>
-                <span class="material-icons">reply</span>
-            </button>
+        <div className="setting-page">
+            <div className="setting-page__head">
+                <h3 className="title">설정페이지</h3>
+                <button className="back-button" onClick={onGotoHome}>
+                    <span class="material-icons">reply</span>
+                </button>
 
-            <button className="delete-button">
-                <span class="material-icons">delete</span>
-            </button>
-
-            <button className="save-button">
-                <span class="material-icons">save</span>
-            </button>
-        </div>
-
-        <div className="mode-setting__box">
-            <div className="mode-setting__box__left">
-                <h3>가전 알람 목록</h3>
-                {alarm}
+                <button className="save-button">
+                    <span class="material-icons">save</span>
+                </button>
             </div>
 
-            <div className="mode-setting__box__light-setting">
-                <h3>UI 모드 설정</h3>
-                <p>사용자이름</p>
-                <p>
-                    다크모드
-                    <input class="toggle_checkbox" type="checkbox" id="chk1"/>
-                    <label class="toggle_label" for="chk1">
-                        <span>다크모드</span>
-                    </label>
-                </p>
-                <p>
-                    무엇일까
-                    <input class="toggle_checkbox" type="checkbox" id="chk2"/>
-                    <label class="toggle_label" for="chk2">
-                        <span>뭘넣어야하나요</span>
-                    </label>
-                </p>
+            <div className="setting-page__box">
+                <div className="setting-page__box__left">
+                    <h3>
+                        <span class="material-icons">
+                        notifications
+                        </span>
+                        가전 동작 정보
+                    </h3>
+                    {alarm}
+                </div>
 
-            </div>                    
+                <div className="setting-page-user">
+                    <h3>사용자 설정</h3>
+
+                    <div class="togglebox">
+                        <hr/>
+                        <br/>
+
+                        <div class="togglebox_name">
+                            <span>다크모드 사용하기</span>
+                        </div>
+                        <div class="togglebox_input">
+                            <input class="toggle_checkbox" type="checkbox" id="chk1" />
+                            <label class="toggle_label" for="chk1">
+                                <span>다크모드 스위치</span>
+                            </label>
+                        </div>
+                        <br/>
+                        
+                        <div class="togglebox_name">
+                            <span>옵션옵션옵션1</span>
+                        </div>
+                        <div class="togglebox_input">
+                            <input class="toggle_checkbox" type="checkbox" id="chk1" />
+                            <label class="toggle_label" for="chk1">
+                                <span>옵션옵션옵션1</span>
+                            </label>
+                        </div>
+                        <br/>
+                        
+                        <div class="togglebox_name">
+                            <span>옵션옵션옵션2</span>
+                        </div>
+                        <div class="togglebox_input">
+                            <input class="toggle_checkbox" type="checkbox" id="chk1" />
+                            <label class="toggle_label" for="chk1">
+                                <span>옵션옵션옵션2</span>
+                            </label>
+                        </div>
+                        <br/>
+
+
+                    </div>
+
+                </div>                    
+            </div>
         </div>
-    </div>
     );
 }
 

@@ -188,39 +188,22 @@ const Appliance = () => {
     };
     
     return(
-        <div className="mode-setting">
-        <div className="mode-setting__head">
+        <div className="appliance-setting">
+        <div className="appliance-setting__head">
             <h3 className="title">개별 가전 페이지</h3>
             <button className="back-button" onClick={onGotoHome}>
                 <span class="material-icons">reply</span>
             </button>
-
-            <button className="mode-setting__head__navigation mode-setting__head__mode_button">
-                <span class="material-icons">star</span>
-                모드
-            </button>
-            <button className="mode-setting__head__navigation mode-setting__head__schedule_button">
-                <span class="material-icons">pending_actions</span>
-                스케쥴
-            </button>
-
-            <button className="add-button">
-                <span class="material-icons">add</span>
-            </button>
-
-            <button className="delete-button">
-                <span class="material-icons">delete</span>
-            </button>
-
+            
             <button className="save-button">
-                <span class="material-icons">save</span>
+                <span class="material-icons">check</span>
             </button>
         </div>
 
-        <div className="mode-setting__box">
-            <div className="mode-setting__box__light-setting">
+        <div className="appliance-setting__box">
+            <div className="appliance-setting__box__light-setting">
                 <div class="" > 
-                    <div class="setting-box-windowvalve">
+                    <div class="appliance-box-windowvalve">
                         <div class="title">
                             창문/가스밸브
                         </div>
@@ -255,7 +238,7 @@ const Appliance = () => {
                     </div>
                     <hr class="row_line" />
                     
-                    <div class="setting-box-aircon">
+                    <div class="appliance-box-aircon">
                         <div class="title">
                             에어컨
                         </div>
@@ -289,7 +272,7 @@ const Appliance = () => {
                     </div>
                     <hr class="row_line" />
                     
-                    <div class="setting-box-light">
+                    <div class="appliance-box-light">
                         <div class="title">
                             무드등
                         </div>
@@ -325,7 +308,7 @@ const Appliance = () => {
                     </div>
                         
                         
-                    <div class="setting-box-lightdetail">
+                    <div class="appliance-box-lightdetail">
                         <div class="title">
                             -
                         </div>

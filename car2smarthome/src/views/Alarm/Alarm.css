@@ -65,21 +65,22 @@ input:checked + .slider:before {
 /* ===================================================================
 - 상단메뉴 설정
 =================================================================== */
-.mode-setting__head{
+.setting-page__head{
   display: grid;
   grid-template-columns: 14% 14% 18% 18% 14% 7% 7%;
   grid-gap: 0.625rem;
   grid-auto-rows: minmax(100px, auto);
   background-color: #D5DCE5;
   padding-top: 1rem;
+  padding-bottom: 1rem;
 }
-.mode-setting__head .title{
+.setting-page__head .title{
   display: block;
   grid-column: 3/5;
   grid-row: 1;
   text-align: center;
 }
-.mode-setting__head .back-button{
+.setting-page__head .back-button{
   display: block;
   grid-column: 1;
   grid-row: 1;
@@ -90,7 +91,7 @@ input:checked + .slider:before {
   border-radius: 10%;
   font-size: 2.5rem;
 }
-.mode-setting__head__navigation{
+.setting-page__head__navigation{
   display: block;
   width: 9rem;
   height: 2rem;
@@ -101,15 +102,15 @@ input:checked + .slider:before {
   font-size: 1.5rem;
   transition: 0.1s;
 }
-.mode-setting__head__mode_button{
+.setting-page__head__mode_button{
   grid-column: 3;
   grid-row: 2;
 }
-.mode-setting__head__schedule_button{
+.setting-page__head__schedule_button{
   grid-column: 4;
   grid-row: 2;
 }
-.mode-setting__head .delete-button{
+.setting-page__head .delete-button{
   display: block;
   grid-column: 6;
   grid-row: 1;
@@ -120,7 +121,7 @@ input:checked + .slider:before {
   border-radius: 10%;
   font-size: 2.5rem;
 }
-.mode-setting__head .save-button{
+.setting-page__head .save-button{
   display: block;
   grid-column: 7;
   grid-row: 1;
@@ -137,7 +138,7 @@ input:checked + .slider:before {
 /* ===================================================================
 - 제어부 모드 아이콘 버튼 설정
 =================================================================== */
-.mode-setting__head__mode{
+.setting-page__head__mode{
   display: block;
   width: 5rem;
   height: 5rem;
@@ -148,23 +149,23 @@ input:checked + .slider:before {
   font-size: 2.5rem;
   transition: 0.1s;
 }
-.mode-setting__head__mode img{
+.setting-page__head__mode img{
   width: 3rem;
   height: 3rem;
 }
-.mode-setting__head__mode1{
+.setting-page__head__mode1{
   grid-column: 3;
   grid-row: 2;
 }
-.mode-setting__head__mode2{
+.setting-page__head__mode2{
   grid-column: 4;
   grid-row: 2;
 }
-.mode-setting__head__mode3{
+.setting-page__head__mode3{
   grid-column: 5;
   grid-row: 2;
 }
-.mode-setting__head__mode4{
+.setting-page__head__mode4{
   grid-column: 6;
   grid-row: 2;
 }
@@ -172,16 +173,16 @@ input:checked + .slider:before {
 /* ===================================================================
 - 제어부 전체틀 설정
 =================================================================== */
-.mode-setting__box{
+.setting-page__box{
   width: 100%;
   height: 90%;
   display: flex;
   align-items: center;
 }
-.mode-setting__box__left{
+.setting-page__box__left{
   float: left;
   width: 50%;
-  height: 28rem;
+  height: 32.5rem;
   padding: 0px;
   text-align: center;
   overflow : scroll;
@@ -189,38 +190,39 @@ input:checked + .slider:before {
   box-sizing: border-box;
   background-color: #f0f0f0;
 }
-.mode-setting__box__light-setting{
+.setting-page-user{
   float: right;
   width: 50%;
-  height: 100%;
-  padding: 0px;
+  padding: 3rem;
   text-align: center;
+  background-color: white;
 }
 
-.schedule_list_table{
+.alarm_list_table{
   margin: 0 0;
   border: 0px solid white;
   text-align: left;
   overflow: scroll;
 }
-.schedule_list_table td{
+.alarm_list_table td{
   border: 0px;
+  padding-left: 1rem;
 }
-.schedule_list_checkbox{
+.alarm_list_checkbox{
   zoom: 1.5;
 }
-.schedule_list_button{
+.alarm_list_button{
   background-color: white;
   border: 0px solid;
   text-align: left;
   padding: 1rem;
-  width: 17rem;
+  width: 18.5rem;
 }
-.schedule_list_date{
+.alarm_list_date{
   font-size: small;
   color: gray;
 }
-.schedule_list_title{
+.alarm_list_title{
   font-size: medium;
   color: black;
 }
@@ -231,10 +233,31 @@ input:checked + .slider:before {
 /* ===================================================================
 - 제어부분 상세 설정
 =================================================================== */
+.appliance_img{
+  width: 3rem;
+  height: 3rem;
+}
 .alarmlist_item_inform{
   font-size: large;
 }
 .alarmlist_item_date{
   font-size: small;
   color: gray;
+}
+.appliance_inform_td{
+  width: 25rem;
+}
+
+
+.setting-page-user div.togglebox{
+  width: 50%;
+  line-height: 200%;
+  display: inline-block;
+}
+.setting-page-user div.togglebox_name{
+  float: left;
+}
+.setting-page-user div.togglebox_input{
+  float: right;
+  padding-top: 0.5rem;
 }

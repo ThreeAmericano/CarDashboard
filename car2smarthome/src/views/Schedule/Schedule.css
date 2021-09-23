@@ -72,6 +72,7 @@ input:checked + .slider:before {
   grid-auto-rows: minmax(100px, auto);
   background-color: #D5DCE5;
   padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 .mode-setting__head .title{
   display: block;
@@ -259,7 +260,7 @@ input:checked + .slider:before {
 .mode-setting__box__left{
   float: left;
   width: 30%;
-  height: 29.8rem;
+  height: 32.5rem;
   padding: 0px;
   text-align: center;
   overflow : scroll;
@@ -322,6 +323,17 @@ input:checked + .slider:before {
   width: 95%;
   margin: 1rem;
 }
+.setting-box-title div.togglebox{
+  width: 50%;
+  line-height: 200%;
+}
+.setting-box-title div.togglebox_name{
+  float: left;
+}
+.setting-box-title div.togglebox_input{
+  float: right;
+  padding-top: 0.5rem;
+}
 .setting-box-title div.title{
   width:50%;
   float:left;
@@ -331,7 +343,7 @@ input:checked + .slider:before {
   float:right;
   text-align: right;
 }
-.setting-box-title .daysofweek{
+.setting-box-title .daysOfWeek{
   zoom:2;
 }
 .schedule_date{
@@ -350,6 +362,8 @@ input:checked + .slider:before {
 .setting-box-windowvalve{
   display: inline-block;
   width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 .setting-box-windowvalve div.title{
   width:20%;
@@ -357,14 +371,38 @@ input:checked + .slider:before {
 }
 .setting-box-windowvalve div.content-box{
   width:80%;
-  float:left;
+  float:right;
+}
+.setting-box-windowvalve div.windowvalve_box{
+  width: 50%;
+  float: right;
+}
+.setting-box-windowvalve div.aircon_box{
+  width: 50%;
+  float: left;
 }
 .setting-box-windowvalve div.window{
   width:50%;
-  float:left;
+  float:right;
 }
 .setting-box-windowvalve div.valve{
   width:50%;
+  float:right;
+}
+.setting-box-windowvalve div.window_button{
+  width:50%;
+  float:left;
+}
+.setting-box-windowvalve div.valve_button{
+  width:80%;
+  float:right;
+}
+.setting-box-windowvalve div.enable-button{
+  width:20%;
+  float:left;
+}
+.setting-box-windowvalve div.power-level{
+  width:80%;
   float:right;
 }
 
@@ -393,6 +431,7 @@ input:checked + .slider:before {
 .setting-box-light{
   display: inline-block;
   width: 100%;
+  margin-top: 1rem;
 }
 .setting-box-light div.title{
   width:20%;
@@ -402,9 +441,6 @@ input:checked + .slider:before {
   width:80%;
   float:left;
 }
-.setting-box-light div.top{
-  float:top;
-}
 .setting-box-light div.enable-button{
   width:20%;
   float:left;
@@ -413,25 +449,11 @@ input:checked + .slider:before {
   width:80%;
   float:right;
 }
-
-
-.setting-box-lightdetail{
-  display: inline-block;
-  width: 100%;
-}
-.setting-box-lightdetail div.title{
-  width:20%;
-  float:left;
-}
-.setting-box-lightdetail div.content-box{
-  width:80%;
-  float:left;
-}
-.setting-box-lightdetail div.color-selection{
+.setting-box-light div.color-selection{
   width:50%;
   float:left;
 }
-.setting-box-lightdetail div.mode-selection{
+.setting-box-light div.mode-selection{
   width:50%;
   float:right;
 }
@@ -462,6 +484,15 @@ input:checked + .slider:before {
 .valve-setting .window-setting{
   display: inline-block;
 }
+#airconInputValue{
+  zoom: 1.5;
+  margin-top: 0.5rem;
+}
+#lightInputValue{
+  zoom: 1.5;
+  margin-top: 0.5rem;
+}
+
 
 .light-setting{
   margin: auto;

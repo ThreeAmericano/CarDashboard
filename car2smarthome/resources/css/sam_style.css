@@ -7,6 +7,9 @@
 body{
   background-color: #bda5a5;
   font-family: 'Do Hyeon', sans-serif;
+  width: 64rem;
+  height: 37.5rem;
+  border: 1px solid yellow;
 }
 h3{
 font-size: 2rem;
@@ -16,7 +19,7 @@ margin: 0.1rem;
 font-size: large;
 margin: 0.1rem;
 }
-.sign-in, .sign-up, .home, .mode-setting{
+.sign-in, .sign-up, .home, .mode-setting, .mode-setting-ori, .appliance-setting{
   display:'inline-block';
   width: 100%;
   height: 100%;

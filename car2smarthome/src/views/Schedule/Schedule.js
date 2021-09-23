@@ -128,17 +128,23 @@ const Schedule = () => {
                                 onClick={() => {onSelectSchedule(index)}}>
                                 <span className="schedule_list_title">
                                     {item.title}
-                                    <br />
-                                    {item.name}
                                 </span>
                                 <br/>
                                 <span className="schedule_list_date">
-                                    <span>
-                                        {item.startTime.substring(0,2)+":"+item.startTime.substring(2,4)+" "}
-                                    </span>
-                                    <span>{
-                                        item.repeat?(item.daysOfWeek[1]?"월 ":"")+(item.daysOfWeek[2]?"화 ":"")+(item.daysOfWeek[3]?"수 ":"")+(item.daysOfWeek[4]?"목 ":"")+(item.daysOfWeek[5]?"금 ":"")+(item.daysOfWeek[6]?"토 ":"")+(item.daysOfWeek[0]?"일 ":""):""
-                                    }</span>
+                                    <div>
+                                        <span>
+                                            {item.name}
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <span>
+                                            {item.startTime.substring(0,2)+":"+item.startTime.substring(2,4)+" "}
+                                        </span>
+                                        <span>{
+                                            item.repeat?(item.daysOfWeek[1]?"월 ":"")+(item.daysOfWeek[2]?"화 ":"")+(item.daysOfWeek[3]?"수 ":"")+(item.daysOfWeek[4]?"목 ":"")+(item.daysOfWeek[5]?"금 ":"")+(item.daysOfWeek[6]?"토 ":"")+(item.daysOfWeek[0]?"일 ":""):""
+                                        }</span>
+                                    </div>
                                 </span>
                             </button>
                         </td>
@@ -319,6 +325,7 @@ const Schedule = () => {
                 <span class="material-icons">reply</span>
             </button>
 
+            { /*
             <button className="mode-setting__head__navigation mode-setting__head__mode_button">
                 <span class="material-icons">star</span>
                 모드
@@ -327,6 +334,7 @@ const Schedule = () => {
                 <span class="material-icons">pending_actions</span>
                 스케쥴
             </button>
+            */ }
 
             <button className="delete-button" onClick={onDeleteDoc}>
                 <span class="material-icons">delete</span>
@@ -351,49 +359,65 @@ const Schedule = () => {
                     <div class="title">
                         <h3 class="schedule_title_h3">{titleName}</h3>
 
-                        <span>사용하기</span>
-                        <input class="toggle_checkbox" type="checkbox" id="chk1"
-                            onChange={() => {setScheduleEnable(scheduleEnable?false:true);}} checked={scheduleEnable?"checked":""} />
-                        <label class="toggle_label" for="chk1">
-                            <span>사용온오프 스위치</span>
-                        </label>
-                        <br/>
+                        <div class="togglebox">
+                            <div class="togglebox_name">
+                                <span>사용하기</span>
+                            </div>
+                            <div class="togglebox_input">
+                                <input class="toggle_checkbox" type="checkbox" id="chk1"
+                                    onChange={() => {setScheduleEnable(scheduleEnable?false:true);}} checked={scheduleEnable?"checked":""} />
+                                <label class="toggle_label" for="chk1">
+                                    <span>사용온오프 스위치</span>
+                                </label>
+                            </div>
+                            <br/>
+                            
+                            <div class="togglebox_name">
+                                <span>모드제어</span>
+                            </div>
+                            <div class="togglebox_input">
+                                <input class="toggle_checkbox" type="checkbox" id="chk2"
+                                onChange={() => {
+                                    if(checkMyProfile) {
+                                        setCheckMyProfile(false);
+                                        modeTurnOff();
+                                    } else {
+                                        setCheckMyProfile(true);
+                                        setModeNum(scheduleData[selectedSchedule].modeNum);
+                                        switch(scheduleData[selectedSchedule].modeNum) {
+                                            case 1 : {modeTurnOff(); setIndoorMode(true); break;}
+                                            case 2 : {modeTurnOff(); setOutdoorMode(true); break;}
+                                            case 3 : {modeTurnOff(); setEcoMode(true); break;}
+                                            case 4 : {modeTurnOff(); setNightMode(true); break;}
+                                            default : {modeTurnOff(); setIndoorMode(true); break;}
+                                        }
+                                    }
+                                }}
+                                checked={checkMyProfile?"checked":""}/>
+                                <label class="toggle_label" for="chk2">
+                                    <span>모드로할지 개별제어로 할지 고르는 스위치</span>
+                                </label>
+                            </div>
+                            <br/>
 
-                        <span>모드제어</span>
-                        <input class="toggle_checkbox" type="checkbox" id="chk2"
-                        onChange={() => {
-                            if(checkMyProfile) {
-                                setCheckMyProfile(false);
-                                modeTurnOff();
-                            } else {
-                                setCheckMyProfile(true);
-                                setModeNum(scheduleData[selectedSchedule].modeNum);
-                                switch(scheduleData[selectedSchedule].modeNum) {
-                                    case 1 : {modeTurnOff(); setIndoorMode(true); break;}
-                                    case 2 : {modeTurnOff(); setOutdoorMode(true); break;}
-                                    case 3 : {modeTurnOff(); setEcoMode(true); break;}
-                                    case 4 : {modeTurnOff(); setNightMode(true); break;}
-                                    default : {modeTurnOff(); setIndoorMode(true); break;}
-                                }
-                            }
-                        }}
-                        checked={checkMyProfile?"checked":""}/>
-                        <label class="toggle_label" for="chk2">
-                            <span>모드로할지 개별제어로 할지 고르는 스위치</span>
-                        </label>
-                        <br />
-
-                        <span>반복</span>
-                        <input class="toggle_checkbox" type="checkbox" id="chk3"
-                            onChange={() => {setRepeat(repeat?false:true);}} checked={repeat?"checked":""} />
-                        <label class="toggle_label" for="chk3">
-                            <span>repeat 온오프 스위치</span>
-                        </label>
+                            <div class="togglebox_name">
+                                <span>반복</span>
+                            </div>
+                            <div class="togglebox_input">
+                                <input class="toggle_checkbox" type="checkbox" id="chk3"
+                                    onChange={() => {setRepeat(repeat?false:true);}} checked={repeat?"checked":""} />
+                                <label class="toggle_label" for="chk3">
+                                    <span>repeat 온오프 스위치</span>
+                                </label>
+                            </div>
+                            <br />
+                        </div>
 
                     </div>
                     <div class="date">
                         {repeat?
                             <span>
+                                요일
                                 <input class="daysOfWeek" type="checkbox" onChange={() => {setSun(sun?false:true)}} checked={sun?"checked":""}/>
                                 <input class="daysOfWeek" type="checkbox" onChange={() => {setMon(mon?false:true)}} checked={mon?"checked":""}/>
                                 <input class="daysOfWeek" type="checkbox" onChange={() => {setTue(tue?false:true)}} checked={tue?"checked":""}/>
@@ -417,80 +441,101 @@ const Schedule = () => {
                 <div class="" > 
                     <div class="setting-box-windowvalve">
                         <div class="title">
-                            창문/가스밸브
-                        </div>
-                        <div class="content-box">
-                            <div class="window">
-                                <button 
-                                    className="appliance_button" 
-                                    onClick = {() => onSelectApplience(3)} 
-                                    style={{
-                                        backgroundColor : window ? '#3264fe' : 'white'
-                                    }}
-                                >
-                                    <img className="schedule-control-appliance" src={windowIcon} style={{
-                                        filter : window ? 'invert(1)' : 'invert(0)'
-                                    }} />
-                                </button>
-                            </div>
-                            <div class="valve">
-                                <button 
-                                    className="appliance_button" 
-                                    onClick = {() => onSelectApplience(2)} 
-                                    style={{
-                                        backgroundColor : valve ? '#3264fe' : 'white'
-                                    }}
-                                >
-                                    <img className="schedule-control-appliance" src={valveIcon} style={{
-                                        filter : valve ? 'invert(1)' : 'invert(0)'
-                                    }} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr class="row_line" />
-                    
-                    
-                    <div class="setting-box-aircon">
-                        <div class="title">
                             에어컨
                         </div>
                         <div class="content-box">
-                            <div class="enable-button">
-                                <button 
-                                    className="appliance_button" 
-                                    onClick = {() => onSelectApplience(0)} 
-                                    style={{
-                                        backgroundColor : aircon ? '#3264fe' : 'white'
-                                    }}
-                                >
-                                    <img className="schedule-control-appliance" src={airconIcon} style={{
-                                        filter : aircon ? 'invert(1)' : 'invert(0)'
-                                    }} />
-                                </button>
+                         
+
+
+
+                            <div class="aircon_box">
+                                <div class="enable-button">
+                                    <button 
+                                        className="appliance_button" 
+                                        onClick = {() => onSelectApplience(0)} 
+                                        style={{
+                                            backgroundColor : aircon ? '#3264fe' : 'white'
+                                        }}
+                                    >
+                                        <img className="schedule-control-appliance" src={airconIcon} style={{
+                                            filter : aircon ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                    </button>
+                                </div>
+
+                                <div class="power-level">
+                                    <input 
+                                        type="range" 
+                                        id="airconInputValue" 
+                                        name="airconInputValue"  
+                                        value={airconValue}
+                                        min="1" 
+                                        max="9" 
+                                        step="1" 
+                                        onChange={(event) => setAirconValue(event.target.value)} 
+                                    />
+                                </div>
                             </div>
-                            <div class="power-level">
-                                <input 
-                                    type="range" 
-                                    id="airconInputValue" 
-                                    name="airconInputValue"  
-                                    value={airconValue}
-                                    min="1" 
-                                    max="9" 
-                                    step="1" 
-                                    onChange={(event) => setAirconValue(event.target.value)} 
-                                />
+
+
+
+
+                            <div class="windowvalve_box">
+                                
+                                <div class="window">
+                                    <div class="title">
+                                        창문
+                                    </div>
+                                    <div class="window_button">
+                                        <button 
+                                            className="appliance_button" 
+                                            onClick = {() => onSelectApplience(3)} 
+                                            style={{
+                                                backgroundColor : window ? '#3264fe' : 'white'
+                                            }}
+                                        >
+                                            <img className="schedule-control-appliance" src={windowIcon} style={{
+                                                filter : window ? 'invert(1)' : 'invert(0)'
+                                            }} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="valve">
+                                    <div class="title">
+                                        가스밸브
+                                    </div>
+                                    <div class="valve_button">
+                                        <button 
+                                            className="appliance_button" 
+                                            onClick = {() => onSelectApplience(2)} 
+                                            style={{
+                                                backgroundColor : valve ? '#3264fe' : 'white'
+                                            }}
+                                        >
+                                            <img className="schedule-control-appliance" src={valveIcon} style={{
+                                                filter : valve ? 'invert(1)' : 'invert(0)'
+                                            }} />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
+
+
+
+
+
                         </div>
                     </div>
                     <hr class="row_line" />
+                    
                     
                     <div class="setting-box-light">
                         <div class="title">
                             무드등
                         </div>
                         <div class="content-box">
-                            <div>
+                            <div class="color-selection">
                                 <div class="enable-button">
                                     <button 
                                         className="appliance_button" 
@@ -516,18 +561,11 @@ const Schedule = () => {
                                         onChange={(event) => setlightValue(event.target.value)} 
                                     />
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                        
-                        
-                    <div class="setting-box-lightdetail">
-                        <div class="title">
-                            -
-                        </div>
-                        <div class="content-box">
-                            <div>
-                                <div class="color-selection">
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <div>
                                     <span>색 선택</span><br/>
                                     <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
                                     <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
@@ -539,30 +577,33 @@ const Schedule = () => {
                                     <input type="radio" className="color-orange"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
                                     <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
                                 </div>
-                                <div class="mode-selection">
-                                    <span>모드 선택</span><br/>
-                                    <label className="label-lightmode-radio">
-                                        <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
-                                        <span>일반모드</span> 
-                                    </label>
-                                    <label className="label-lightmode-radio">
-                                        <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
-                                        <span>슬립모드</span> 
-                                    </label>
-                                    <br/>
-                                    <label className="label-lightmode-radio">
-                                        <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
-                                        <span>파티모드</span> 
-                                    </label>
-                                    <label className="label-lightmode-radio">
-                                        <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="4" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
-                                        <span>트리모드</span> 
-                                    </label>
-                                </div>
                             </div>
+
+                            <div class="mode-selection">
+                                <br/>
+                                <span>모드 선택</span><br/>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
+                                    <span>일반모드</span> 
+                                </label>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                    <span>슬립모드</span> 
+                                </label>
+                                <br/>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
+                                    <span>파티모드</span> 
+                                </label>
+                                <label className="label-lightmode-radio">
+                                    <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="4" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
+                                    <span>트리모드</span> 
+                                </label>
+                            </div>   
                         </div>
                     </div>
                 </div>
+                        
 :
                 <div class="">
                     <p> 
