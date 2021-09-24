@@ -56,7 +56,7 @@ const SignUp = () => {
     }
 
     const onSignUp = () => {
-        if (name && email && password && passwordCert && password == passwordCert) {
+        if (name && email && password && passwordCert && password == passwordCert) {    // 칸이 비어있지 않고, 비밀번호와 비밀번호 확인이 다르지 않을 때
             let user;
 
             var url = 'luna://com.ta.car2smarthome.service/signUp'; // JS 서비스의 signUp 서비스를 이용한다.
@@ -76,7 +76,7 @@ const SignUp = () => {
 
                 user = returnValue.user;
                 console.log("[SignUp:onSignUp callback] user :", user);
-                console.log("[SignUp:onSignUp callback] user :", user.uid);
+                console.log("[SignUp:onSignUp callback] user.uid :", user.uid);
 
                 
                 createToast("회원가입 완료");

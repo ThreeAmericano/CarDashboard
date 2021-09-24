@@ -40,13 +40,13 @@ async function getStoreDB() {
 
 if(pageNum == 4) getStoreDB();
 
-const Alarm = () => {
+const Alarm = ({setDarkMode, darkMode}) => {
     const history = useHistory();
     const location = useLocation();
 
     const name = location.state.name;
     const oldDB = location.state.db;
-
+    
     const [alarm, setAlarm] = useState('');//알람 테이블
 
     let alarmList;
@@ -110,6 +110,10 @@ const Alarm = () => {
         );
     };
     
+    const onSelectUIMode = (select) => {
+        setDarkMode(select);
+    }
+    
     return(
         <div className="setting-page">
             <div className="setting-page__head">
@@ -145,7 +149,12 @@ const Alarm = () => {
                             <span>다크모드 사용하기</span>
                         </div>
                         <div class="togglebox_input">
-                            <input class="toggle_checkbox" type="checkbox" id="chk1" />
+                            <input class="toggle_checkbox" type="checkbox" id="chk1" 
+                                onChange={() => {
+                                    setDarkMode(darkMode?false:true);
+                                }} 
+                                checked={darkMode?"checked":""} 
+                            />
                             <label class="toggle_label" for="chk1">
                                 <span>다크모드 스위치</span>
                             </label>

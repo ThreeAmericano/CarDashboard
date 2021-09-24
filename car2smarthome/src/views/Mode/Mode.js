@@ -51,14 +51,12 @@ const Mode = () => {
     const name = location.state.name;
     const oldDB = location.state.db;
 
-    const [selectedMode, setSelectedMode] = useState();
-
     const [modeNum, setModeNum] = useState();
     const [modeName, setModeName] = useState();
     const [indoorMode, setIndoorMode] = useState();
     const [outdoorMode, setOutdoorMode] = useState();
     const [ecoMode, setEcoMode] = useState();
-    const [nightMode, setNightMode] = useState();
+    const [sleepMode, setSleepMode] = useState();
 
     const [aircon, setAircon] = useState();
     const [light, setLight] = useState();
@@ -72,7 +70,9 @@ const Mode = () => {
 
     useEffect(() => {
         pageNum = 2;
-        getStoreDB();
+        getStoreDB().then(() => {
+            onSelectMode(0);
+        });
     }, []);
 
     const onGotoHome = () => {
@@ -90,12 +90,11 @@ const Mode = () => {
     const onSelectMode = (num) => {
         console.log("[Mode:onSelectMode] num :", num);
         console.log("[Mode:onSelectMode] modeData[num] :", modeData[num]);
-        setSelectedMode(num);
 
         setIndoorMode(num==0?true:false);
         setOutdoorMode(num==1?true:false);
-        setEcoMode(num==2?true:false);
-        setNightMode(num==3?true:false);
+        setSleepMode(num==2?true:false);
+        setEcoMode(num==3?true:false);
         
         setModeNum(modeData[num].modeNum);
         setModeName(modeData[num].modeName);
@@ -183,8 +182,22 @@ const Mode = () => {
                         </span>
                     </button>
                     <br/>
-                    <button  className="mode-setting-ori__head__mode mode-setting-ori__head__mode3" 
+                    <button  className="mode-setting-ori__head__mode mode-setting-ori__head__mode4" 
                         onClick = {() => onSelectMode(2)} 
+                        style={{
+                            backgroundColor : sleepMode ? '#3264fe' : 'white'
+                        }}>
+                        <img src={nightIcon} style={{
+                            filter : sleepMode ? 'invert(1)' : 'invert(0)'
+                        }} />
+                        <br/>
+                        <span>
+                            슬립모드
+                        </span>
+                    </button>
+                    <br/>
+                    <button  className="mode-setting-ori__head__mode mode-setting-ori__head__mode3" 
+                        onClick = {() => onSelectMode(3)} 
                         style={{
                             backgroundColor : ecoMode ? '#3264fe' : 'white'
                         }}>
@@ -194,20 +207,6 @@ const Mode = () => {
                         <br/>
                         <span>
                             에코모드
-                        </span>
-                    </button>
-                    <br/>
-                    <button  className="mode-setting-ori__head__mode mode-setting-ori__head__mode4" 
-                        onClick = {() => onSelectMode(3)} 
-                        style={{
-                            backgroundColor : nightMode ? '#3264fe' : 'white'
-                        }}>
-                        <img src={nightIcon} style={{
-                            filter : nightMode ? 'invert(1)' : 'invert(0)'
-                        }} />
-                        <br/>
-                        <span>
-                            슬립모드
                         </span>
                     </button>
                 </div>

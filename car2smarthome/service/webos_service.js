@@ -8,8 +8,6 @@ var firebase = require('firebase').default; // firebase 라이브러리
 const service = new Service(pkgInfo.name);  // package.json 의 서비스 이름으로 서비스를 생성
 const logHeader = "[" + pkgInfo.name + "]"; // 서비스 이름으로 logHeader 지정
 
-//테스트중.
-
 const MQ_URL = 'amqp://rabbit:MQ321@211.179.42.130:5672';   // RabbitMQ 주소 지정 amqp://아이디:비밀번호@호스트:포트
 
 const firebaseConfig = {    // 우리 프로젝트 firebase 설정
@@ -54,7 +52,7 @@ service.register("listener", function(message) {    // signIn 서비스
 });
 
 
-async function sendMqttFunc(exchange, routingKey, msg) {    // MQTT 송신 함수
+async function sendMqttFunc(exchange, routingKey, msg) {        // MQTT 송신 함수
     try {
         console.log("[Service] send MQTT start");
     
@@ -128,7 +126,7 @@ async function firebaseLogin(email, password) { // firebase 로그인 함수
     }
 };
 
-async function firebaseSignup(email, password) { // firebase 사인업 함수
+async function firebaseSignup(email, password) { // firebase 회원가입 함수
     try {   // 로그인하고 UID 값을 받아온다.
         console.log("[Service] firebase signup function start");
         //const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password)
@@ -150,12 +148,7 @@ async function firebaseRTdb(){  // realtime database 읽기
         let db;
         await dbRef.get().then((snapshot) => {
             if (snapshot.exists()) {
-                db = snapshot.val();
-                //let homeTemp = db.hometemp;
-                //let openWeather = db.openweather;
-                //console.log("[Service] snapshot.val() :",snapshot.val());
-                //console.log("[Service] homeTemp :",homeTemp);
-                //console.log("[Service] openWeather :",openWeather);            
+                db = snapshot.val();       
             } else {
                 console.log("[Service] No data available");
             }
@@ -204,7 +197,7 @@ service.register("facerSignIn", async function(message) {    // signIn 서비스
 
         console.log("[Service] facer",message.payload.facer);
 
-        const queue = "webos.car";
+        const queue = "webos.car"; // mqtt queue
         let returnMsg;
 
         const msg = JSON.stringify({

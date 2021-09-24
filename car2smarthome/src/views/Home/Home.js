@@ -25,7 +25,6 @@ import ecoIcon from '../../../resources/smarthome_icon/eco_energy.png';
 import nightIcon from '../../../resources/smarthome_icon/night.png';
 
 import scheduleIcon from '../../../resources/smarthome_icon/schedule.png'
-
 import applianceIcon from '../../../resources/smarthome_icon/gear.png'
 import airconIcon from '../../../resources/smarthome_icon/air_conditioner.png';
 import lightIcon from '../../../resources/smarthome_icon/light.png';
@@ -35,11 +34,10 @@ import windowIcon from '../../../resources/smarthome_icon/window.png';
 var webOSBridge = new WebOSServiceBridge();
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from "../../firebase";
 
-let oldDB;
+let oldDB;  // DB 이전 상태와 비교하여 다르면 동작하도록 하기 위함
 let smarthome = "";
 let mode = new Array(4);
 
-let i = 0;
 let pageNum = 0;
 
 async function getStoreDB() {
@@ -53,16 +51,15 @@ async function getStoreDB() {
             //console.log("[Home:store listener]", doc.id, " => ", doc.data());
             
             mode[i] = String(i+1); // 모드 번호
-            mode[i] += doc.data().airconEnable ? '1' : '0'; // 에어컨 상태 (0~1)
-            mode[i] += String(doc.data().airconWindPower);  // 에어컨 강도 (0~9)
-            mode[i] += doc.data().lightEnable ? '1' : '0';  // 무드등 상태 (0~1)
-            mode[i] += String(doc.data().lightBrightness);  // 무드등 밝기 (1~9)
-            mode[i] += String(doc.data().lightColor);       // 무드등 색상 ()
-            mode[i] += String(doc.data().lightMode-8);      // 무드등 모드 (0~3)
-            mode[i] += doc.data().windowOpen ? '1' : '0';   // 창문 상태
-            mode[i] += doc.data().gasValveEnable ? '1' : '0';//가스 밸브 상태
-            console.log("[Home:store] mode",i+1,":",mode[i]); //.toString()
-    
+            mode[i] += doc.data().airconEnable ? '1' : '0';  // 에어컨 상태 (0~1)
+            mode[i] += String(doc.data().airconWindPower);   // 에어컨 강도 (0~9)
+            mode[i] += doc.data().lightEnable ? '1' : '0';   // 무드등 상태 (0~1)
+            mode[i] += String(doc.data().lightBrightness);   // 무드등 밝기 (1~9)
+            mode[i] += String(doc.data().lightColor);        // 무드등 색상 ()
+            mode[i] += String(doc.data().lightMode);       // 무드등 모드 (0~3)
+            mode[i] += doc.data().windowOpen ? '1' : '0';    // 창문 상태
+            mode[i] += doc.data().gasValveEnable ? '1' : '0';// 가스 밸브 상태
+            console.log("[Home:store] mode",i+1,":",mode[i]);
             i++;
         });
     } catch(e) {
@@ -76,44 +73,38 @@ const Home = () => {
     const history = useHistory();
     const location = useLocation();
     
-    const [name, setName] = useState();
-    const [temp, setTemp] = useState();
-    const [humi, setHumi] = useState();
-    const [weather, setWeather] = useState();
-    const [w_icon,setW_icon] = useState();
-    const [dust, setDust] = useState();
+    const [name, setName] = useState();         // 로그인한 사용자 이름
+    const [temp, setTemp] = useState();         // 스마트홈 센서 측정 온도
+    const [humi, setHumi] = useState();         // 스마트홈 센서 측정 습도
+    const [weather, setWeather] = useState();   // Open Weather Map API 날씨 정보
+    const [w_icon, setW_icon] = useState();     // Open Weather Map API 날씨 아이콘
+    const [dust, setDust] = useState();         // Open Weather Map API 대기질
 
-    const [indoorMode, setIndoorMode] = useState();
-    const [outdoorMode, setOutdoorMode] = useState();
-    const [ecoMode, setEcoMode] = useState();
-    const [nightMode, setNightMode] = useState();
+    const [indoorMode, setIndoorMode] = useState();     // 실내 모드 아이콘
+    const [outdoorMode, setOutdoorMode] = useState();   // 외출 모드 아이콘
+    const [ecoMode, setEcoMode] = useState();           // 에코 모드 아이콘
+    const [sleepMode, setSleepMode] = useState();       // 슬립 모드 아이콘
     
-    const [aircon, setAircon] = useState();
-    const [light, setLight] = useState();
-    const [valve, setValve] = useState();
-    const [window, setWindow] = useState();
+    const [aircon, setAircon] = useState(); // 에어컨 아이콘
+    const [light, setLight] = useState();   // 무드등 아이콘    
+    const [valve, setValve] = useState();   // 가스밸브 아이콘
+    const [window, setWindow] = useState(); // 창문 아이콘
 
-    
-
-    let prevHome = [false, false, false, false];
-
-    useEffect(() => {
-        console.log("[useEffect:aircon] aircon :", aircon);
-    },[aircon]);
+    let prevHome = [false, false, false, false];    // 가전 이전 상태
 
     useEffect(() => {
         console.log("[Home:useEffect] useEffect 실행");
         // 초기값 설정
         pageNum = 1;
 
-        stopAssistant();
+        stopAssistant();    // 음성인식 설정
         startAssistant();
         GetState();
 
         setName(location.state.name);
         tts(String(location.state.name)+"님 안녕하세요");
 
-        oldDB = location.state.db;
+        oldDB = location.state.db;  
         console.log("[Home:useEffect] oldDB :",oldDB);
 
         setTemp(location.state.db.sensor.hometemp.temp);
@@ -134,19 +125,19 @@ const Home = () => {
 
         if(Number(smarthome[1]) < 2) {
             setAircon(Number(smarthome[1])?true:false);
-            prevHome[0] = Number(smarthome[1])?true:false;
+            prevHome[0] = (Number(smarthome[1]))?true:false;
         };
         if(Number(smarthome[3]) < 2) {
             setLight(Number(smarthome[3])?true:false);
-            prevHome[1] = Number(smarthome[3])?true:false;
+            prevHome[1] = (Number(smarthome[3]))?true:false;
         };
         if(Number(smarthome[7]) < 2) {
             setWindow(Number(smarthome[7])?true:false);
-            prevHome[2] = Number(smarthome[7])?true:false;
+            prevHome[2] = (Number(smarthome[7]))?true:false;
         };
         if(Number(smarthome[8]) < 2) {
             //setValve(Number(smarthome[8])?true:false);
-            prevHome[3] = Number(smarthome[8])?true:false;
+            prevHome[3] = (Number(smarthome[8]))?true:false;
             if(Number(smarthome[8])) {
                 setValve(true);
                 createToast("가스밸브가 잠기지 않았습니다.")                
@@ -159,8 +150,7 @@ const Home = () => {
         else modeTurnOff;
         
         return() => {
-            stopAssistant();
-            console.log("[Home:useEffect] 컴포넌트가 화면에서 사라짐");
+            stopAssistant(); // 음성인식 종료
             console.log("[Home:useEffect] pageNum :", pageNum);
         };
         
@@ -170,30 +160,21 @@ const Home = () => {
         const dbRef = ref(db);
         onValue(dbRef, (snapshot) => {
             let data = snapshot.val();
-            //console.log("[Home:listener] oldDB :", oldDB);
-            //console.log("[Home:listener] data :", data);
-            //console.log("[Home:listener] oldDB == data :", oldDB == data);
 
             if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
                 console.log("[Home:listener] 변화 없음");
             } else {
                 console.log("[Home:listener] 변화 있음");
                 oldDB = data;
-                //console.log("[home : listener] old smarthome :",oldDB.smarthome.status);
-                //console.log("[home : listener] new smarthome :",data.smarthome.status);
-                console.log("[home : listener] before aircon :",aircon);
                 setUI(data);
-                console.log("[home : listener] after aircon :",aircon);
             };
         });
 
         //getStoreDB();
     };
 
-    const startAssistant = () => {
+    const startAssistant = () => {  // 음성인식 설정
         let url = 'luna://com.webos.service.ai.voice/start';
-
-     //   webOSBridge.onservicecallback = JSONCallback;
 
         let params = {
             "mode":"continuous",
@@ -203,18 +184,10 @@ const Home = () => {
         console.log("[siginin:startAssistant] before startAssistant call");
         webOSBridge.call(url, JSON.stringify(params));
         console.log("[siginin:startAssistant] after startAssistant call");
-/*
-        function JSONCallback(msg) {
-            console.log("before-parse-response");
-            var response = JSON.parse(msg);
-            console.log(response);
-        };*/
     };
 
-    const GetState = () => {
+    const GetState = () => {  // 음성인식 설정
         var url = 'luna://com.webos.service.ai.voice/getResponse';
-
-  //      webOSBridge.onservicecallback = JSONCallback;
 
         var params = {
             "subscribe": true
@@ -223,18 +196,10 @@ const Home = () => {
         console.log("[siginin:GetState] before GetState call");
         webOSBridge.call(url, JSON.stringify(params));
         console.log("[siginin:GetState] after GetState call");
-/*
-        function JSONCallback(msg) {
-            console.log("before-parse-response");
-            var response = JSON.parse(msg);
-            console.log(response);
-        };*/
     };
 
-    const stopAssistant = () => {
+    const stopAssistant = () => {  // 음성인식 설정
         let url = 'luna://com.webos.service.ai.voice/stop';
-
-    //    webOSBridge.onservicecallback = JSONCallback;
 
         let params = {
         };
@@ -242,12 +207,6 @@ const Home = () => {
         console.log("[siginin:stopAssistant] before stopAssistant call");
         webOSBridge.call(url, JSON.stringify(params));
         console.log("[siginin:stopAssistant] after stopAssistant call");
-
-    /*    function JSONCallback(msg) {
-            console.log("before-parse-response");
-            var response = JSON.parse(msg);
-            console.log(response);
-        };*/
     };
     
     const tts = (ment) => {
@@ -337,7 +296,6 @@ const Home = () => {
                 tts(comment);
             };
         };
-
         if(Number(listenHome[0])>0){
             onDoMode(Number(listenHome[0])-1);
         } else {
@@ -351,7 +309,7 @@ const Home = () => {
         setIndoorMode(false);
         setOutdoorMode(false);
         setEcoMode(false);
-        setNightMode(false);
+        setSleepMode(false);
     };
 
     const onDoMode = (num) => {
@@ -371,13 +329,13 @@ const Home = () => {
             }
             case 2 : {
                 modeTurnOff();
-                setEcoMode(ecoMode?false:true);
+                setSleepMode(sleepMode?false:true);
                 sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
                 break;
             }
             case 3 : {
                 modeTurnOff();
-                setNightMode(nightMode?false:true);
+                setEcoMode(ecoMode?false:true);
                 sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
                 break;
             }
@@ -387,65 +345,6 @@ const Home = () => {
                 break;
             }
         };
-        
-        console.log("[Home:onDoMode] num<4?mode[num]:num :", num<4?mode[num]:num);
-        /*
-        setIndoorMode(num==0?(indoorMode?false:true):false);
-        setOutdoorMode(num==1?(outdoorMode?false:true):false);
-        setEcoMode(num==2?(ecoMode?false:true):false);
-        setNightMode(num==3?(nightMode?false:true):false);
-        */
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /*
-        switch(num) {
-            case 0 : {
-                indoorMode ? setIndoorMode(false) : setIndoorMode(true); 
-                setOutdoorMode(false);
-                setEcoMode(false);
-                setNightMode(false);
-                console.log("[Home:onDoMode] indoorMode button :", indoorMode);
-                console.log("[Home:onDoMode] indoorMode code :", mode[0]);
-                //sendMqtt("webos.topic", "webos.smarthome.info", mode[0]);
-                break;
-            };
-            case 1 : {
-                setIndoorMode(false); 
-                outdoorMode ? setOutdoorMode(false) : setOutdoorMode(true) ;
-                setEcoMode(false);
-                setNightMode(false);
-                console.log("[Home:onDoMode] outdoorMode button :", outdoorMode);
-                console.log("[Home:onDoMode] outdoorMode code :", mode[1]);
-                //sendMqtt("webos.topic", "webos.smarthome.info", mode[1]);
-                break;
-            };
-            case 2 : {
-                setIndoorMode(false); 
-                setOutdoorMode(false);
-                ecoMode ? setEcoMode(false) : setEcoMode(true);
-                setNightMode(false);
-                console.log("[Home:onDoMode] ecoMode button :", ecoMode);
-                console.log("[Home:onDoMode] ecoMode code :", mode[2]);
-                //sendMqtt("webos.topic", "webos.smarthome.info", mode[2]);
-                break;
-            };
-            case 3 : {
-                setIndoorMode(false);  
-                setOutdoorMode(false);
-                setEcoMode(false);
-                nightMode ? setNightMode(false) : setNightMode(true);
-                console.log("[Home:onDoMode] nightMode button :", nightMode);
-                console.log("[Home:onDoMode] nightMode code :", mode[3]);
-                //sendMqtt("webos.topic", "webos.smarthome.info", mode[4]);
-                break;
-            };
-            default : break;
-        };
-        */
-
     };
 
     const onDoApplience = (num) => {
@@ -571,43 +470,6 @@ const Home = () => {
                 'pageNum' : pageNum
             }
         });
-        //history.push('/');
-/*
-        //firebase test
-        console.log("[Home:onGotoAppliance] firebase db test excuted");
-
-        var url = 'luna://com.ta.car2smarthome.service/getDB';
-        var params = JSON.stringify({
-            "data":"getDB"
-        });
-      
-        webOSBridge.onservicecallback = callback;
-        function callback(msg){
-            var response = JSON.parse(msg);
-            let db = response.Response;
-            console.log("[Home] db :",db);
-            setTemp(db.sensor.hometemp.temp);
-            setHumi(db.sensor.hometemp.humi);
-            smarthome = db.smarthome.status;
-            
-            if(Number(smarthome[1]) < 2) {
-                setAircon(Number(smarthome[1])?true:false);
-            };
-            if(Number(smarthome[3]) < 2) {
-                setLight(Number(smarthome[3])?true:false);
-            };
-            if(Number(smarthome[7]) < 2) {
-                setWindow(Number(smarthome[7])?true:false);
-            };
-            if(Number(smarthome[8]) < 2) {
-                setValve(Number(smarthome[8])?true:false);
-            };
-            if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
-            else modeTurnOff;
-        }
-        webOSBridge.call(url, params);
-        console.log("[Home] firebase db test end");   
-*/
     };
     
     const sendMqtt = (exchange, routingKey, msg) => {
@@ -650,8 +512,7 @@ const Home = () => {
             };            
         };        
     };
-
-                //console.log("[Home:callback] e :", e);
+    
     return(
         <div className="home">
             <audio id="tts">
@@ -764,6 +625,23 @@ const Home = () => {
                                     <button 
                                         onClick = {() => onDoMode(2)} 
                                         style={{
+                                            backgroundColor : sleepMode ? '#3264fe' : 'white'
+                                        }}
+                                    >
+                                        <img className="control-mode" src={nightIcon} style={{
+                                            filter : sleepMode ? 'invert(1)' : 'invert(0)'
+                                        }} />
+                                        <p style={{
+                                            color : sleepMode ? 'white' : 'black'
+                                        }} >
+                                            슬립 모드
+                                        </p>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button 
+                                        onClick = {() => onDoMode(3)} 
+                                        style={{
                                             backgroundColor : ecoMode ? '#3264fe' : 'white'
                                         }}
                                     >
@@ -774,23 +652,6 @@ const Home = () => {
                                             color : ecoMode ? 'white' : 'black'
                                         }} >
                                             에코 모드
-                                        </p>
-                                    </button>
-                                </td>
-                                <td>
-                                    <button 
-                                        onClick = {() => onDoMode(3)} 
-                                        style={{
-                                            backgroundColor : nightMode ? '#3264fe' : 'white'
-                                        }}
-                                    >
-                                        <img className="control-mode" src={nightIcon} style={{
-                                            filter : nightMode ? 'invert(1)' : 'invert(0)'
-                                        }} />
-                                        <p style={{
-                                            color : nightMode ? 'white' : 'black'
-                                        }} >
-                                            슬립 모드
                                         </p>
                                     </button>
                                 </td>
@@ -882,22 +743,22 @@ const Home = () => {
                                 <tr>
                                     <td>
                                         <button class="button">
-                                            추가
+                                            ㅁ
                                         </button>
                                     </td>
                                     <td>
                                         <button class="button">
-                                            추가
+                                            ㅁ
                                         </button>
                                     </td>
                                     <td>
                                         <button class="button">
-                                            추가
+                                            ㅁ
                                         </button>
                                     </td>
                                     <td>
                                         <button class="button">
-                                            추가
+                                            ㅁ
                                         </button>
                                     </td>
                                 </tr>

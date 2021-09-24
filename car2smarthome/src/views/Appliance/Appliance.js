@@ -18,33 +18,8 @@ import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc
 
 let oldDB;
 let pageNum;
-let i;
 
-if(pageNum == 5) {
-    try { 
-        const dbRef = ref(db);
-        onValue(dbRef, (snapshot) => {
-            let data = snapshot.val();
-            //console.log("[Home:listener] oldDB :", oldDB);
-            //console.log("[Home:listener] data :", data);
-            //console.log("[Home:listener] oldDB == data :", oldDB == data);
-
-            if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
-                console.log("[Appliance:listener] 변화 없음");
-            } else {
-                console.log("[Appliance:listener] 변화 있음");
-                console.log("[Appliance:listener] old smarthome :",oldDB.smarthome.status);
-                console.log("[Appliance:listener] new smarthome :",data.smarthome.status);
-                setUI(data);
-                oldDB = data;
-            };
-        });
-    } catch (e) {
-        console.log("[Appliance:rtdb listener] error :", e);   
-    };
-};
-
-const Appliance = () => {
+const Appliance = () => {   // 가전 상세 제어 페이지
     const history = useHistory();
     const location = useLocation();
 
@@ -186,6 +161,25 @@ const Appliance = () => {
     
         console.log("[Home:sendMqtt] sendMqtt function end");
     };
+
+    if(pageNum == 5) {
+        try { 
+            const dbRef = ref(db);
+            onValue(dbRef, (snapshot) => {
+                let data = snapshot.val();
+    
+                if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
+                    console.log("[Appliance:listener] 변화 없음");
+                } else {
+                    console.log("[Appliance:listener] 변화 있음");
+                    setUI(data);
+                    oldDB = data;
+                };
+            });
+        } catch (e) {
+            console.log("[Appliance:rtdb listener] error :", e);   
+        };
+    };
     
     return(
         <div className="appliance-setting">
@@ -193,10 +187,6 @@ const Appliance = () => {
             <h3 className="title">개별 가전 페이지</h3>
             <button className="back-button" onClick={onGotoHome}>
                 <span class="material-icons">reply</span>
-            </button>
-            
-            <button className="save-button">
-                <span class="material-icons">check</span>
             </button>
         </div>
 

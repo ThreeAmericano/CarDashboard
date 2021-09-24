@@ -1,8 +1,8 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-import faceIcon from '../../../resources/smarthome_icon/smile.png';
+import faceIcon from '../../../resources/smarthome_icon/smile.png'; // 얼굴인식 버튼 아이콘
 
 var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
 
@@ -13,25 +13,24 @@ import "../../../resources/css/sam_style.css"
 const SignIn = () => {
     // 로그인 페이지
     const history = useHistory();   // 페이지 이동에 사용된다.
-    //const location = useLocation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-
+    /*
     useEffect(() => {
         // 초기값 설정
-        //console.log("[Signin: useEffect] 음성인식 시작")
         return() => {
-            console.log("[Signin: useEffect] 닫힘")
+            console.log("[Signin: useEffect] 닫힘");
         };
     }); 
+    */
 
     const onEmailChange = (event) => {  // 이메일 작성이 감지되면 이메일 변수에 값을 넣는다.
         const {target : {value}} = event;
         setEmail(value);
     };
 
-    const onPasswordChange = (event) => {  // 비밀번호 작성이 감지되면 비밀번호 변수에 값을 넣는다.
+    const onPasswordChange = (event) => {   // 비밀번호 작성이 감지되면 비밀번호 변수에 값을 넣는다.
         const {target : {value}} = event;
         setPassword(value);
     };
@@ -46,7 +45,7 @@ const SignIn = () => {
             "password":password
         });
       
-        //createToast("이메일 로그인 중")
+        createToast("이메일 로그인 중")
         webOSBridge.call(url, params);
         webOSBridge.onservicecallback = signInCallback;
         function signInCallback(msg){
@@ -92,43 +91,45 @@ const SignIn = () => {
             "facer":"start"
         });
       
-        //createToast("얼굴인식 로그인 중 (1 ~ 2분 동안 작동 금지)");
+        createToast("얼굴인식 로그인 중 (1 ~ 2분 동안 작동 금지)");
 
         webOSBridge.call(url, params);
-        webOSBridge.onservicecallback = facerSignInCallback;
-        function facerSignInCallback(msg){
+        webOSBridge.onservicecallback = serviceCallBack;
+        function serviceCallBack(msg){  // service call back
             var response = JSON.parse(msg); 
-
-            if(response.provider == "googleassistant") {
-                console.log("before-parse-response");
-                var response = JSON.parse(msg);
-                console.log(response);
-                return null;
-            }
-
-            console.log("[SignIn:onFaceSignIn callback] response :", response);
-            let returnValue = response.Response;
-            console.log("[SignIn:onFaceSignIn callback] returnValue :", returnValue);
-
-            result = returnValue.result;
-            name = returnValue.name;
-
-            if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
-                createToast("로그인 실패");
-            } else {
-                history.push({
-                    pathname: '/home',
-                    state: {
-                        'name' : name,
-                        'db' : returnValue.db,
-                        'pageNum' : 1
-                    }
-                });
+            console.log("[SignIn:serviceCallBack] response :", response);
+            try {
+                if(response.provider == "googleassistant") {    // 음성 콜백
+                    console.log("before-parse-response");
+                    var response = JSON.parse(msg);
+                    console.log(response);
+                    return null;
+                }
+            } catch (e) {
+                let returnValue = response.Response;    // 로그인 콜백
+                console.log("[SignIn:serviceCallBack] returnValue :", returnValue);
+    
+                result = returnValue.result;
+                name = returnValue.name;
+    
+                if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
+                    createToast("로그인 실패");
+                } else {
+                    history.push({
+                        pathname: '/home',
+                        state: {
+                            'name' : name,
+                            'db' : returnValue.db,
+                            'pageNum' : 1
+                        }
+                    });
+                };
             };
         };
         console.log("[SignIn:onFaceSignIn] onSignIn function end");
     };
 
+    /*
     const sendMqtt = (exchange, routingKey, msg) => {
         // JS 서비스의 sendMqtt 서비스를 이용하여 MQTT 메세지를 보낸다.
         console.log("[SignIn:sendMqtt] displayReponse function excuted");
@@ -144,9 +145,9 @@ const SignIn = () => {
     
         console.log("[SignIn:sendMqtt] sendMqtt function end");
     }
- 
-    const ttsTest = () => {
-        console.log("[Signin:ttsTest] test start");
+    */
+    const tts = () => {
+        console.log("[Signin:tts] test start");
     
         var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
         var params = {
@@ -157,8 +158,8 @@ const SignIn = () => {
           
         webOSBridge.call(url, JSON.stringify(params));
 
-        console.log("[Signin:ttsTest] test end");
-    }
+        console.log("[Signin:tts] test end");
+    };
     
     function createToast(ment) {
         console.log("[SignIn:createToast] ment :", ment);
@@ -170,13 +171,14 @@ const SignIn = () => {
         };
     
         webOSBridge.call(url, JSON.stringify(params));
-    
+        /*
         webOSBridge.onservicecallback = toastCallback;
         function toastCallback(msg){
             var response = JSON.parse(msg); 
             console.log("[SignIn:createToast callback] response :", response);
         }
-    }
+        */
+    };
 
     return( // 표시되는 html 코드
         <div className="sign-in">
