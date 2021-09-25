@@ -417,7 +417,7 @@ const SignIn = () => {
                     </div>
                 </div>
                 <div className="email">	 
-					<h3>E-Mail 로그인</h3>
+					<h3 onClick={onTestSignIn}>E-Mail 로그인</h3>
                     <br/>
                     <br/>
                     <br/>
@@ -442,10 +442,7 @@ const SignIn = () => {
                             회원가입
                         </button>
 						<br />
-						<br />					
-                        <button class="button" onClick={onTestSignIn}>
-						    TEST 계정
-                        </button>			
+						<br />				
                         <button class="button" onClick={onDBSignIn}>
 						    오프라인 로그인
                         </button>
