@@ -18,6 +18,8 @@
     "audiofocus.operation",
     "ai.voice",
     "ai.management",
+    "networkconnection.query",
+    "database.operation",
     "mqttservice.operation",
     "app.mqttservice.operation",
     "ta.app.mqttservice.operation",

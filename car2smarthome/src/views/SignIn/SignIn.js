@@ -4,7 +4,10 @@ import { useHistory } from "react-router-dom";
 
 import faceIcon from '../../../resources/smarthome_icon/smile.png'; // 얼굴인식 버튼 아이콘
 
-var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
+const webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
+const kindID = "com.ta.car2smarthome:1";
+let internetConnection = "";
+let dbResult = [];
 
 import "./SignIn.css"
 import "../../../resources/css/set_font.css"
@@ -16,14 +19,58 @@ const SignIn = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    /*
     useEffect(() => {
         // 초기값 설정
+        checkInternet();
+        putKind(); // db8 kind 생성
+        putPermissions();
         return() => {
             console.log("[Signin: useEffect] 닫힘");
         };
-    }); 
-    */
+    }, []);
+
+    const checkInternet = () => {
+        console.log("[SignIn:checkInternet] checkInternet function excuted");
+
+        let url = 'luna://com.webos.service.connectionmanager/getStatus';
+        webOSBridge.call(url, '{}');  // JS 서비스 호출
+        
+        webOSBridge.onservicecallback = checkInternetCallback;
+        function checkInternetCallback(msg){
+            let response = JSON.parse(msg); 
+            try {
+                console.log("[SignIn:checkInternet callback] response :", response);
+                dbResult = response.results;
+                console.log("[SignIn:checkInternet callback] response.offlineMode :", response.offlineMode);
+                if((response.offlineMode == "enabled")||((response.wifi.state=="disconnected")&&(response.wired.state=="disconnected"))) {
+                    internetConnection = "enabled";
+                } else {
+                    internetConnection = "disabled";
+                } 
+                console.log("[SignIn:checkInternet] internet Connection :",internetConnection);
+            } catch(e) {
+                console.log("[SignIn:checkInternet callback] response :", response);
+                console.log("[SignIn:checkInternet callback] response.result :", response.result);
+                try {
+                    
+                    console.log("[SignIn:checkInternet callback] dbResult :", dbResult);
+                    console.log("[SignIn:checkInternet callback] dbResult :", dbResult[0]);
+
+                    history.push({
+                        pathname: '/home',
+                        state: {
+                            'name' : dbResult[0].name,
+                            'db' : dbResult[0].db,
+                            'pageNum' : 1
+                        }
+                    });
+                } catch (e) {
+                    console.log("[SignIn callback] e :", e);
+                }
+            }
+        }
+        console.log("[SignIn:sendMqtt] checkInternet function end");
+    };
 
     const onEmailChange = (event) => {  // 이메일 작성이 감지되면 이메일 변수에 값을 넣는다.
         const {target : {value}} = event;
@@ -36,38 +83,69 @@ const SignIn = () => {
     };
 
     const onSignIn = () => {    // 이메일 로그인 함수
-        console.log("[SignIn:onSignIn] onSignIn function excuted");
-        let name;
+        console.log("[SignIn:onSignIn] onSignIn function excuted :",internetConnection);
 
-        var url = 'luna://com.ta.car2smarthome.service/signIn'; // JS 서비스의 signIn 서비스를 이용한다.
-        var params = JSON.stringify({
-            "email":email,
-            "password":password
-        });
-      
-        createToast("이메일 로그인 중")
-        webOSBridge.call(url, params);
-        webOSBridge.onservicecallback = signInCallback;
-        function signInCallback(msg){
-            var response = JSON.parse(msg); 
-            console.log("[SignIn:onSignIn callback] response :", response);
-            let returnValue = response.Response;
+        // if(internetConnection == "enabled") {
+        //     createToast("인터넷이 끊겼습니다.");
+        //     console.log("[Signin:onSignin] 인터넷 끊김")
+        //     // findUserData(email, password);
+        // } else if(internetConnection == "disabled") {
+            let name;
 
-            name = returnValue.name;
-
-            if(name == "fail") {
-                createToast("로그인 실패");
-            } else {
-                history.push({
-                    pathname: '/home',
-                    state: {
-                        'name' : name,
-                        'db' : returnValue.db,
-                        'pageNum' : 1
+            let url = 'luna://com.ta.car2smarthome.service/signIn'; // JS 서비스의 signIn 서비스를 이용한다.
+            let params = JSON.stringify({
+                "email":email,
+                "password":password
+            });
+          
+            createToast("이메일 로그인 중")
+            webOSBridge.call(url, params);
+            webOSBridge.onservicecallback = signInCallback;
+            function signInCallback(msg){
+                let response = JSON.parse(msg);
+                try {
+                    console.log("[SignIn:onSignIn CallBack] response :", response);
+                    if(response.provider == "googleassistant") {    // 음성 콜백
+                        console.log("[SignIn:onSignIn CallBack] 음성");
+                        return null;
+                    } else if(response.toastID) {    // 토스트 콜백
+                        console.log("[SignIn:onSignIn CallBack] 토스트");
+                        return null;
+                    } else {
+                        try {
+                            let returnValue = response.Response;    // 로그인 콜백
+                            console.log("[SignIn:onSignIn CallBack] returnValue :", returnValue);
+                
+                            name = returnValue.name;
+                
+                            if(name == "fail") {
+                                createToast("로그인 실패");
+                            } else {
+                                //internetConnection = true;
+                                putUserData(email, password, name, returnValue.db);
+                                history.push({
+                                    pathname: '/home',
+                                    state: {
+                                        'name' : name,
+                                        'db' : returnValue.db,
+                                        'pageNum' : 1
+                                    }
+                                });
+                                return null;
+                            };
+                        } catch(e) {
+                            console.log("[SignIn:onSignIn callback] e :", e);
+                            //internetConnection = false;
+                            // findUserData(email, password);
+                            // createToast("인터넷 연결을 확인하세요.");
+                        };
                     }
-                });
+                } catch(e) {
+                    console.log("[SignIn:onFaceSignIn callback] e :", e);
+                };
             };
-        };
+        //};
+        
         console.log("[SignIn:onSignIn] onSignIn function end");
     };
 
@@ -86,8 +164,8 @@ const SignIn = () => {
         console.log("[SignIn:onFaceSignIn] onFaceSignIn function excuted");
         let name, result;
 
-        var url = 'luna://com.ta.car2smarthome.service/facerSignIn'; // JS 서비스의 signIn 서비스를 이용한다.
-        var params = JSON.stringify({
+        let url = 'luna://com.ta.car2smarthome.service/facerSignIn'; // JS 서비스의 signIn 서비스를 이용한다.
+        let params = JSON.stringify({
             "facer":"start"
         });
       
@@ -96,46 +174,53 @@ const SignIn = () => {
         webOSBridge.call(url, params);
         webOSBridge.onservicecallback = serviceCallBack;
         function serviceCallBack(msg){  // service call back
-            var response = JSON.parse(msg); 
+            let response = JSON.parse(msg); 
             console.log("[SignIn:serviceCallBack] response :", response);
             try {
                 if(response.provider == "googleassistant") {    // 음성 콜백
                     console.log("before-parse-response");
-                    var response = JSON.parse(msg);
+                    let response = JSON.parse(msg);
                     console.log(response);
                     return null;
                 }
             } catch (e) {
-                let returnValue = response.Response;    // 로그인 콜백
-                console.log("[SignIn:serviceCallBack] returnValue :", returnValue);
-    
-                result = returnValue.result;
-                name = returnValue.name;
-    
-                if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
-                    createToast("로그인 실패");
-                } else {
-                    history.push({
-                        pathname: '/home',
-                        state: {
-                            'name' : name,
-                            'db' : returnValue.db,
-                            'pageNum' : 1
-                        }
-                    });
+                try {
+                    let returnValue = response.Response;    // 로그인 콜백
+                    console.log("[SignIn:serviceCallBack] returnValue :", returnValue);
+        
+                    result = returnValue.result;
+                    name = returnValue.name;
+        
+                    if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
+                        createToast("로그인 실패");
+                    } else {
+                        //internetConnection = true;
+                        putUserData(email, password, name, returnValue.db);
+                        history.push({
+                            pathname: '/home',
+                            state: {
+                                'name' : name,
+                                'db' : returnValue.db,
+                                'pageNum' : 1
+                            }
+                        });
+                    };
+                } catch(e) {
+                    console.log("[SignIn:onFaceSignIn callback] e :", e);
+                    //internetConnection = false;
+                    createToast("인터넷 연결을 확인하세요.");
                 };
             };
         };
         console.log("[SignIn:onFaceSignIn] onSignIn function end");
     };
-
-    /*
+/*
     const sendMqtt = (exchange, routingKey, msg) => {
         // JS 서비스의 sendMqtt 서비스를 이용하여 MQTT 메세지를 보낸다.
         console.log("[SignIn:sendMqtt] displayReponse function excuted");
     
-        var url = 'luna://com.ta.car2smarthome.service/sendMqtt';
-        var params = JSON.stringify({
+        let url = 'luna://com.ta.car2smarthome.service/sendMqtt';
+        let params = JSON.stringify({
             "exchange": exchange,
             "routingKey": routingKey,
             "msg":msg        
@@ -145,12 +230,12 @@ const SignIn = () => {
     
         console.log("[SignIn:sendMqtt] sendMqtt function end");
     }
-    */
+*/  
     const tts = () => {
         console.log("[Signin:tts] test start");
     
-        var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
-        var params = {
+        let url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
+        let params = {
             "text":"얼굴 인식을 시작합니다", 
             "language": "ko-KR", 
             "clear":false
@@ -161,22 +246,170 @@ const SignIn = () => {
         console.log("[Signin:tts] test end");
     };
     
-    function createToast(ment) {
+    const createToast = (ment) => {
         console.log("[SignIn:createToast] ment :", ment);
     
-        var url = 'luna://com.webos.notification/createToast';
-        var params = {
+        let url = 'luna://com.webos.notification/createToast';
+        let params = {
             "sourceId":"com.ta.car2smarthome",
             "message":String(ment)
         };
     
         webOSBridge.call(url, JSON.stringify(params));
-        /*
+        
         webOSBridge.onservicecallback = toastCallback;
         function toastCallback(msg){
-            var response = JSON.parse(msg); 
+            let response = JSON.parse(msg); 
             console.log("[SignIn:createToast callback] response :", response);
         }
+    };
+
+    const putKind = () => {
+        console.log("[SignIn:putKind] 실행");
+    
+        let url = 'luna://com.webos.service.db/putKind';
+        let params = {
+            "id": kindID,
+            "owner":"com.ta.car2smarthome",
+            "indexes": [
+                {
+                    "name" : "email",
+                    "props":[
+                        {"name":"email"}
+                    ]
+                },
+                {
+                    "name" : "password",
+                    "props":[
+                        {"name":"password"}
+                    ]
+                },
+                {
+                    "name" : "userName",
+                    "props":[
+                        {"name":"userName"}
+                    ]
+                },
+                {
+                    "name" : "db",
+                    "props":[
+                        {"name":"db"}
+                    ]
+                }
+            ]
+        };
+    
+        webOSBridge.call(url, JSON.stringify(params));
+
+        
+        console.log("[SignIn:putKind] 종료");
+
+        /*
+        webOSBridge.onservicecallback = putKindCallback;
+        function putKindCallback(msg){
+            let response = JSON.parse(msg); 
+            console.log("[SignIn:putKind callback] response :", response);
+        };
+        */
+    };
+
+    const putPermissions = () => {
+        let url = 'luna://com.webos.service.db/putPermissions';
+        let params = {
+            "permissions":[ 
+                { 
+                   "operations":{ 
+                      "read":"allow",
+                      "create":"allow",
+                      "update":"allow",
+                      "delete":"allow"
+                   },
+                   "object":kindID,
+                   "type":"db.kind",
+                   "caller":"com.ta.car2smarthome" //소유자: Appid
+                }
+            ]
+        };
+        webOSBridge.call(url, JSON.stringify(params));
+        /*
+        webOSBridge.onservicecallback = putPermissionsCallback;
+        function putPermissionsCallback(msg){
+            let response = JSON.parse(msg); 
+            console.log("[SignIn:putPermissions callback] response :", response);
+        };
+        */
+    };
+
+    const putUserData = (email, password, name, db) => {
+        // DB에 데이터를 추가하는 put method를 정의합니다.
+        let url = 'luna://com.webos.service.db/put';
+        let params = {
+            "objects" : [
+                {
+                    "_kind": kindID,
+                    "email": email,
+                    "password" : password,
+                    "name" : name,
+                    "db" : db
+                }
+            ]
+        };
+        webOSBridge.call(url, JSON.stringify(params));
+        /*
+        webOSBridge.onservicecallback = putUserDataCallback;
+        function putUserDataCallback(msg){
+            let response = JSON.parse(msg); 
+            console.log("[SignIn:putUserData callback] response :", response);
+        };
+        */
+    }
+
+    const onDBSignIn = () => {
+        console.log("[SignIn:onDBSignIn] DB로그인");
+        findUserData(email, password);
+    }
+
+    const findUserData = (email, password) => {
+        let url = 'luna://com.webos.service.db/find';
+        let params = {
+            "query":{ 
+                "from":kindID,
+                "where":[ 
+                    { 
+                       "prop":"email",
+                       "op":"=",
+                       "val":String(email)
+                    }/*,
+                    { 
+                        "prop":"password",
+                        "op":"=",
+                        "val":String(password)
+                    }*/
+                ]
+            }
+        };
+        webOSBridge.call(url, JSON.stringify(params));
+        /*
+        webOSBridge.onservicecallback = findUserDataCallback;
+        function findUserDataCallback(msg){
+            let response = JSON.parse(msg); 
+            console.log("[SignIn:findUserData callback] response :", response);
+            
+            let dbName = response.results[0].name;
+            let dbDB = response.results[0].db;
+
+            console.log("[SignIn:findUserData callback] DB 데이터로 로그인");
+            createToast("오프라인 로그인");
+
+            history.push({
+                pathname: '/home',
+                state: {
+                    'name' : dbName,
+                    'db' : dbDB,
+                    'pageNum' : 1
+                }
+            });
+        };
         */
     };
 
@@ -219,7 +452,11 @@ const SignIn = () => {
 						<br />
 						<br />					
                         <button class="button" onClick={onTestSignIn}>
-						test계정</button>
+						    test계정
+                        </button>			
+                        <button class="button" onClick={onDBSignIn}>
+						    DB 로그인
+                        </button>
                     </div>
                 </div>
             </div>

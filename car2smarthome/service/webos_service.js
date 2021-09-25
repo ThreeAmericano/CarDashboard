@@ -95,7 +95,7 @@ async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값
 
             return String(msg.name);
         } else { // 너무 빨리 get 하여 아무 값도 받지 못하였다면
-            await new Promise(resolve => setTimeout(resolve, 300)); // 0.3초 wait
+            await new Promise(resolve => setTimeout(resolve, 400)); // 0.4초 wait
             
             response = await channel.get(response.queue,{noAck : false}); // 다시 수신
             let msg = JSON.parse(response.content.toString());  // json으로 파싱
