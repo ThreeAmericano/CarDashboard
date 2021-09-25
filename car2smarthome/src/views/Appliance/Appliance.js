@@ -62,12 +62,12 @@ const Appliance = () => {   // 가전 상세 제어 페이지
                 if(aircon) {
                     setAircon(false);
                     commandArray[1] = '0';
-                    command = commandArray.toString();
+                    command = commandArray.toString().replace(/\,/g,"");
                 } else {
                     setAircon(true); 
                     commandArray[1] = '1';
                     commandArray[2] = String(airconValue);
-                    command = commandArray.toString();
+                    command = commandArray.toString().replace(/\,/g,"");
                 } 
                 console.log("[Appliance:onDoApplience] aircon command :", command);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
@@ -77,14 +77,14 @@ const Appliance = () => {   // 가전 상세 제어 페이지
                 if(light) {
                     setLight(false);
                     commandArray[3] = '0';
-                    command = commandArray.toString();
+                    command = commandArray.toString().replace(/\,/g,"");
                 } else {
                     setLight(true);
                     commandArray[3] = '1';
                     commandArray[4] = String(lightValue);
                     commandArray[5] = String(lightColor);
                     commandArray[6] = String(lightMode);
-                    command = commandArray.toString();
+                    command = commandArray.toString().replace(/\,/g,"");
                 } 
                 console.log("[Appliance:onDoApplience] light command :", command);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
@@ -103,7 +103,7 @@ const Appliance = () => {   // 가전 상세 제어 페이지
                 break;
             };
             case 3 : {
-                if(windowAppli) {
+                if(window) {
                     setWindow(false);
                     command = "022222202";
                 } else {

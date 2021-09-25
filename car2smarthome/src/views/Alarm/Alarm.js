@@ -121,10 +121,6 @@ const Alarm = ({setDarkMode, darkMode}) => {
                 <button className="back-button" onClick={onGotoHome}>
                     <span class="material-icons">reply</span>
                 </button>
-
-                <button className="save-button">
-                    <span class="material-icons">save</span>
-                </button>
             </div>
 
             <div className="setting-page__box">
@@ -141,7 +137,7 @@ const Alarm = ({setDarkMode, darkMode}) => {
                 <div className="setting-page-user">
                     <h3>사용자 설정</h3>
 
-                    <div class="togglebox">
+                    <div class="togglebox togglebox_pluswidth">
                         <hr/>
                         <br/>
 
@@ -159,33 +155,23 @@ const Alarm = ({setDarkMode, darkMode}) => {
                                 <span>다크모드 스위치</span>
                             </label>
                         </div>
-                        <br/>
-                        
-                        <div class="togglebox_name">
-                            <span>옵션옵션옵션1</span>
+                        <br />
+                        <div>
+                            <p class="credit">
+                                팀 : 삼아아 - 최현식, 박승운, 이준호
+                                <br />
+                                서버 : 리눅스
+                                <br />
+                                Client : WebOS - Enact / Android - Kotlin
+                                <br />
+                                통신 방식 : RabbitMQ
+                                <br />
+                                DB : WebOS - DB8 / System - 파이어베이스
+                                <br />
+                                감사합니다.
+                            </p>
                         </div>
-                        <div class="togglebox_input">
-                            <input class="toggle_checkbox" type="checkbox" id="chk1" />
-                            <label class="toggle_label" for="chk1">
-                                <span>옵션옵션옵션1</span>
-                            </label>
-                        </div>
-                        <br/>
-                        
-                        <div class="togglebox_name">
-                            <span>옵션옵션옵션2</span>
-                        </div>
-                        <div class="togglebox_input">
-                            <input class="toggle_checkbox" type="checkbox" id="chk1" />
-                            <label class="toggle_label" for="chk1">
-                                <span>옵션옵션옵션2</span>
-                            </label>
-                        </div>
-                        <br/>
-
-
                     </div>
-
                 </div>                    
             </div>
         </div>

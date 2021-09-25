@@ -188,13 +188,15 @@ input:checked + .slider:before {
   overflow : scroll;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #f0f0f0;
+  background-color: lightgray;
 }
 .setting-page-user{
   float: right;
   width: 50%;
   padding: 3rem;
   text-align: center;
+  height: 20.5rem;
+  padding-top: 9rem;
   background-color: white;
 }
 
@@ -260,4 +262,13 @@ input:checked + .slider:before {
 .setting-page-user div.togglebox_input{
   float: right;
   padding-top: 0.5rem;
+}
+
+.togglebox_pluswidth{
+  width: 70%;
+}
+.togglebox p.credit{
+  text-align: left;
+  font-size: small;
+  line-height: 150%;
 }

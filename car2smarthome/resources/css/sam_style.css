@@ -5,10 +5,8 @@
 
 =================================================================== */
 body{
-  background-color: white;
   font-family: 'Do Hyeon', sans-serif;
-  width: 64rem;
-  height: 37.5rem;
+  margin: 0px;
 }
 h3{
 font-size: 2rem;
@@ -22,7 +20,7 @@ margin: 0.1rem;
 .sign-in, .sign-up, .home, .mode-setting, .mode-setting-ori, .appliance-setting{
   display:'inline-block';
   width: 100%;
-  height: 100%;
+  height: 37.5rem;
   position: relative;
   margin: 0px auto;
   align-items: center;

@@ -8,6 +8,7 @@ const webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저
 const kindID = "com.ta.car2smarthome:1";
 let internetConnection = "";
 let dbResult = [];
+let name;
 
 import "./SignIn.css"
 import "../../../resources/css/set_font.css"
@@ -51,10 +52,10 @@ const SignIn = () => {
             } catch(e) {
                 console.log("[SignIn:checkInternet callback] response :", response);
                 console.log("[SignIn:checkInternet callback] response.result :", response.result);
-                try {
-                    
+                try {                    
                     console.log("[SignIn:checkInternet callback] dbResult :", dbResult);
                     console.log("[SignIn:checkInternet callback] dbResult :", dbResult[0]);
+                    tts(String(dbResult[0].name)+"님 안녕하세요");
 
                     history.push({
                         pathname: '/home',
@@ -90,7 +91,6 @@ const SignIn = () => {
         //     console.log("[Signin:onSignin] 인터넷 끊김")
         //     // findUserData(email, password);
         // } else if(internetConnection == "disabled") {
-            let name;
 
             let url = 'luna://com.ta.car2smarthome.service/signIn'; // JS 서비스의 signIn 서비스를 이용한다.
             let params = JSON.stringify({
@@ -98,7 +98,9 @@ const SignIn = () => {
                 "password":password
             });
           
-            createToast("이메일 로그인 중")
+            createToast("이메일 로그인 중");
+            webOSBridge.onservicecallback = signInCallback;
+
             webOSBridge.call(url, params);
             webOSBridge.onservicecallback = signInCallback;
             function signInCallback(msg){
@@ -108,7 +110,7 @@ const SignIn = () => {
                     if(response.provider == "googleassistant") {    // 음성 콜백
                         console.log("[SignIn:onSignIn CallBack] 음성");
                         return null;
-                    } else if(response.toastID) {    // 토스트 콜백
+                    } else if(typeof(response.toastID)=="string") {    // 토스트 콜백
                         console.log("[SignIn:onSignIn CallBack] 토스트");
                         return null;
                     } else {
@@ -121,8 +123,10 @@ const SignIn = () => {
                             if(name == "fail") {
                                 createToast("로그인 실패");
                             } else {
+                                console.log("이메일 로그인")
                                 //internetConnection = true;
                                 putUserData(email, password, name, returnValue.db);
+                                tts(String(name)+"님 안녕하세요");
                                 history.push({
                                     pathname: '/home',
                                     state: {
@@ -164,52 +168,59 @@ const SignIn = () => {
         console.log("[SignIn:onFaceSignIn] onFaceSignIn function excuted");
         let name, result;
 
+        createToast("얼굴인식 로그인 중 (1 ~ 2분 동안 작동 금지)");
+        webOSBridge.onservicecallback = serviceCallBack;
+
         let url = 'luna://com.ta.car2smarthome.service/facerSignIn'; // JS 서비스의 signIn 서비스를 이용한다.
         let params = JSON.stringify({
             "facer":"start"
         });
       
-        createToast("얼굴인식 로그인 중 (1 ~ 2분 동안 작동 금지)");
-
         webOSBridge.call(url, params);
         webOSBridge.onservicecallback = serviceCallBack;
         function serviceCallBack(msg){  // service call back
             let response = JSON.parse(msg); 
             console.log("[SignIn:serviceCallBack] response :", response);
             try {
+                console.log("[SignIn:onSignIn CallBack] response :", response);
                 if(response.provider == "googleassistant") {    // 음성 콜백
-                    console.log("before-parse-response");
-                    let response = JSON.parse(msg);
-                    console.log(response);
+                    console.log("[SignIn:onSignIn CallBack] 음성");
                     return null;
+                } else if(typeof(response.toastID)=="string") {    // 토스트 콜백
+                    console.log("[SignIn:onSignIn CallBack] 토스트");
+                    return null;
+                } else {
+                    try {
+                        let returnValue = response.Response;    // 로그인 콜백
+                        console.log("[SignIn:serviceCallBack] returnValue :", returnValue);
+            
+                        result = returnValue.result;
+                        console.log("[SignIn:serviceCallBack] result :", result);
+                        name = returnValue.name;
+                        console.log("[SignIn:serviceCallBack] name :", name);
+            
+                        if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
+                            createToast("로그인 실패");
+                        } else {
+                            tts(String(name)+"님 안녕하세요");
+                            history.push({
+                                pathname: '/home',
+                                state: {
+                                    'name' : name,
+                                    'db' : returnValue.db,
+                                    'pageNum' : 1
+                                }
+                            });
+                        };
+                        return null;
+                    } catch(e) {
+                        console.log("[SignIn:onFaceSignIn callback] e :", e);
+                        //internetConnection = false;
+                        //createToast("인터넷 연결을 확인하세요.");
+                    };
                 }
             } catch (e) {
-                try {
-                    let returnValue = response.Response;    // 로그인 콜백
-                    console.log("[SignIn:serviceCallBack] returnValue :", returnValue);
-        
-                    result = returnValue.result;
-                    name = returnValue.name;
-        
-                    if(result == "Exception" || result == "Error" || result == "None" || result == "fail" || name == "fail") {
-                        createToast("로그인 실패");
-                    } else {
-                        //internetConnection = true;
-                        putUserData(email, password, name, returnValue.db);
-                        history.push({
-                            pathname: '/home',
-                            state: {
-                                'name' : name,
-                                'db' : returnValue.db,
-                                'pageNum' : 1
-                            }
-                        });
-                    };
-                } catch(e) {
-                    console.log("[SignIn:onFaceSignIn callback] e :", e);
-                    //internetConnection = false;
-                    createToast("인터넷 연결을 확인하세요.");
-                };
+                console.log("[SignIn:onFaceSignIn callback] e :", e);
             };
         };
         console.log("[SignIn:onFaceSignIn] onSignIn function end");
@@ -231,20 +242,18 @@ const SignIn = () => {
         console.log("[SignIn:sendMqtt] sendMqtt function end");
     }
 */  
-    const tts = () => {
-        console.log("[Signin:tts] test start");
-    
-        let url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
-        let params = {
-            "text":"얼굴 인식을 시작합니다", 
+    const tts = (ment) => {
+        console.log("[Home:tts] ment :", ment);
+
+        var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
+        var params = {
+            "text": ment, 
             "language": "ko-KR", 
             "clear":false
         };
-          
+        
         webOSBridge.call(url, JSON.stringify(params));
-
-        console.log("[Signin:tts] test end");
-    };
+    }
     
     const createToast = (ment) => {
         console.log("[SignIn:createToast] ment :", ment);
@@ -389,28 +398,6 @@ const SignIn = () => {
             }
         };
         webOSBridge.call(url, JSON.stringify(params));
-        /*
-        webOSBridge.onservicecallback = findUserDataCallback;
-        function findUserDataCallback(msg){
-            let response = JSON.parse(msg); 
-            console.log("[SignIn:findUserData callback] response :", response);
-            
-            let dbName = response.results[0].name;
-            let dbDB = response.results[0].db;
-
-            console.log("[SignIn:findUserData callback] DB 데이터로 로그인");
-            createToast("오프라인 로그인");
-
-            history.push({
-                pathname: '/home',
-                state: {
-                    'name' : dbName,
-                    'db' : dbDB,
-                    'pageNum' : 1
-                }
-            });
-        };
-        */
     };
 
     return( // 표시되는 html 코드
@@ -431,6 +418,11 @@ const SignIn = () => {
                 </div>
                 <div className="email">	 
 					<h3>E-Mail 로그인</h3>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
                     <div className="email__box">
                         <div className="input-box">
                             <input type="email" value={email} onChange={onEmailChange} placeholder="이메일을 입력하세요." required />
@@ -452,10 +444,10 @@ const SignIn = () => {
 						<br />
 						<br />					
                         <button class="button" onClick={onTestSignIn}>
-						    test계정
+						    TEST 계정
                         </button>			
                         <button class="button" onClick={onDBSignIn}>
-						    DB 로그인
+						    오프라인 로그인
                         </button>
                     </div>
                 </div>

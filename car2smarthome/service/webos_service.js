@@ -55,6 +55,7 @@ service.register("listener", function(message) {    // signIn 서비스
 async function sendMqttFunc(exchange, routingKey, msg) {        // MQTT 송신 함수
     try {
         console.log("[Service] send MQTT start");
+        console.log("[Service] send MQTT msg",msg);
     
         const connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
         const channel = await connection.createChannel();       // 채널 생성
@@ -87,25 +88,25 @@ async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값
 
         await new Promise(resolve => setTimeout(resolve, 300)); // 0.3초 wait
 
-        response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
+        response = await channel.get(response.queue,{noAck : true});   // queue에 올라온 값 가져오기
         
         if(response) {  // 가져왔는지 확인    
+            //channel.ack(response);  // queue 소진하기
             let msg = JSON.parse(response.content.toString());  // json으로 파싱
-            channel.ack(response);  // queue 소진하기
 
             return String(msg.name);
         } else { // 너무 빨리 get 하여 아무 값도 받지 못하였다면
             await new Promise(resolve => setTimeout(resolve, 400)); // 0.4초 wait
             
-            response = await channel.get(response.queue,{noAck : false}); // 다시 수신
+            response = await channel.get(response.queue,{noAck : true}); // 다시 수신
             let msg = JSON.parse(response.content.toString());  // json으로 파싱
-            channel.ack(response);  // queue 소진하기
+            //channel.ack(response);  // queue 소진하기
             
             return String(msg.name);
         }
     } catch(e) {
         console.log("[Service:getMqtt] error : ", e);
-        channel.ack(response);  // queue 소진하기
+        //channel.ack(response);  // queue 소진하기
         channel.close();
         connection.close();
     };
@@ -235,6 +236,7 @@ service.register("facerSignIn", async function(message) {    // signIn 서비스
 
 async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값을 받아온다.)
     try {
+        console.log("[Service:facerGetMQTT] 시작");
         let connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
         let channel = await connection.createChannel();       // 채널 생성
         let response = await channel.assertQueue(queue, {durable:true});    // Queue 연결
@@ -242,7 +244,8 @@ async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있�
 
         await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 wait
 
-        response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
+        response = await channel.get(response.queue,{noAck : true});   // queue에 올라온 값 가져오기
+        console.log("[Service:facerGetMQTT] 시작",response)
         //console.log("[Service:facerGetMQTT] response.content.toString() :", response.content.toString());
         //msg = JSON.parse(response.content.toString());  // json으로 파싱
         //console.log("[Service:facerGetMQTT] msg :",msg);
@@ -250,13 +253,13 @@ async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있�
             await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 wait
             console.log("[Service:facerGetMQTT] 얼굴인식 수신 대기")
             try {
-                response = await channel.get(response.queue,{noAck : false});   // queue에 올라온 값 가져오기
+                response = await channel.get(response.queue,{noAck : true});   // queue에 올라온 값 가져오기
                 //console.log("[Service:facerGetMQTT while] response :", response);
                 console.log("[Service:facerGetMQTT while] response.content.toString() :", response.content.toString());
                 if(response.content.toString()) {
                     msg = JSON.parse(response.content.toString());  // json으로 파싱
                     console.log("[Service:facerGetMQTT while] msg :",msg);
-                    channel.ack(response);  // queue 소진하기
+                    //channel.ack(response);  // queue 소진하기
                     return msg;
                     //console.log("[Service:facerGetMQTT] response.content.toString() :",response.content.toString());
                 }
@@ -268,7 +271,7 @@ async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있�
         channel.ack(response);  // queue 소진하기
         return String(msg);*/
     } catch(e) {
-        console.log("[Service:getMqtt] error : ", e);
+        console.log("[Service:facerGetMQTT] error : ", e);
     };
 };
 

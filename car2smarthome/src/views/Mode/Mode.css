@@ -252,13 +252,13 @@ input:checked + .slider:before {
 .mode-setting-ori__box__left{
   float: left;
   width: 30%;
-  height: 29.8rem;
+  height: 100%;
   padding: 0px;
   text-align: center;
   overflow : scroll;
   overflow-x: hidden;
   box-sizing: border-box;
-  background-color: #f0f0f0;
+  background-color: lightgray;
 }
 .mode-setting-ori__box__light-setting{
   float: right;

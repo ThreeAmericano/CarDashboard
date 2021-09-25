@@ -102,7 +102,6 @@ const Home = () => {
         GetState();
 
         setName(location.state.name);
-        tts(String(location.state.name)+"님 안녕하세요");
 
         oldDB = location.state.db;  
         console.log("[Home:useEffect] oldDB :",oldDB);
@@ -161,16 +160,23 @@ const Home = () => {
         onValue(dbRef, (snapshot) => {
             let data = snapshot.val();
 
-            if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
+
+            if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp && oldDB.server.notification == data.server.notification) {
                 console.log("[Home:listener] 변화 없음");
             } else {
                 console.log("[Home:listener] 변화 있음");
+                if(oldDB.server.notification != data.server.notification) {
+                    if(data.server.notification != "none") {
+                        createToast(data.server.notification);
+                        tts(data.server.notification);
+                    }
+                }
                 oldDB = data;
                 setUI(data);
             };
         });
 
-        //getStoreDB();
+        getStoreDB();
     };
 
     const startAssistant = () => {  // 음성인식 설정
@@ -297,7 +303,12 @@ const Home = () => {
             };
         };
         if(Number(listenHome[0])>0){
-            onDoMode(Number(listenHome[0])-1);
+            switch(Number(listenHome[0])-1) {
+                case 0 : setIndoorMode(true); break;
+                case 1 : setOutdoorMode(true); break;
+                case 2 : setEcoMode(true); break;
+                case 3 : setSleepMode(true); break;
+            };
         } else {
             onDoMode(4);
             modeTurnOff;
@@ -314,6 +325,7 @@ const Home = () => {
 
     const onDoMode = (num) => {
         console.log("[Home:onDoMode] num :", num);
+        console.log("[Home:onDoMode] mode[num] :", mode[num]);
         switch (num) {
             case 0 : {
                 modeTurnOff();
