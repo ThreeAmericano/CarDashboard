@@ -145,8 +145,18 @@ const Home = () => {
             }
         };
 
-        if(Number(smarthome[0])>0) onDoMode(Number(smarthome[0])-1);
-        else modeTurnOff;
+        if(Number(smarthome[0])>0){
+            switch(Number(smarthome[0])-1) {
+                case 0 : setIndoorMode(true); break;
+                case 1 : setOutdoorMode(true); break;
+                case 2 : setEcoMode(true); break;
+                case 3 : setSleepMode(true); break;
+                default : {
+                    console.log("[Home:useEffect] Number(smarthome[0])-1 switch default :", Number(smarthome[0])-1);
+                    break;
+                }
+            };
+        } else modeTurnOff;
         
         return() => {
             stopAssistant(); // 음성인식 종료
@@ -176,7 +186,7 @@ const Home = () => {
             };
         });
 
-        getStoreDB();
+        //getStoreDB(); ///////////////////////////////////////////////////////////////////////////////////
     };
 
     const startAssistant = () => {  // 음성인식 설정
@@ -324,6 +334,7 @@ const Home = () => {
     };
 
     const onDoMode = (num) => {
+        getStoreDB();/////////////////////////////////////////////////////////////////////////////////////////
         console.log("[Home:onDoMode] num :", num);
         console.log("[Home:onDoMode] mode[num] :", mode[num]);
         switch (num) {
@@ -532,7 +543,7 @@ const Home = () => {
             </audio>
             <div className="home__head">
                 <button className="back-button" onClick={onGotoSignin}>
-                    <span class="material-icons">reply</span>
+                    <span className="material-icons">reply</span>
                 </button>
                 
                 <p className="name">
@@ -541,7 +552,7 @@ const Home = () => {
                 </p>
         
                 <p className="home_sensor_data temp-value">
-                    <span class="material-icons">thermostat</span>
+                    <span className="material-icons">thermostat</span>
                     {temp}℃
                 </p>
                 <div className="temp">
@@ -549,7 +560,7 @@ const Home = () => {
                 </div>
         
                 <p className="home_sensor_data hum-value">
-                    <span class="material-icons">water_drop</span>
+                    <span className="material-icons">water_drop</span>
                     {humi}%
                 </p>
                 <div className="hum">
@@ -572,12 +583,12 @@ const Home = () => {
                     } />
                 </div>
                 <div className="weather-description">
-                    <span class="weather-icon__weather">{weather}</span> <br/>
-                    <span class="weather-icon__airlevel">미세먼지: {dust}</span>
+                    <span className="weather-icon__weather">{weather}</span> <br/>
+                    <span className="weather-icon__airlevel">미세먼지: {dust}</span>
                 </div>
                 
                 <button className="setting-button" onClick={onGotoSetting}>
-                    <span class="material-icons">settings</span>
+                    <span className="material-icons">settings</span>
                 </button>
             </div>
             <br />
@@ -754,22 +765,22 @@ const Home = () => {
                                 </tr>
                                 <tr>
                                     <td>
-                                        <button class="button">
+                                        <button className="button">
                                             ㅁ
                                         </button>
                                     </td>
                                     <td>
-                                        <button class="button">
+                                        <button className="button">
                                             ㅁ
                                         </button>
                                     </td>
                                     <td>
-                                        <button class="button">
+                                        <button className="button">
                                             ㅁ
                                         </button>
                                     </td>
                                     <td>
-                                        <button class="button">
+                                        <button className="button">
                                             ㅁ
                                         </button>
                                     </td>

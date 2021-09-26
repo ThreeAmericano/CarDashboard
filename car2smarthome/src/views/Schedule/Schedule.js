@@ -322,26 +322,26 @@ const Schedule = () => {
         <div className="mode-setting__head">
             <h3 className="title">스케줄 설정 페이지</h3>
             <button className="back-button" onClick={onGotoHome}>
-                <span class="material-icons">reply</span>
+                <span className="material-icons">reply</span>
             </button>
 
             { /*
             <button className="mode-setting__head__navigation mode-setting__head__mode_button">
-                <span class="material-icons">star</span>
+                <span className="material-icons">star</span>
                 모드
             </button>
             <button className="mode-setting__head__navigation mode-setting__head__schedule_button">
-                <span class="material-icons">pending_actions</span>
+                <span className="material-icons">pending_actions</span>
                 스케쥴
             </button>
             */ }
 
             <button className="delete-button" onClick={onDeleteDoc}>
-                <span class="material-icons">delete</span>
+                <span className="material-icons">delete</span>
             </button>
 
             <button className="save-button" onClick = {onSave}>
-                <span class="material-icons">save</span>
+                <span className="material-icons">save</span>
             </button>
         </div>
 
@@ -349,34 +349,34 @@ const Schedule = () => {
             <div className="mode-setting__box__left">
                 <input className="schedule_list_add_title" type="text" value={addDocName} onChange={onAddDocNameChange} placeholder="추가할 문서명을 입력하세요." required />
                 <button className="schedule_list_add_button" onClick={onAddDoc}>
-                    <span class="material-icons">add_box</span>
+                    <span className="material-icons">add_box</span>
                 </button>
                 {schedule}
             </div>
 
             <div className="mode-setting__box__light-setting">
-                <div class="setting-box-title">
-                    <div class="title">
-                        <h3 class="schedule_title_h3">{titleName}</h3>
+                <div className="setting-box-title">
+                    <div className="title">
+                        <h3 className="schedule_title_h3">{titleName}</h3>
 
-                        <div class="togglebox">
-                            <div class="togglebox_name">
+                        <div className="togglebox">
+                            <div className="togglebox_name">
                                 <span>사용하기</span>
                             </div>
-                            <div class="togglebox_input">
-                                <input class="toggle_checkbox" type="checkbox" id="chk1"
+                            <div className="togglebox_input">
+                                <input className="toggle_checkbox" type="checkbox" id="chk1"
                                     onChange={() => {setScheduleEnable(scheduleEnable?false:true);}} checked={scheduleEnable?"checked":""} />
-                                <label class="toggle_label" for="chk1">
+                                <label className="toggle_label" for="chk1">
                                     <span>사용온오프 스위치</span>
                                 </label>
                             </div>
                             <br/>
                             
-                            <div class="togglebox_name">
+                            <div className="togglebox_name">
                                 <span>모드제어</span>
                             </div>
-                            <div class="togglebox_input">
-                                <input class="toggle_checkbox" type="checkbox" id="chk2"
+                            <div className="togglebox_input">
+                                <input className="toggle_checkbox" type="checkbox" id="chk2"
                                 onChange={() => {
                                     if(checkMyProfile) {
                                         setCheckMyProfile(false);
@@ -394,19 +394,19 @@ const Schedule = () => {
                                     }
                                 }}
                                 checked={checkMyProfile?"checked":""}/>
-                                <label class="toggle_label" for="chk2">
+                                <label className="toggle_label" for="chk2">
                                     <span>모드로할지 개별제어로 할지 고르는 스위치</span>
                                 </label>
                             </div>
                             <br/>
 
-                            <div class="togglebox_name">
+                            <div className="togglebox_name">
                                 <span>반복</span>
                             </div>
-                            <div class="togglebox_input">
-                                <input class="toggle_checkbox" type="checkbox" id="chk3"
+                            <div className="togglebox_input">
+                                <input className="toggle_checkbox" type="checkbox" id="chk3"
                                     onChange={() => {setRepeat(repeat?false:true);}} checked={repeat?"checked":""} />
-                                <label class="toggle_label" for="chk3">
+                                <label className="toggle_label" for="chk3">
                                     <span>repeat 온오프 스위치</span>
                                 </label>
                             </div>
@@ -414,42 +414,42 @@ const Schedule = () => {
                         </div>
 
                     </div>
-                    <div class="date">
+                    <div className="date">
                         {repeat?
                             <span>
                                 요일
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setSun(sun?false:true)}} checked={sun?"checked":""}/>
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setMon(mon?false:true)}} checked={mon?"checked":""}/>
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setTue(tue?false:true)}} checked={tue?"checked":""}/>
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setWed(wed?false:true)}} checked={wed?"checked":""}/>
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setThr(thr?false:true)}} checked={thr?"checked":""}/>
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setFri(fri?false:true)}} checked={fri?"checked":""}/>
-                                <input class="daysOfWeek" type="checkbox" onChange={() => {setSat(sat?false:true)}} checked={sat?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setSun(sun?false:true)}} checked={sun?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setMon(mon?false:true)}} checked={mon?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setTue(tue?false:true)}} checked={tue?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setWed(wed?false:true)}} checked={wed?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setThr(thr?false:true)}} checked={thr?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setFri(fri?false:true)}} checked={fri?"checked":""}/>
+                                <input className="daysOfWeek" type="checkbox" onChange={() => {setSat(sat?false:true)}} checked={sat?"checked":""}/>
                             </span>:
                             <span>
-                                <input class="schedule_date" type="date" value={activeDate} onChange={(event) => setActivedate(event.target.value)} />
+                                <input className="schedule_date" type="date" value={activeDate} onChange={(event) => setActivedate(event.target.value)} />
                             </span>
                         }
                         <br/>
-                        <input class="schedule_time" type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} />
+                        <input className="schedule_time" type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} />
                     </div>
                 </div>
-                <hr class="row_line" />
+                <hr className="row_line" />
 
 
 {checkMyProfile?
-                <div class="" > 
-                    <div class="setting-box-windowvalve">
-                        <div class="title">
+                <div className="" > 
+                    <div className="setting-box-windowvalve">
+                        <div className="title">
                             에어컨
                         </div>
-                        <div class="content-box">
+                        <div className="content-box">
                          
 
 
 
-                            <div class="aircon_box">
-                                <div class="enable-button">
+                            <div className="aircon_box">
+                                <div className="enable-button">
                                     <button 
                                         className="appliance_button" 
                                         onClick = {() => onSelectApplience(0)} 
@@ -463,7 +463,7 @@ const Schedule = () => {
                                     </button>
                                 </div>
 
-                                <div class="power-level">
+                                <div className="power-level">
                                     <input 
                                         type="range" 
                                         id="airconInputValue" 
@@ -480,13 +480,13 @@ const Schedule = () => {
 
 
 
-                            <div class="windowvalve_box">
+                            <div className="windowvalve_box">
                                 
-                                <div class="window">
-                                    <div class="title">
+                                <div className="window">
+                                    <div className="title">
                                         창문
                                     </div>
-                                    <div class="window_button">
+                                    <div className="window_button">
                                         <button 
                                             className="appliance_button" 
                                             onClick = {() => onSelectApplience(3)} 
@@ -501,11 +501,11 @@ const Schedule = () => {
                                     </div>
                                 </div>
 
-                                <div class="valve">
-                                    <div class="title">
+                                <div className="valve">
+                                    <div className="title">
                                         가스밸브
                                     </div>
-                                    <div class="valve_button">
+                                    <div className="valve_button">
                                         <button 
                                             className="appliance_button" 
                                             onClick = {() => onSelectApplience(2)} 
@@ -527,16 +527,16 @@ const Schedule = () => {
 
                         </div>
                     </div>
-                    <hr class="row_line" />
+                    <hr className="row_line" />
                     
                     
-                    <div class="setting-box-light">
-                        <div class="title">
+                    <div className="setting-box-light">
+                        <div className="title">
                             무드등
                         </div>
-                        <div class="content-box">
-                            <div class="color-selection">
-                                <div class="enable-button">
+                        <div className="content-box">
+                            <div className="color-selection">
+                                <div className="enable-button">
                                     <button 
                                         className="appliance_button" 
                                         onClick = {() => onSelectApplience(1)} 
@@ -549,7 +549,7 @@ const Schedule = () => {
                                         }} />
                                     </button>      
                                 </div>
-                                <div class="power-level">
+                                <div className="power-level">
                                     <input 
                                         type="range" 
                                         id="lightInputValue" 
@@ -579,7 +579,7 @@ const Schedule = () => {
                                 </div>
                             </div>
 
-                            <div class="mode-selection">
+                            <div className="mode-selection">
                                 <br/>
                                 <span>모드 선택</span><br/>
                                 <label className="label-lightmode-radio">
@@ -605,7 +605,7 @@ const Schedule = () => {
                 </div>
                         
 :
-                <div class="">
+                <div className="">
                     <p> 
                     <button className="mode-setting__schedule__mode mode-setting__schedule__mode1" 
                         onClick = {() => {

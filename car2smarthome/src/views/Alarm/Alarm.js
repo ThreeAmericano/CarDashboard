@@ -21,6 +21,7 @@ import window_icon from '../../../resources/smarthome_icon/window.png';
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
 let alarmData = [];
+let iconData = [];
 let i;
 let pageNum;
 
@@ -31,6 +32,7 @@ async function getStoreDB() {
         const querySnapshot = await getDocs(collection(storeDB, "appliance_alarm"));
         querySnapshot.forEach((doc) => {
             alarmData[i] = doc.data();
+            iconData[i] = doc.data().icon;
             i++;
         });
     } catch(e) {
@@ -53,6 +55,7 @@ const Alarm = ({setDarkMode, darkMode}) => {
 
     useEffect(() => {
         pageNum = 4;
+
         getStoreDB().then(() => {
             console.log("[Alarm:useEffect]");
             setAlarmUI();
@@ -71,6 +74,23 @@ const Alarm = ({setDarkMode, darkMode}) => {
             }
         });
     };
+
+    const displayIcon = (num) => {
+        switch (iconData[num]) {
+            case "aircon_icon" : return aircon_icon;
+            case "light_icon" : return light_icon;
+            case "gasvalve_icon" : return gasvalve_icon;
+            case "window_icon" : return window_icon;
+            case "1mode_icon" : return indoorIcon;
+            case "2mode_icon" : return outdoorIcon;
+            case "3mode_icon" : return ecoIcon;
+            case "4mode_icon" : return nightIcon;
+            default : {
+                console.log("[Alarm:displayIcon] switch select default :",iconData[num]);
+                break;
+            }
+        }
+    };
     
     const setAlarmUI = () => {
         // 반환 받은 테이블 값을 설정
@@ -81,12 +101,7 @@ const Alarm = ({setDarkMode, darkMode}) => {
                         <td>
                             <p>
                                 <img className="appliance_img" 
-                                    src={
-                                        item.icon == "aircon_icon"?aircon_icon:
-                                        item.icon == "light_icon"?light_icon:
-                                        item.icon == "gasvalve_icon"?gasvalve_icon:
-                                        window_icon
-                                    } />
+                                    src={displayIcon(index)} />                                    
                             </p>
                         </td>
                         <td className="appliance_inform_td">
@@ -119,14 +134,14 @@ const Alarm = ({setDarkMode, darkMode}) => {
             <div className="setting-page__head">
                 <h3 className="title">설정페이지</h3>
                 <button className="back-button" onClick={onGotoHome}>
-                    <span class="material-icons">reply</span>
+                    <span className="material-icons">reply</span>
                 </button>
             </div>
 
             <div className="setting-page__box">
                 <div className="setting-page__box__left">
                     <h3>
-                        <span class="material-icons">
+                        <span className="material-icons">
                         notifications
                         </span>
                         가전 동작 정보
@@ -137,27 +152,27 @@ const Alarm = ({setDarkMode, darkMode}) => {
                 <div className="setting-page-user">
                     <h3>사용자 설정</h3>
 
-                    <div class="togglebox togglebox_pluswidth">
+                    <div className="togglebox togglebox_pluswidth">
                         <hr/>
                         <br/>
 
-                        <div class="togglebox_name">
+                        <div className="togglebox_name">
                             <span>다크모드 사용하기</span>
                         </div>
-                        <div class="togglebox_input">
-                            <input class="toggle_checkbox" type="checkbox" id="chk1" 
+                        <div className="togglebox_input">
+                            <input className="toggle_checkbox" type="checkbox" id="chk1" 
                                 onChange={() => {
                                     setDarkMode(darkMode?false:true);
                                 }} 
                                 checked={darkMode?"checked":""} 
                             />
-                            <label class="toggle_label" for="chk1">
+                            <label className="toggle_label" for="chk1">
                                 <span>다크모드 스위치</span>
                             </label>
                         </div>
                         <br />
                         <div>
-                            <p class="credit">
+                            <p className="credit">
                                 팀 : 삼아아 - 최현식, 박승운, 이준호
                                 <br />
                                 서버 : 리눅스

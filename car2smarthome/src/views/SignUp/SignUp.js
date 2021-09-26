@@ -112,12 +112,12 @@ const SignUp = () => {
                 </div> 
                 <br />
                 <div className="button__box">
-                    <button class="button" value="가입" onClick={onSignUp}>
-                        <span class="material-icons">assignment_ind</span>
+                    <button className="button" value="가입" onClick={onSignUp}>
+                        <span className="material-icons">assignment_ind</span>
                         가입
                     </button>
-                    <button class="button" value="취소" onClick={onCancel}>
-                        <span class="material-icons">reply</span>
+                    <button className="button" value="취소" onClick={onCancel}>
+                        <span className="material-icons">reply</span>
                         취소
                     </button>
                 </div>

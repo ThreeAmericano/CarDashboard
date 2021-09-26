@@ -426,24 +426,24 @@ const SignIn = () => {
                     <div className="email__box">
                         <div className="input-box">
                             <input type="email" value={email} onChange={onEmailChange} placeholder="이메일을 입력하세요." required />
-                            <label for="email">E-mail</label>
+                            <label htmlfor="email">E-mail</label>
                         </div>    
                         <div className="input-box">
                             <input type="password" value={password} onChange={onPasswordChange} placeholder="비밀번호를 입력하세요." required />
-                            <label for="password">Password</label>
+                            <label htmlfor="password">Password</label>
                         </div> 
                         <br />
-                        <button class="button" onClick={onSignIn}>
-                            <span class="material-icons">arrow_upward</span>
+                        <button className="button" onClick={onSignIn}>
+                            <span className="material-icons">arrow_upward</span>
                             로그인
                         </button>
-                        <button class="button" onClick={onSignUp}>
-                            <span class="material-icons">assignment_ind</span>
+                        <button className="button" onClick={onSignUp}>
+                            <span className="material-icons">assignment_ind</span>
                             회원가입
                         </button>
 						<br />
 						<br />				
-                        <button class="button" onClick={onDBSignIn}>
+                        <button className="button" onClick={onDBSignIn}>
 						    오프라인 로그인
                         </button>
                     </div>

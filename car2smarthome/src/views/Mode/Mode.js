@@ -145,10 +145,10 @@ const Mode = () => {
             <div className="mode-setting-ori__head">
                 <h3 className="title">모드 설정 페이지</h3>
                 <button className="back-button" onClick={onGotoHome}>
-                    <span class="material-icons">reply</span>
+                    <span className="material-icons">reply</span>
                 </button>
                 <button className="save-button" onClick = {onSave}>
-                    <span class="material-icons">save</span>
+                    <span className="material-icons">save</span>
                 </button>
             </div>
 
@@ -213,20 +213,20 @@ const Mode = () => {
 
 
                 <div className="mode-setting-ori__box__light-setting">
-                    <div class="mode-box-title">
-                        <div class="title">
-                            <h3 class="schedule_title_h3">{modeNum}. {modeName}</h3>
+                    <div className="mode-box-title">
+                        <div className="title">
+                            <h3 className="schedule_title_h3">{modeNum}. {modeName}</h3>
                         </div>
                     </div>
-                    <hr class="row_line" />
+                    <hr className="row_line" />
 
-                    <div class="" > 
-                        <div class="mode-box-windowvalve">
-                            <div class="title">
+                    <div className="" > 
+                        <div className="mode-box-windowvalve">
+                            <div className="title">
                                 창문/가스밸브
                             </div>
-                            <div class="content-box">
-                                <div class="window">
+                            <div className="content-box">
+                                <div className="window">
                                     <button 
                                         className="appliance_button" 
                                         onClick = {() => onSelectApplience(3)} 
@@ -239,7 +239,7 @@ const Mode = () => {
                                         }} />
                                     </button>
                                 </div>
-                                <div class="valve">
+                                <div className="valve">
                                     <button 
                                         className="appliance_button" 
                                         onClick = {() => onSelectApplience(2)} 
@@ -254,15 +254,15 @@ const Mode = () => {
                                 </div>
                             </div>
                         </div>
-                        <hr class="row_line" />
+                        <hr className="row_line" />
                         
                         
-                        <div class="mode-box-aircon">
-                            <div class="title">
+                        <div className="mode-box-aircon">
+                            <div className="title">
                                 에어컨
                             </div>
-                            <div class="content-box">
-                                <div class="enable-button">
+                            <div className="content-box">
+                                <div className="enable-button">
                                     <button 
                                         className="appliance_button" 
                                         onClick = {() => onSelectApplience(0)} 
@@ -275,7 +275,7 @@ const Mode = () => {
                                         }} />
                                     </button>
                                 </div>
-                                <div class="power-level">
+                                <div className="power-level">
                                     <input 
                                         type="range" 
                                         id="airconInputValue" 
@@ -289,15 +289,15 @@ const Mode = () => {
                                 </div>
                             </div>
                         </div>
-                        <hr class="row_line" />
+                        <hr className="row_line" />
                         
-                        <div class="mode-box-light">
-                            <div class="title">
+                        <div className="mode-box-light">
+                            <div className="title">
                                 무드등
                             </div>
-                            <div class="content-box">
+                            <div className="content-box">
                                 <div>
-                                    <div class="enable-button">
+                                    <div className="enable-button">
                                         <button 
                                             className="appliance_button" 
                                             onClick = {() => onSelectApplience(1)} 
@@ -310,7 +310,7 @@ const Mode = () => {
                                             }} />
                                         </button>      
                                     </div>
-                                    <div class="power-level">
+                                    <div className="power-level">
                                         <input 
                                             type="range" 
                                             id="lightInputValue" 
@@ -327,13 +327,13 @@ const Mode = () => {
                         </div>
                             
                             
-                        <div class="mode-box-lightdetail">
-                            <div class="title">
+                        <div className="mode-box-lightdetail">
+                            <div className="title">
                                 -
                             </div>
-                            <div class="content-box">
+                            <div className="content-box">
                                 <div>
-                                    <div class="color-selection">
+                                    <div className="color-selection">
                                         <span>색 선택</span><br/>
                                         <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
                                         <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
@@ -345,7 +345,7 @@ const Mode = () => {
                                         <input type="radio" className="color-orange"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
                                         <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
                                     </div>
-                                    <div class="mode-selection">
+                                    <div className="mode-selection">
                                         <span>모드 선택</span><br/>
                                         <label className="label-lightmode-radio">
                                             <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
