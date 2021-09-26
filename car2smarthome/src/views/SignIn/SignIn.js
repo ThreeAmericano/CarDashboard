@@ -62,7 +62,8 @@ const SignIn = () => {
                         state: {
                             'name' : dbResult[0].name,
                             'db' : dbResult[0].db,
-                            'pageNum' : 1
+                            'pageNum' : 1,
+                            'UID' : dbResult[0].UID
                         }
                     });
                 } catch (e) {
@@ -125,13 +126,14 @@ const SignIn = () => {
                             } else {
                                 console.log("이메일 로그인")
                                 //internetConnection = true;
-                                putUserData(email, password, name, returnValue.db);
+                                putUserData(email, password, name, returnValue.db, returnValue.UID);
                                 tts(String(name)+"님 안녕하세요");
                                 history.push({
                                     pathname: '/home',
                                     state: {
                                         'name' : name,
                                         'db' : returnValue.db,
+                                        'UID' : returnValue.UID,
                                         'pageNum' : 1
                                     }
                                 });
@@ -304,23 +306,30 @@ const SignIn = () => {
                     "props":[
                         {"name":"db"}
                     ]
+                },
+                {
+                    "name" : "UID",
+                    "props":[
+                        {"name":"UID"}
+                    ]
                 }
             ]
-        };
-    
+        };    
         webOSBridge.call(url, JSON.stringify(params));
-
-        
         console.log("[SignIn:putKind] 종료");
-
-        /*
-        webOSBridge.onservicecallback = putKindCallback;
-        function putKindCallback(msg){
-            let response = JSON.parse(msg); 
-            console.log("[SignIn:putKind callback] response :", response);
-        };
-        */
     };
+
+    const emptyDB = () => {
+        // query, from을 사용하여 kindID의 모든 데이터를 삭제합니다. (쿼리와 동일하게 where절과 함께사용가능)
+        let url = 'luna://com.webos.service.db/del';
+        
+        let params = {
+            "query":{ 
+                "from":kindID
+            }
+        };
+        webOSBridge.call(url, JSON.stringify(params));
+    }
 
     const putPermissions = () => {
         let url = 'luna://com.webos.service.db/putPermissions';
@@ -349,7 +358,7 @@ const SignIn = () => {
         */
     };
 
-    const putUserData = (email, password, name, db) => {
+    const putUserData = (email, password, name, db, uid) => {
         // DB에 데이터를 추가하는 put method를 정의합니다.
         let url = 'luna://com.webos.service.db/put';
         let params = {
@@ -359,7 +368,8 @@ const SignIn = () => {
                     "email": email,
                     "password" : password,
                     "name" : name,
-                    "db" : db
+                    "db" : db,
+                    "UID" : uid
                 }
             ]
         };
@@ -409,7 +419,7 @@ const SignIn = () => {
             </div>
             <div className="sign-in__box">
                 <div className="face-recognation">		   
-					<h3>얼굴인식 로그인</h3>
+					<h3 onClick={emptyDB}>얼굴인식 로그인</h3>
                     <div className="face-recognation__box">
                         <button onClick={onFaceSignIn}>
                             <img className="face-button-icon" src={faceIcon} />    

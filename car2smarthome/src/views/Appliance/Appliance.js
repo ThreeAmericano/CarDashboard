@@ -271,20 +271,20 @@ const Appliance = () => {   // 가전 상세 제어 페이지
                                     <div className ="mode-selection">
                                         <span>모드 선택</span><br/>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="0" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
                                             <span>일반모드</span> 
                                         </label>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
                                             <span>슬립모드</span> 
                                         </label>
                                         <br/>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
                                             <span>파티모드</span> 
                                         </label>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="4" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
                                             <span>트리모드</span> 
                                         </label>
                                     </div>

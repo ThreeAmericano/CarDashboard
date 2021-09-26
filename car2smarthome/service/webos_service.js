@@ -347,7 +347,8 @@ service.register("signIn", async function(message) {    // signIn 서비스
             returnValue: true,
             Response: {
                 "name" : returnMsg,
-                "db" : db
+                "db" : db,
+                "UID" : uid
             }
         });
     } catch(e) {

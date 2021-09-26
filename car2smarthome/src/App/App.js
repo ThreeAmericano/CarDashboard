@@ -19,7 +19,9 @@ const App = function () {
 				<Switch>
 					<Route exact path="/" component={SignIn} />
 					<Route path="/sign-up" component={SignUp} />
-					<Route path="/home" component={Home} />
+					<Route path="/home">
+						<Home setDarkMode={setDarkMode}/>
+					</Route>
 					<Route path="/mode" component={Mode} />
 					<Route path="/schedule" component={Schedule} />
 					<Route path="/appliance" component={Appliance} />

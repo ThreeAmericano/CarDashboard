@@ -125,10 +125,6 @@ const Alarm = ({setDarkMode, darkMode}) => {
         );
     };
     
-    const onSelectUIMode = (select) => {
-        setDarkMode(select);
-    }
-    
     return(
         <div className="setting-page">
             <div className="setting-page__head">

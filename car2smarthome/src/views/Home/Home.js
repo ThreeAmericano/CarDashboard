@@ -36,6 +36,8 @@ import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from 
 
 let oldDB;  // DB 이전 상태와 비교하여 다르면 동작하도록 하기 위함
 let smarthome = "";
+let darkMode; 
+let uid;
 let mode = new Array(4);
 
 let pageNum = 0;
@@ -46,7 +48,6 @@ async function getStoreDB() {
 
         console.log("[Home:store start]")
         const querySnapshot = await getDocs(collection(storeDB, "modes"));
-        //console.log("[Home:store listener] querySnapshot :", querySnapshot);
         querySnapshot.forEach((doc) => {
             //console.log("[Home:store listener]", doc.id, " => ", doc.data());
             
@@ -67,9 +68,32 @@ async function getStoreDB() {
     };
 };
 
+async function getUIDB() {
+    try {
+        let i = 0;
+
+        console.log("[Home:store UI start]")
+        const querySnapshot = await getDocs(collection(storeDB,"uiux_preset"));
+        querySnapshot.forEach((doc) => {
+            if(String(doc.id) == String(uid)){
+                console.log("[Home:store UI listener]", doc.id, " => ", doc.data());
+                if(doc.data().ui_mode == "darkmode") {
+                    darkMode = true;
+                } else if(doc.data().ui_mode == "none") {
+                    darkMode = false;
+                } else {
+                    darkMode = false;
+                };            
+            }
+        });
+    } catch(e) {
+        console.log("[Home:getStoreDB] error : ", e);
+    };
+};
+
 if(pageNum == 1) getStoreDB();
 
-const Home = () => {
+const Home = ({setDarkMode}) => {
     const history = useHistory();
     const location = useLocation();
     
@@ -97,10 +121,15 @@ const Home = () => {
         // 초기값 설정
         pageNum = 1;
 
+        uid = location.state.UID;  
+
         stopAssistant();    // 음성인식 설정
         startAssistant();
         GetState();
-
+        getUIDB()
+            .then(setDarkMode(darkMode));
+        
+        setDarkMode(darkMode);
         setName(location.state.name);
 
         oldDB = location.state.db;  
@@ -149,8 +178,8 @@ const Home = () => {
             switch(Number(smarthome[0])-1) {
                 case 0 : setIndoorMode(true); break;
                 case 1 : setOutdoorMode(true); break;
-                case 2 : setEcoMode(true); break;
-                case 3 : setSleepMode(true); break;
+                case 2 : setSleepMode(true); break;
+                case 3 : setEcoMode(true); break;
                 default : {
                     console.log("[Home:useEffect] Number(smarthome[0])-1 switch default :", Number(smarthome[0])-1);
                     break;
@@ -170,7 +199,6 @@ const Home = () => {
         onValue(dbRef, (snapshot) => {
             let data = snapshot.val();
 
-
             if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp && oldDB.server.notification == data.server.notification) {
                 console.log("[Home:listener] 변화 없음");
             } else {
@@ -185,7 +213,7 @@ const Home = () => {
                 setUI(data);
             };
         });
-
+        setDarkMode(darkMode);
         //getStoreDB(); ///////////////////////////////////////////////////////////////////////////////////
     };
 
@@ -241,6 +269,9 @@ const Home = () => {
     
     const setUI = (data) => {
         console.log("[Home:setUI] 함수 실행 data :", data);
+
+        setDarkMode(darkMode);
+
         let listenTemp = data.sensor.hometemp.temp;
         let listenHumi = data.sensor.hometemp.humi;
 
@@ -267,7 +298,6 @@ const Home = () => {
             case 5 : setDust("매우나쁨"); break;
             default : break;
         }
-
         if(Number(listenHome[1]) != 2) {
             let onOff = Number(listenHome[1])==1?true:false;
             console.log("[Home:setUI] prevHome[0], onOff :",prevHome[0],",",onOff);
@@ -313,12 +343,14 @@ const Home = () => {
             };
         };
         if(Number(listenHome[0])>0){
+            modeTurnOff;
             switch(Number(listenHome[0])-1) {
-                case 0 : setIndoorMode(true); break;
-                case 1 : setOutdoorMode(true); break;
-                case 2 : setEcoMode(true); break;
-                case 3 : setSleepMode(true); break;
-            };
+                case 0 : {setIndoorMode(true); break;}
+                case 1 : {setOutdoorMode(true); break;}
+                case 2 : {setSleepMode(true); break;}
+                case 3 : {setEcoMode(true); break;}
+                default : {modeTurnOff; break;}
+            }
         } else {
             onDoMode(4);
             modeTurnOff;
@@ -329,14 +361,16 @@ const Home = () => {
     const modeTurnOff = () => {
         setIndoorMode(false);
         setOutdoorMode(false);
-        setEcoMode(false);
         setSleepMode(false);
+        setEcoMode(false);
     };
 
     const onDoMode = (num) => {
+        modeTurnOff(); 
         getStoreDB();/////////////////////////////////////////////////////////////////////////////////////////
         console.log("[Home:onDoMode] num :", num);
         console.log("[Home:onDoMode] mode[num] :", mode[num]);
+        modeTurnOff(); 
         switch (num) {
             case 0 : {
                 modeTurnOff();
@@ -780,7 +814,7 @@ const Home = () => {
                                         </button>
                                     </td>
                                     <td>
-                                        <button className="button">
+                                        <button className="button" onClick={setDarkMode(darkMode)}>
                                             ㅁ
                                         </button>
                                     </td>
