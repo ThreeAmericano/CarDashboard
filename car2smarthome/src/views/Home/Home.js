@@ -186,7 +186,7 @@ const Home = ({setDarkMode, darkMode}) => {
         
     }, [location]);
 
-    if(pageNum == 1) {
+    const getRTDB = () => {
         const dbRef = ref(db);
         onValue(dbRef, (snapshot) => {
             let data = snapshot.val();
@@ -205,7 +205,10 @@ const Home = ({setDarkMode, darkMode}) => {
                 setUI(data);
             };
         });
-        //getStoreDB(); ///////////////////////////////////////////////////////////////////////////////////
+    }
+
+    if(pageNum == 1) {
+        getRTDB();
     };
 
     const startAssistant = () => {  // 음성인식 설정
@@ -356,7 +359,7 @@ const Home = ({setDarkMode, darkMode}) => {
 
     const onDoMode = (num) => {
         modeTurnOff(); 
-        getStoreDB();/////////////////////////////////////////////////////////////////////////////////////////
+        getStoreDB();
         console.log("[Home:onDoMode] num :", num);
         //console.log("[Home:onDoMode] mode[num] :", mode[num]);
         modeTurnOff(); 
