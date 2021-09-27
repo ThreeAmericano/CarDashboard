@@ -86,7 +86,7 @@ const SignUp = () => {
         };
     }
 
-    const onCancel = () => {
+    const onGotoSignIn = () => {
         history.replace('/');
     }
 
@@ -116,7 +116,7 @@ const SignUp = () => {
                         <span className="material-icons">assignment_ind</span>
                         가입
                     </button>
-                    <button className="button" value="취소" onClick={onCancel}>
+                    <button className="button" value="취소" onClick={onGotoSignIn}>
                         <span className="material-icons">reply</span>
                         취소
                     </button>

@@ -18,6 +18,7 @@ import light_icon from '../../../resources/smarthome_icon/light.png';
 import gasvalve_icon from '../../../resources/smarthome_icon/valve.png';
 import window_icon from '../../../resources/smarthome_icon/window.png';
 
+var webOSBridge = new WebOSServiceBridge();
 import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
 let alarmData = [];
@@ -48,6 +49,7 @@ const Alarm = ({setDarkMode, darkMode}) => {
 
     const name = location.state.name;
     const oldDB = location.state.db;
+    const uid = location.state.UID; 
     
     const [alarm, setAlarm] = useState('');//알람 테이블
 
@@ -55,6 +57,7 @@ const Alarm = ({setDarkMode, darkMode}) => {
 
     useEffect(() => {
         pageNum = 4;
+
 
         getStoreDB().then(() => {
             console.log("[Alarm:useEffect]");
@@ -91,6 +94,13 @@ const Alarm = ({setDarkMode, darkMode}) => {
             }
         }
     };
+
+    const onSave = () => {
+        setDoc(doc(storeDB, "uiux_preset", uid), {
+            "ui_mode" : darkMode?"darkmode":"none",
+            "ux_mode" : "none"
+        });
+    }
     
     const setAlarmUI = () => {
         // 반환 받은 테이블 값을 설정
@@ -131,6 +141,9 @@ const Alarm = ({setDarkMode, darkMode}) => {
                 <h3 className="title">설정페이지</h3>
                 <button className="back-button" onClick={onGotoHome}>
                     <span className="material-icons">reply</span>
+                </button>
+                <button className="save-button" onClick = {onSave}>
+                    <span className="material-icons">save</span>
                 </button>
             </div>
 

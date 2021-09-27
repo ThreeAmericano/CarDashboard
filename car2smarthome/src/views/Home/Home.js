@@ -36,7 +36,7 @@ import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from 
 
 let oldDB;  // DB 이전 상태와 비교하여 다르면 동작하도록 하기 위함
 let smarthome = "";
-let darkMode; 
+let listendarkMode; 
 let uid;
 let mode = new Array(4);
 
@@ -77,13 +77,7 @@ async function getUIDB() {
         querySnapshot.forEach((doc) => {
             if(String(doc.id) == String(uid)){
                 console.log("[Home:store UI listener]", doc.id, " => ", doc.data());
-                if(doc.data().ui_mode == "darkmode") {
-                    darkMode = true;
-                } else if(doc.data().ui_mode == "none") {
-                    darkMode = false;
-                } else {
-                    darkMode = false;
-                };            
+                listendarkMode = doc.data();
             }
         });
     } catch(e) {
@@ -93,7 +87,7 @@ async function getUIDB() {
 
 if(pageNum == 1) getStoreDB();
 
-const Home = ({setDarkMode}) => {
+const Home = ({setDarkMode, darkMode}) => {
     const history = useHistory();
     const location = useLocation();
     
@@ -126,12 +120,9 @@ const Home = ({setDarkMode}) => {
         stopAssistant();    // 음성인식 설정
         startAssistant();
         GetState();
-        getUIDB()
-            .then(setDarkMode(darkMode));
         
-        setDarkMode(darkMode);
         setName(location.state.name);
-
+        
         oldDB = location.state.db;  
         console.log("[Home:useEffect] oldDB :",oldDB);
 
@@ -175,6 +166,7 @@ const Home = ({setDarkMode}) => {
         };
 
         if(Number(smarthome[0])>0){
+            modeTurnOff();
             switch(Number(smarthome[0])-1) {
                 case 0 : setIndoorMode(true); break;
                 case 1 : setOutdoorMode(true); break;
@@ -185,7 +177,7 @@ const Home = ({setDarkMode}) => {
                     break;
                 }
             };
-        } else modeTurnOff;
+        } else modeTurnOff();
         
         return() => {
             stopAssistant(); // 음성인식 종료
@@ -213,7 +205,6 @@ const Home = ({setDarkMode}) => {
                 setUI(data);
             };
         });
-        setDarkMode(darkMode);
         //getStoreDB(); ///////////////////////////////////////////////////////////////////////////////////
     };
 
@@ -270,8 +261,6 @@ const Home = ({setDarkMode}) => {
     const setUI = (data) => {
         console.log("[Home:setUI] 함수 실행 data :", data);
 
-        setDarkMode(darkMode);
-
         let listenTemp = data.sensor.hometemp.temp;
         let listenHumi = data.sensor.hometemp.humi;
 
@@ -305,7 +294,7 @@ const Home = ({setDarkMode}) => {
                 prevHome[0] = onOff;
                 setAircon(onOff);
                 let comment = onOff ? "에어컨이 켜졌습니다" : "에어컨이 꺼졌습니다";
-                createToast(comment);
+                //createToast(comment);
                 tts(comment);
             };
         };
@@ -316,7 +305,7 @@ const Home = ({setDarkMode}) => {
                 prevHome[1] = onOff;
                 setLight(onOff);
                 let comment = (onOff) ? "무드등이 켜졌습니다" : "무드등이 꺼졌습니다";
-                createToast(comment);
+                //createToast(comment);
                 tts(comment);
             };
         };
@@ -327,7 +316,7 @@ const Home = ({setDarkMode}) => {
                 prevHome[2] = onOff;
                 setWindow(onOff);
                 let comment = (onOff) ? "창문이 열렸습니다" : "창문이 닫혔습니다";
-                createToast(comment);
+                //createToast(comment);
                 tts(comment);
             };
         };
@@ -338,22 +327,22 @@ const Home = ({setDarkMode}) => {
                 prevHome[3] = onOff;
                 setValve(onOff);
                 let comment = (onOff) ? "가스밸브가 열렸습니다" : "가스밸브가 닫혔습니다";
-                createToast(comment);
+                //createToast(comment);
                 tts(comment);
             };
         };
         if(Number(listenHome[0])>0){
-            modeTurnOff;
+            modeTurnOff();
             switch(Number(listenHome[0])-1) {
                 case 0 : {setIndoorMode(true); break;}
                 case 1 : {setOutdoorMode(true); break;}
                 case 2 : {setSleepMode(true); break;}
                 case 3 : {setEcoMode(true); break;}
-                default : {modeTurnOff; break;}
+                default : {modeTurnOff(); break;}
             }
         } else {
             onDoMode(4);
-            modeTurnOff;
+            modeTurnOff();
         } 
         console.log("[Home:setUI] 함수 종료");
     };
@@ -369,7 +358,7 @@ const Home = ({setDarkMode}) => {
         modeTurnOff(); 
         getStoreDB();/////////////////////////////////////////////////////////////////////////////////////////
         console.log("[Home:onDoMode] num :", num);
-        console.log("[Home:onDoMode] mode[num] :", mode[num]);
+        //console.log("[Home:onDoMode] mode[num] :", mode[num]);
         modeTurnOff(); 
         switch (num) {
             case 0 : {
@@ -499,7 +488,7 @@ const Home = ({setDarkMode}) => {
     }
 
     const onGotoSetting = () => {
-        console.log("[Home:onGotoSetting] 스케줄 설정 페이지");
+        console.log("[Home:onGotoSetting] 다크모드 설정 + 알람 페이지");
 
         pageNum = 4;
         //스케줄 설정 페이지
@@ -508,7 +497,8 @@ const Home = ({setDarkMode}) => {
             state: {
                 'name' : name,
                 'db' : oldDB,
-                'pageNum' : pageNum
+                'pageNum' : pageNum,
+                'UID' : uid
             }
         });
     }
@@ -814,7 +804,7 @@ const Home = ({setDarkMode}) => {
                                         </button>
                                     </td>
                                     <td>
-                                        <button className="button" onClick={setDarkMode(darkMode)}>
+                                        <button className="button" onClick={() => getUIDB()}>
                                             ㅁ
                                         </button>
                                     </td>

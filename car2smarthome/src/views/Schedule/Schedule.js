@@ -103,6 +103,13 @@ const Schedule = () => {
             setScheduleUI();
         });
         console.log("[Schedule:useEffect] pageNum :",pageNum)
+        
+        return() => {
+            scheduleData = [];
+            docID = [];
+            pageNum = 0;
+            i = 0;
+        };
     }, []);
 
     const onGotoHome = () => {

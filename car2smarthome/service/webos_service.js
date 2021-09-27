@@ -35,7 +35,7 @@ dbRef.on('value', (snapshot) => {
     //service.call(url, params);
 });
 */
-
+/*
 service.register("listener", function(message) {    // signIn 서비스
     // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
     console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/listener");
@@ -50,8 +50,7 @@ service.register("listener", function(message) {    // signIn 서비스
         Response: data
     });
 });
-
-
+*/
 async function sendMqttFunc(exchange, routingKey, msg) {        // MQTT 송신 함수
     try {
         console.log("[Service] send MQTT start");

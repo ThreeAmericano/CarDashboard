@@ -20,7 +20,7 @@ const App = function () {
 					<Route exact path="/" component={SignIn} />
 					<Route path="/sign-up" component={SignUp} />
 					<Route path="/home">
-						<Home setDarkMode={setDarkMode}/>
+						<Home darkMode={darkMode} setDarkMode={setDarkMode}/>
 					</Route>
 					<Route path="/mode" component={Mode} />
 					<Route path="/schedule" component={Schedule} />

@@ -162,7 +162,7 @@ const SignIn = () => {
         console.log("[SignIn:onTestSignIn] 테스트 계정 타이핑")
     };
 
-    const onSignUp = () => {
+    const onGotoSignUp = () => {
         history.push('/sign-up');   // 회원가입 페이지로 넘어간다.
     };
 
@@ -447,7 +447,7 @@ const SignIn = () => {
                             <span className="material-icons">arrow_upward</span>
                             로그인
                         </button>
-                        <button className="button" onClick={onSignUp}>
+                        <button className="button" onClick={onGotoSignUp}>
                             <span className="material-icons">assignment_ind</span>
                             회원가입
                         </button>
