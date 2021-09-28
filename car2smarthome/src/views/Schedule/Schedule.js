@@ -47,7 +47,7 @@ async function getStoreDB() {
 
 if(pageNum == 3) getStoreDB();
 
-const Schedule = () => {
+const Schedule = ({darkMode}) => {
     const history = useHistory();
     const location = useLocation();
 
@@ -572,7 +572,7 @@ const Schedule = () => {
                                 <br/>
                                 <br/>
                                 <br/>
-                                <div>
+                                <div style={{filter : darkMode ? 'invert(1)' : 'invert(0)'}}>
                                     <span>색 선택</span><br/>
                                     <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
                                     <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>

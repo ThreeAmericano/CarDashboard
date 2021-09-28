@@ -18,7 +18,7 @@ import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc
 
 let name, oldDB, pageNum;
 
-const Appliance = () => {   // 가전 상세 제어 페이지
+const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
     const history = useHistory();
     const location = useLocation();
 
@@ -256,7 +256,7 @@ const Appliance = () => {   // 가전 상세 제어 페이지
                             </div>
                             <div className ="content-box">
                                 <div>
-                                    <div className ="color-selection">
+                                    <div className ="color-selection" style={{filter : darkMode ? 'invert(1)' : 'invert(0)'}}>
                                         <span>색 선택</span><br/>
                                         <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
                                         <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>

@@ -77,7 +77,8 @@ async function getUIDB() {
         querySnapshot.forEach((doc) => {
             if(String(doc.id) == String(uid)){
                 console.log("[Home:store UI listener]", doc.id, " => ", doc.data());
-                listendarkMode = doc.data();
+                //listendarkMode = doc.data();
+                return doc.data();
             }
         });
     } catch(e) {
@@ -116,6 +117,10 @@ const Home = ({setDarkMode, darkMode}) => {
         pageNum = 1;
 
         uid = location.state.UID;  
+        getUIDB()
+            .then((res) => setDarkMode(res=="darkmode"?true:false));
+        //console.log("[Home:useEffect] listendarkMode :",listendarkMode);
+        //setDarkMode(listendarkMode=="darkmode"?true:false);/////////////////////////////////////////
 
         stopAssistant();    // 음성인식 설정
         startAssistant();
@@ -209,6 +214,12 @@ const Home = ({setDarkMode, darkMode}) => {
 
     if(pageNum == 1) {
         getRTDB();
+        
+        getUIDB()
+            .then((res) => setDarkMode(res=="darkmode"?true:false));
+        // listendarkMode = getUIDB();
+        // console.log("[Home:useEffect] listendarkMode :",listendarkMode);
+        // setDarkMode(listendarkMode=="darkmode"?true:false);
     };
 
     const startAssistant = () => {  // 음성인식 설정

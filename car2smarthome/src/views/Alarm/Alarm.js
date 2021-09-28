@@ -57,8 +57,6 @@ const Alarm = ({setDarkMode, darkMode}) => {
 
     useEffect(() => {
         pageNum = 4;
-
-
         getStoreDB().then(() => {
             console.log("[Alarm:useEffect]");
             setAlarmUI();

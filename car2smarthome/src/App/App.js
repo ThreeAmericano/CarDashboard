@@ -22,9 +22,15 @@ const App = function () {
 					<Route path="/home">
 						<Home darkMode={darkMode} setDarkMode={setDarkMode}/>
 					</Route>
-					<Route path="/mode" component={Mode} />
-					<Route path="/schedule" component={Schedule} />
-					<Route path="/appliance" component={Appliance} />
+					<Route path="/mode">
+						<Mode darkMode={darkMode} />
+					</Route>
+					<Route path="/schedule">
+						<Schedule darkMode={darkMode} />
+					</Route>
+					<Route path="/appliance">
+						<Appliance darkMode={darkMode} />
+					</Route>
 					<Route path="/alarm">
 						<Alarm darkMode={darkMode} setDarkMode={setDarkMode}/>
 					</Route>
