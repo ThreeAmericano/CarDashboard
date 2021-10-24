@@ -3,24 +3,31 @@ WebOS Car Dashboard Using Enact
 
 # 화면
 1. 로그인 페이지
+
 ![1  로그인 페이지](https://user-images.githubusercontent.com/12757811/138590098-7c1a8cf1-c772-4f98-b080-cc65de02d8f8.png)
 <br>
 2. 회원가입 페이지
+
 ![2  회원가입 페이지](https://user-images.githubusercontent.com/12757811/138590129-69918138-f35a-415c-9299-61ca70291178.png)
 <br>
 3. 홈 페이지
+
 ![3  홈 페이지](https://user-images.githubusercontent.com/12757811/138590131-6c2622b1-7f5a-49f4-b68e-fc15c5572575.png)
 <br>
 4. 모드 설정 페이지
+
 ![4  모드 설정 페이지](https://user-images.githubusercontent.com/12757811/138590132-780292ab-7e0c-4268-a1de-da1beee5340f.png)
 <br>
 5. 스케줄 설정 페이지
+
 ![5  스케줄 설정 페이지](https://user-images.githubusercontent.com/12757811/138590134-ce95f458-8685-4eb8-b7a1-de2ffb6e32a1.png)
 <br>
 6. 가전 상세 제어 페이지
+
 ![6  가전 상세 제어 페이지](https://user-images.githubusercontent.com/12757811/138590135-d6c38ce2-202a-47f6-b2b4-9dd24f3fddd9.png)
 <br>
 7. 가전 동작 정보 및 설정 페이지
+
 ![7  가전 동작 정보 및 설정 페이지](https://user-images.githubusercontent.com/12757811/138590137-deb76c9e-cffb-46fc-bc87-a4029ea4f773.png)
 
 <br><br><br><br><br>
