@@ -1,5 +1,5 @@
 import * as firebase from "firebase/app";
-import { getDatabase, ref, onValue} from "firebase/database";
+import { getDatabase, ref, onValue } from "firebase/database";
 import { getFirestore, doc, getDocs, onSnapshot, collection, setDoc, deleteDoc } from "firebase/firestore";
 
 // 우리 프로젝트 firebase 설정
@@ -15,8 +15,9 @@ const firebaseConfig = {
 }
 firebase.initializeApp(firebaseConfig); 
 
-const db = getDatabase(); // realtime DB
+const home_db = getDatabase(); // home realtime DB
+const appl_db = getDatabase(); // appliance realtime DB
 const storeDB = getFirestore(); // store DB
 
 export default firebase;
-export {db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc};
+export {firebase, firebaseConfig, home_db, appl_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc};

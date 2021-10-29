@@ -32,11 +32,11 @@ import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
 var webOSBridge = new WebOSServiceBridge();
-import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot } from "../../firebase";
+import { firebase, firebaseConfig, home_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
 let oldDB;  // DB 이전 상태와 비교하여 다르면 동작하도록 하기 위함
 let smarthome = "";
-let listendarkMode; 
+// let listendarkMode; 
 let uid;
 let mode = new Array(4);
 
@@ -87,10 +87,13 @@ async function getUIDB() {
 };
 
 if(pageNum == 1) getStoreDB();
+let home_dbRef;
 
 const Home = ({setDarkMode, darkMode}) => {
     const history = useHistory();
     const location = useLocation();
+
+    const [homeListen, setHomeListen]  = useState();
     
     const [name, setName] = useState();         // 로그인한 사용자 이름
     const [temp, setTemp] = useState();         // 스마트홈 센서 측정 온도
@@ -101,8 +104,8 @@ const Home = ({setDarkMode, darkMode}) => {
 
     const [indoorMode, setIndoorMode] = useState();     // 실내 모드 아이콘
     const [outdoorMode, setOutdoorMode] = useState();   // 외출 모드 아이콘
-    const [ecoMode, setEcoMode] = useState();           // 에코 모드 아이콘
     const [sleepMode, setSleepMode] = useState();       // 슬립 모드 아이콘
+    const [ecoMode, setEcoMode] = useState();           // 에코 모드 아이콘
     
     const [aircon, setAircon] = useState(); // 에어컨 아이콘
     const [light, setLight] = useState();   // 무드등 아이콘    
@@ -113,12 +116,16 @@ const Home = ({setDarkMode, darkMode}) => {
 
     useEffect(() => {
         console.log("[Home:useEffect] useEffect 실행");
+        //firebase.deleteApp();
+        //firebase.initializeApp(firebaseConfig);
+        home_dbRef = ref(home_db);
+        getHomeRTDB();
         // 초기값 설정
         pageNum = 1;
 
         uid = location.state.UID;  
-        getUIDB()
-            .then((res) => setDarkMode(res=="darkmode"?true:false));
+        //getUIDB()
+        //    .then((res) => setDarkMode(res=="darkmode"?true:false));
         //console.log("[Home:useEffect] listendarkMode :",listendarkMode);
         //setDarkMode(listendarkMode=="darkmode"?true:false);/////////////////////////////////////////
 
@@ -173,12 +180,13 @@ const Home = ({setDarkMode, darkMode}) => {
         if(Number(smarthome[0])>0){
             modeTurnOff();
             switch(Number(smarthome[0])-1) {
-                case 0 : setIndoorMode(true); break;
-                case 1 : setOutdoorMode(true); break;
-                case 2 : setSleepMode(true); break;
-                case 3 : setEcoMode(true); break;
+                case 0 : {setIndoorMode(true); break;}
+                case 1 : {setOutdoorMode(true); break;}
+                case 2 : {setSleepMode(true); break;}
+                case 3 : {setEcoMode(true); break;}
                 default : {
                     console.log("[Home:useEffect] Number(smarthome[0])-1 switch default :", Number(smarthome[0])-1);
+                    modeTurnOff();
                     break;
                 }
             };
@@ -186,14 +194,14 @@ const Home = ({setDarkMode, darkMode}) => {
         
         return() => {
             stopAssistant(); // 음성인식 종료
-            console.log("[Home:useEffect] pageNum :", pageNum);
+            //firebase.deleteApp(home_dbRef);
+            console.log("[Home:useEffect] 종료 pageNum :", pageNum);
         };
         
-    }, [location]);
+    }, []);
 
-    const getRTDB = () => {
-        const dbRef = ref(db);
-        onValue(dbRef, (snapshot) => {
+    const getHomeRTDB = () => {
+        onValue(home_dbRef, (snapshot) => {
             let data = snapshot.val();
 
             if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp && oldDB.server.notification == data.server.notification) {
@@ -205,18 +213,29 @@ const Home = ({setDarkMode, darkMode}) => {
                         createToast(data.server.notification);
                         tts(data.server.notification);
                     }
-                }
+                };
+                if(pageNum == 1) {
+                    console.log("[Home:listener] setUI 실행");
+                    //setUI(data);
+                    setHomeListen(data);///////////////////////////////////////////////////////////////////////////
+                };
                 oldDB = data;
-                setUI(data);
             };
         });
-    }
+    };
+
+    useEffect(() => {////////////////////////////////////////////////////////////////////////
+        console.log("[Home:homeListen useEffect]")
+        if(homeListen) {
+            console.log("[Home:homeListen useEffect] homeListen :", homeListen)
+            setUI(homeListen);
+        }
+    },[homeListen])
 
     if(pageNum == 1) {
-        getRTDB();
-        
-        getUIDB()
-            .then((res) => setDarkMode(res=="darkmode"?true:false));
+        getHomeRTDB();
+        //getUIDB()
+        //    .then((res) => setDarkMode(res=="darkmode"?true:false));
         // listendarkMode = getUIDB();
         // console.log("[Home:useEffect] listendarkMode :",listendarkMode);
         // setDarkMode(listendarkMode=="darkmode"?true:false);
@@ -230,9 +249,9 @@ const Home = ({setDarkMode, darkMode}) => {
             "keywordDetect":"true",
         };
 
-        console.log("[siginin:startAssistant] before startAssistant call");
+        console.log("[home:startAssistant] before startAssistant call");
         webOSBridge.call(url, JSON.stringify(params));
-        console.log("[siginin:startAssistant] after startAssistant call");
+        console.log("[home:startAssistant] after startAssistant call");
     };
 
     const GetState = () => {  // 음성인식 설정
@@ -242,9 +261,9 @@ const Home = ({setDarkMode, darkMode}) => {
             "subscribe": true
         };
 
-        console.log("[siginin:GetState] before GetState call");
+        console.log("[home:GetState] before GetState call");
         webOSBridge.call(url, JSON.stringify(params));
-        console.log("[siginin:GetState] after GetState call");
+        console.log("[home:GetState] after GetState call");
     };
 
     const stopAssistant = () => {  // 음성인식 설정
@@ -253,9 +272,9 @@ const Home = ({setDarkMode, darkMode}) => {
         let params = {
         };
 
-        console.log("[siginin:stopAssistant] before stopAssistant call");
+        console.log("[home:stopAssistant] before stopAssistant call");
         webOSBridge.call(url, JSON.stringify(params));
-        console.log("[siginin:stopAssistant] after stopAssistant call");
+        console.log("[home:stopAssistant] after stopAssistant call");
     };
     
     const tts = (ment) => {
@@ -272,7 +291,12 @@ const Home = ({setDarkMode, darkMode}) => {
     }
     
     
-    const setUI = (data) => {
+    let setUI = (data) => { ///////////////////////////////////////////////////////////////////////// const를 let으로 해볼까?
+        /* //////////////////////////////////////////////////////////////////////////////////////////// setState 사용에 문제가 있을수도 있다.
+        https://berkbach.com/setstate-%ED%8C%8C%ED%97%A4%EC%B9%98%EA%B8%B0-28b207fc81df
+        https://soldonii.tistory.com/103
+        https://soldonii.tistory.com/112
+        */
         console.log("[Home:setUI] 함수 실행 data :", data);
 
         let listenTemp = data.sensor.hometemp.temp;
@@ -303,14 +327,19 @@ const Home = ({setDarkMode, darkMode}) => {
         }
         if(Number(listenHome[1]) != 2) {
             let onOff = Number(listenHome[1])==1?true:false;
-            console.log("[Home:setUI] prevHome[0], onOff :",prevHome[0],",",onOff);
+            console.log("[Home:setUI aircon] prevHome[0], onOff :",prevHome[0],",",onOff);
             if(prevHome[0] != onOff) {
                 prevHome[0] = onOff;
                 setAircon(onOff);
+                /////////////////////////////////////////////////////////////////////////////////////////////////// setState가 비동기라는데 값을 확인해볼까?
+                console.log("[Home:setUI] aircon, onOff :",aircon,onOff);
+                /////////////////////////////////////////////////////////////////////////////////////////////////// 
+                //setAircon(() => onOff);
                 let comment = onOff ? "에어컨이 켜졌습니다" : "에어컨이 꺼졌습니다";
                 //createToast(comment);
                 tts(comment);
             };
+            console.log("[Home:setUI] aircon :",aircon);
         };
         if(Number(listenHome[3]) != 2) {
             let onOff = Number(listenHome[3])==1?true:false;
@@ -369,32 +398,26 @@ const Home = ({setDarkMode, darkMode}) => {
     };
 
     const onDoMode = (num) => {
-        modeTurnOff(); 
         getStoreDB();
-        console.log("[Home:onDoMode] num :", num);
-        //console.log("[Home:onDoMode] mode[num] :", mode[num]);
         modeTurnOff(); 
+        console.log("[Home:onDoMode] num :", num);
         switch (num) {
             case 0 : {
-                modeTurnOff();
                 setIndoorMode(indoorMode?false:true);
                 sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
                 break;
             }
             case 1 : {
-                modeTurnOff();
                 setOutdoorMode(outdoorMode?false:true);
                 sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
                 break;
             }
             case 2 : {
-                modeTurnOff();
                 setSleepMode(sleepMode?false:true);
                 sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
                 break;
             }
             case 3 : {
-                modeTurnOff();
                 setEcoMode(ecoMode?false:true);
                 sendMqtt("webos.topic", "webos.smarthome.info", mode[num]);
                 break;
@@ -409,10 +432,10 @@ const Home = ({setDarkMode, darkMode}) => {
 
     const onDoApplience = (num) => {
         console.log("[Home:onDoApplience] num :", num);
+        modeTurnOff();
         let command = "";
         switch(num) {
             case 0 : {
-                modeTurnOff();
                 if(aircon) {
                     setAircon(false);
                     command = "002222222";
@@ -425,7 +448,6 @@ const Home = ({setDarkMode, darkMode}) => {
                 break;
             };
             case 1 : {
-                modeTurnOff();
                 if(light) {
                     setLight(false);
                     command = "022022222";
@@ -438,7 +460,6 @@ const Home = ({setDarkMode, darkMode}) => {
                 break;
             };
             case 2 : {
-                modeTurnOff();
                 if(valve) {
                     setValve(false);
                     command = "022222220";
@@ -451,7 +472,6 @@ const Home = ({setDarkMode, darkMode}) => {
                 break;
             };
             case 3 : {
-                modeTurnOff();
                 if(window) {
                     setWindow(false);
                     command = "022222202";
@@ -528,7 +548,8 @@ const Home = ({setDarkMode, darkMode}) => {
             state: {
                 'name' : name,
                 'db' : oldDB,
-                'pageNum' : pageNum
+                'pageNum' : pageNum,
+                'UID' : uid
             }
         });
     };

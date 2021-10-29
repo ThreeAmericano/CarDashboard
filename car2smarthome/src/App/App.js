@@ -1,6 +1,6 @@
 //import React from 'react';
-import {HashRouter as Router, Redirect, Route, Switch} from "react-router-dom";
-import {useState } from "react";
+import { HashRouter as Router, Redirect, Route, Switch } from "react-router-dom";
+import { useState } from "react";
 
 import SignIn from "../views/SignIn/SignIn";			// 시작 시 사인인 페이지
 import SignUp from "../views/SignUp/SignUp";			// 회원가입 페이지
@@ -17,9 +17,9 @@ const App = function () {
 		<div style={{filter : darkMode ? 'invert(1)' : 'invert(0)'}}>
 			<Router>
 				<Switch>
-					<Route exact path="/" component={SignIn} />
+					<Route path="/" exact component={SignIn} />
 					<Route path="/sign-up" component={SignUp} />
-					<Route path="/home">
+					<Route path="/home" exact>
 						<Home darkMode={darkMode} setDarkMode={setDarkMode}/>
 					</Route>
 					<Route path="/mode">
@@ -28,7 +28,7 @@ const App = function () {
 					<Route path="/schedule">
 						<Schedule darkMode={darkMode} />
 					</Route>
-					<Route path="/appliance">
+					<Route path="/appliance" exact>
 						<Appliance darkMode={darkMode} />
 					</Route>
 					<Route path="/alarm">

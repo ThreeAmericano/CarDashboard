@@ -14,9 +14,10 @@ import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
 var webOSBridge = new WebOSServiceBridge();
-import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
+import { firebase, firebaseConfig, appl_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
-let name, oldDB, pageNum;
+let oldDB, pageNum, uid;
+let appl_dbRef;
 
 const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
     const history = useHistory();
@@ -24,6 +25,7 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
 
     let command = "";
 
+    const [name, setName] = useState();         // 로그인한 사용자 이름
     const [aircon, setAircon] = useState(false);
     const [light, setLight] = useState(false);
     const [valve, setValve] = useState(false);
@@ -35,29 +37,42 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
     const [lightMode, setlightMode] = useState(0);
 
     useEffect(() => {
-        pageNum = 5;
-        name = location.state.name;
+        console.log("[Appliance:useEffect] Appliance 페이지 실행");
+        setName(location.state.name);
         oldDB = location.state.db;
-        setUI(oldDB);
+        uid = location.state.UID;
+        firebase.deleteApp();
+        firebase.initializeApp(firebaseConfig);
+        appl_dbRef = ref(appl_db);
+        getApplRTDB();
+        pageNum = 5;
+        setAppliUI(oldDB);
+
+        return() => {
+            console.log("[Appliance:useEffect] 종료 pageNum :", pageNum);
+            /*firebase.deleteApp(home_dbRef);*/
+            pageNum = 1;
+        };
     }, []);
 
     const onGotoHome = () => {
         pageNum = 1;
-        history.replace({
+        history.push({
             pathname: '/home',
             state: {
                 'name' : name,
                 'db' : oldDB,
-                'pageNum' : 1
+                'pageNum' : 1,
+                'UID' : uid
             }
         });
     };
 
-    const setUI = (data) => {
-        console.log("[Appliance:setUI] 함수 실행 data :", data);
+    const setAppliUI = (data) => {
+        console.log("[Appliance:setAppliUI] 함수 실행 data :", data);
 
         let listenHome = data.smarthome.status;
-        console.log("[Appliance:setUI] listenHome :",listenHome);
+        console.log("[Appliance:setAppliUI] listenHome :",listenHome);
         
         if(Number(listenHome[1]) != 2) {
             setAircon(Number(listenHome[1])==1?true:false);
@@ -69,8 +84,8 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
             setWindow(Number(listenHome[7])==1?true:false);
         };
         if(Number(listenHome[8]) != 2) {
-            console.log("[Home:setUI] valve listenHome[8] :",listenHome[8]);
-            console.log("[Home:setUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
+            //console.log("[Appliance:setAppliUI] valve listenHome[8] :",listenHome[8]);
+            //console.log("[Appliance:setAppliUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
             setValve(Number(listenHome[8])==1?true:false);
         };
 
@@ -79,7 +94,7 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
         setlightColor(Number(listenHome[5]));
         setlightMode(Number(listenHome[6]))
 
-        console.log("[Home:setUI] 함수 종료");
+        console.log("[Appliance:setAppliUI] 함수 종료");
     };
 
     const onDoApplience = () => {
@@ -110,25 +125,27 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
     
         console.log("[Home:sendMqtt] sendMqtt function end");
     };
-
-    if(pageNum == 5) {
-        try { 
-            const dbRef = ref(db);
-            onValue(dbRef, (snapshot) => {
-                let data = snapshot.val();
     
-                if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
-                    console.log("[Appliance:listener] 변화 없음");
-                } else {
-                    console.log("[Appliance:listener] 변화 있음");
-                    setUI(data);
-                    oldDB = data;
+    const getApplRTDB = () => {
+        onValue(appl_dbRef, (snapshot) => {
+            let data = snapshot.val();
+
+            if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp) {
+                console.log("[Appliance:listener] 변화 없음");
+            } else {
+                console.log("[Appliance:listener] 변화 있음");
+                if(pageNum == 5) {
+                    console.log("[Appliance:listener] setAppliUI 실행");
+                    oldDB = data;  
+                    setAppliUI(data);
                 };
-            });
-        } catch (e) {
-            console.log("[Appliance:rtdb listener] error :", e);   
-        };
+            };
+        });
     };
+    /*if(pageNum == 5) {
+        getApplRTDB();
+    }*/
+      
     
     return(
         <div className="appliance-setting">
