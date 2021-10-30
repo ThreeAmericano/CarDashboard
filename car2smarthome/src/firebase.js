@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as firebase from "firebase/app";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { getFirestore, doc, getDocs, onSnapshot, collection, setDoc, deleteDoc } from "firebase/firestore";

@@ -14,7 +14,7 @@ import "./SignIn.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
-const SignIn = () => {
+const SignIn = ({setName, setUid, setOldDB}) => {
     // 로그인 페이지
     const history = useHistory();   // 페이지 이동에 사용된다.
     const [email, setEmail] = useState("");
@@ -52,11 +52,16 @@ const SignIn = () => {
             } catch(e) {
                 console.log("[SignIn:checkInternet callback] response :", response);
                 console.log("[SignIn:checkInternet callback] response.result :", response.result);
-                try {                    
+                try { // DB 로그인 시 콜백
                     console.log("[SignIn:checkInternet callback] dbResult :", dbResult);
                     console.log("[SignIn:checkInternet callback] dbResult :", dbResult[0]);
                     tts(String(dbResult[0].name)+"님 안녕하세요");
-
+                    /////////////////////////////////////////////////////////////////////////////////
+                    setName(dbResult[0].name);
+                    setUid(dbResult[0].UID);
+                    setOldDB(dbResult[0].db);
+                    history.push('/home');
+                    /*
                     history.push({
                         pathname: '/home',
                         state: {
@@ -66,6 +71,7 @@ const SignIn = () => {
                             'UID' : dbResult[0].UID
                         }
                     });
+                    */
                 } catch (e) {
                     console.log("[SignIn callback] e :", e);
                 }
@@ -128,6 +134,12 @@ const SignIn = () => {
                                 //internetConnection = true;
                                 putUserData(email, password, name, returnValue.db, returnValue.UID);
                                 tts(String(name)+"님 안녕하세요");
+                                ///////////////////////////////////////////////////////////////////////////////////
+                                setName(name);
+                                setUid(returnValue.UID);
+                                setOldDB(returnValue.db);
+                                history.push('/home');
+                                /*
                                 history.push({
                                     pathname: '/home',
                                     state: {
@@ -137,6 +149,7 @@ const SignIn = () => {
                                         'pageNum' : 1
                                     }
                                 });
+                                */
                                 return null;
                             };
                         } catch(e) {
@@ -205,6 +218,12 @@ const SignIn = () => {
                             createToast("로그인 실패");
                         } else {
                             tts(String(name)+"님 안녕하세요");
+                            /////////////////////////////////////////////////////////////////////////////////
+                            setName(name);
+                            setUid(returnValue.UID);
+                            setOldDB(returnValue.db);
+                            history.push('/home');
+                            /*
                             history.push({
                                 pathname: '/home',
                                 state: {
@@ -213,6 +232,7 @@ const SignIn = () => {
                                     'pageNum' : 1
                                 }
                             });
+                            */
                         };
                         return null;
                     } catch(e) {

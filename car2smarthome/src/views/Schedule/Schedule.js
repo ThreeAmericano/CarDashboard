@@ -45,15 +45,15 @@ async function getStoreDB() {
     };
 };
 
-if(pageNum == 3) getStoreDB();
+//if(pageNum == 3) getStoreDB();
 
 const Schedule = ({darkMode}) => {
     const history = useHistory();
     const location = useLocation();
-
+/*
     const name = location.state.name;
     const oldDB = location.state.db;
-
+*/
     const [checkMyProfile, setCheckMyProfile] = useState(false);
 
     const [addDocName, setAddDocName] = useState(); //useState(""); 하면 글자 안써짐
@@ -114,7 +114,9 @@ const Schedule = ({darkMode}) => {
 
     const onGotoHome = () => {
         pageNum = 1;
-        history.replace({
+        history.goBack()
+        /*
+        history.push({
             pathname: '/home',
             state: {
                 'name' : name,
@@ -122,6 +124,7 @@ const Schedule = ({darkMode}) => {
                 'pageNum' : 1
             }
         });
+        */
     };
     
     const setScheduleUI = () => {

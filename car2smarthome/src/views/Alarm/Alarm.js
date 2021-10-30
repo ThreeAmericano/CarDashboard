@@ -41,16 +41,16 @@ async function getStoreDB() {
     };
 };
 
-if(pageNum == 4) getStoreDB();
+//if(pageNum == 4) getStoreDB();
 
 const Alarm = ({setDarkMode, darkMode}) => {
     const history = useHistory();
     const location = useLocation();
-
+/*
     const name = location.state.name;
     const oldDB = location.state.db;
     const uid = location.state.UID; 
-    
+*/
     const [alarm, setAlarm] = useState('');//알람 테이블
 
     let alarmList;
@@ -66,7 +66,9 @@ const Alarm = ({setDarkMode, darkMode}) => {
 
     const onGotoHome = () => {
         pageNum = 1;
-        history.replace({
+        history.goBack();
+        /*
+        history.push({
             pathname: '/home',
             state: {
                 'name' : name,
@@ -74,6 +76,7 @@ const Alarm = ({setDarkMode, darkMode}) => {
                 'pageNum' : 1
             }
         });
+        */
     };
 
     const displayIcon = (num) => {

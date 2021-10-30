@@ -34,13 +34,17 @@ import windowIcon from '../../../resources/smarthome_icon/window.png';
 var webOSBridge = new WebOSServiceBridge();
 import { firebase, firebaseConfig, home_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
-let oldDB;  // DB 이전 상태와 비교하여 다르면 동작하도록 하기 위함
+//let oldDB;  
 let smarthome = "";
 // let listendarkMode; 
 let uid;
 let mode = new Array(4);
 
 let pageNum = 0;
+let ttsCheck = false;
+let prevCallBackMsg = ''
+let prevDB;
+let prevMent;
 
 async function getStoreDB() {
     try {
@@ -72,30 +76,23 @@ async function getUIDB() {
     try {
         let i = 0;
 
-        console.log("[Home:store UI start]")
+        console.log("[Home:getUIDB UI start]")
         const querySnapshot = await getDocs(collection(storeDB,"uiux_preset"));
         querySnapshot.forEach((doc) => {
             if(String(doc.id) == String(uid)){
-                console.log("[Home:store UI listener]", doc.id, " => ", doc.data());
+                console.log("[Home:getUIDB UI listener]", doc.id, " => ", doc.data());
                 //listendarkMode = doc.data();
                 return doc.data();
             }
         });
     } catch(e) {
-        console.log("[Home:getStoreDB] error : ", e);
+        console.log("[Home:getUIDB] error : ", e);
     };
 };
 
-if(pageNum == 1) getStoreDB();
-let home_dbRef;
-
-const Home = ({setDarkMode, darkMode}) => {
+const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
     const history = useHistory();
-    const location = useLocation();
-
-    const [homeListen, setHomeListen]  = useState();
     
-    const [name, setName] = useState();         // 로그인한 사용자 이름
     const [temp, setTemp] = useState();         // 스마트홈 센서 측정 온도
     const [humi, setHumi] = useState();         // 스마트홈 센서 측정 습도
     const [weather, setWeather] = useState();   // Open Weather Map API 날씨 정보
@@ -112,47 +109,51 @@ const Home = ({setDarkMode, darkMode}) => {
     const [valve, setValve] = useState();   // 가스밸브 아이콘
     const [window, setWindow] = useState(); // 창문 아이콘
 
-    let prevHome = [false, false, false, false];    // 가전 이전 상태
+    let prevHome = [false, false, false, false];    // 가전 이전 on/off 상태 [에어컨, 무드등, 창문, 가스밸브]
 
     useEffect(() => {
-        console.log("[Home:useEffect] useEffect 실행");
+        console.log("[Home:useEffect] useEffect 실행 asdfasdfasfd");
         //firebase.deleteApp();
         //firebase.initializeApp(firebaseConfig);
-        home_dbRef = ref(home_db);
-        getHomeRTDB();
         // 초기값 설정
-        pageNum = 1;
+        pageNum = 1;        
+        
+        console.log("[Home:useEffect] serviceCheck :",serviceCheck);
+        if(serviceCheck==0) {
+            webOSBridge.onservicecallback = serviceCallback;
+        }
+        setServiceCheck(serviceCheck => serviceCheck+1);
 
-        uid = location.state.UID;  
+        prevDB = oldDB;
+        getHomeRTDB();
+        console.log("[Home:useEffect] oldDB :",oldDB);
+
         //getUIDB()
         //    .then((res) => setDarkMode(res=="darkmode"?true:false));
         //console.log("[Home:useEffect] listendarkMode :",listendarkMode);
         //setDarkMode(listendarkMode=="darkmode"?true:false);/////////////////////////////////////////
+        //print("[Home:useEffect] webOSBridge.onservicecallback :",webOSBridge.onservicecallback);
+
 
         stopAssistant();    // 음성인식 설정
         startAssistant();
         GetState();
         
-        setName(location.state.name);
-        
-        oldDB = location.state.db;  
-        console.log("[Home:useEffect] oldDB :",oldDB);
+        setTemp(oldDB.sensor.hometemp.temp);
+        setHumi(oldDB.sensor.hometemp.humi);
+        setW_icon(oldDB.sensor.openweather.icon.substring(0,2));
+        setWeather(oldDB.sensor.openweather.description+", "+oldDB.sensor.openweather.temp+"°C");
 
-        setTemp(location.state.db.sensor.hometemp.temp);
-        setHumi(location.state.db.sensor.hometemp.humi);
-        setW_icon(location.state.db.sensor.openweather.icon.substring(0,2));
-        setWeather(location.state.db.sensor.openweather.description+", "+location.state.db.sensor.openweather.temp+"°C")
-
-        smarthome = location.state.db.smarthome.status;
-
-        switch(location.state.db.sensor.openweather.air_level) {
+        switch(oldDB.sensor.openweather.air_level) {
             case 1 : setDust("매우 좋음"); break;
             case 2 : setDust("좋음"); break;
             case 3 : setDust("보통"); break;
             case 4 : setDust("나쁨"); break;
             case 5 : setDust("매우 나쁨"); break;
             default : break;
-        }
+        };
+
+        smarthome = oldDB.smarthome.status;
 
         if(Number(smarthome[1]) < 2) {
             setAircon(Number(smarthome[1])?true:false);
@@ -169,7 +170,7 @@ const Home = ({setDarkMode, darkMode}) => {
         if(Number(smarthome[8]) < 2) {
             //setValve(Number(smarthome[8])?true:false);
             prevHome[3] = (Number(smarthome[8]))?true:false;
-            if(Number(smarthome[8])) {
+            if(Number(smarthome[8])==1) {
                 setValve(true);
                 createToast("가스밸브가 잠기지 않았습니다.")                
             } else {
@@ -201,46 +202,42 @@ const Home = ({setDarkMode, darkMode}) => {
     }, []);
 
     const getHomeRTDB = () => {
+        const home_dbRef = ref(home_db);
         onValue(home_dbRef, (snapshot) => {
             let data = snapshot.val();
 
-            if(oldDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp && oldDB.server.notification == data.server.notification) {
+            if(prevDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp && oldDB.server.notification == data.server.notification) {
                 console.log("[Home:listener] 변화 없음");
             } else {
                 console.log("[Home:listener] 변화 있음");
+                ttsCheck = false;
                 if(oldDB.server.notification != data.server.notification) {
                     if(data.server.notification != "none") {
                         createToast(data.server.notification);
                         tts(data.server.notification);
+                        ttsCheck = false;
                     }
                 };
                 if(pageNum == 1) {
                     console.log("[Home:listener] setUI 실행");
-                    //setUI(data);
-                    setHomeListen(data);///////////////////////////////////////////////////////////////////////////
+                    setUI(data);
+                    prevDB = data;
+                    
                 };
-                oldDB = data;
+                prevDB = data;
+                setOldDB(data);
             };
         });
     };
-
-    useEffect(() => {////////////////////////////////////////////////////////////////////////
-        console.log("[Home:homeListen useEffect]")
-        if(homeListen) {
-            console.log("[Home:homeListen useEffect] homeListen :", homeListen)
-            setUI(homeListen);
-        }
-    },[homeListen])
-
+/*
     if(pageNum == 1) {
-        getHomeRTDB();
         //getUIDB()
         //    .then((res) => setDarkMode(res=="darkmode"?true:false));
         // listendarkMode = getUIDB();
         // console.log("[Home:useEffect] listendarkMode :",listendarkMode);
         // setDarkMode(listendarkMode=="darkmode"?true:false);
     };
-
+*/
     const startAssistant = () => {  // 음성인식 설정
         let url = 'luna://com.webos.service.ai.voice/start';
 
@@ -278,25 +275,29 @@ const Home = ({setDarkMode, darkMode}) => {
     };
     
     const tts = (ment) => {
-        console.log("[Home:tts] ment :", ment);
+        if(prevMent == ment) {
+            console.log("[Home:tts] 같은 문구");
+        } else {
+            console.log("[Home:tts] ment :", ment);
     
-        var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
-        var params = {
-            "text": ment, 
-            "language": "ko-KR", 
-            "clear":false
+            var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
+            var params = {
+                "text": ment, 
+                "language": "ko-KR", 
+                "clear":false
+            };
+              
+            if(ttsCheck == false) {
+                console.log("[Home:tts] ttsCheck == false");
+                webOSBridge.call(url, JSON.stringify(params));
+                ttsCheck = true;
+            };
+
+            prevMent = ment;
         };
-          
-        webOSBridge.call(url, JSON.stringify(params));
-    }
+    };
     
-    
-    let setUI = (data) => { ///////////////////////////////////////////////////////////////////////// const를 let으로 해볼까?
-        /* //////////////////////////////////////////////////////////////////////////////////////////// setState 사용에 문제가 있을수도 있다.
-        https://berkbach.com/setstate-%ED%8C%8C%ED%97%A4%EC%B9%98%EA%B8%B0-28b207fc81df
-        https://soldonii.tistory.com/103
-        https://soldonii.tistory.com/112
-        */
+    let setUI = (data) => {
         console.log("[Home:setUI] 함수 실행 data :", data);
 
         let listenTemp = data.sensor.hometemp.temp;
@@ -331,15 +332,11 @@ const Home = ({setDarkMode, darkMode}) => {
             if(prevHome[0] != onOff) {
                 prevHome[0] = onOff;
                 setAircon(onOff);
-                /////////////////////////////////////////////////////////////////////////////////////////////////// setState가 비동기라는데 값을 확인해볼까?
-                console.log("[Home:setUI] aircon, onOff :",aircon,onOff);
-                /////////////////////////////////////////////////////////////////////////////////////////////////// 
-                //setAircon(() => onOff);
                 let comment = onOff ? "에어컨이 켜졌습니다" : "에어컨이 꺼졌습니다";
                 //createToast(comment);
-                tts(comment);
+                //if(Number(listenHome[0])==0 && ) tts(comment);
+                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
             };
-            console.log("[Home:setUI] aircon :",aircon);
         };
         if(Number(listenHome[3]) != 2) {
             let onOff = Number(listenHome[3])==1?true:false;
@@ -349,7 +346,8 @@ const Home = ({setDarkMode, darkMode}) => {
                 setLight(onOff);
                 let comment = (onOff) ? "무드등이 켜졌습니다" : "무드등이 꺼졌습니다";
                 //createToast(comment);
-                tts(comment);
+                //if(Number(listenHome[0])==0) tts(comment);
+                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[7]) != 2) {
@@ -360,7 +358,8 @@ const Home = ({setDarkMode, darkMode}) => {
                 setWindow(onOff);
                 let comment = (onOff) ? "창문이 열렸습니다" : "창문이 닫혔습니다";
                 //createToast(comment);
-                tts(comment);
+                //if(Number(listenHome[0])==0) tts(comment);
+                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[8]) != 2) {
@@ -371,20 +370,46 @@ const Home = ({setDarkMode, darkMode}) => {
                 setValve(onOff);
                 let comment = (onOff) ? "가스밸브가 열렸습니다" : "가스밸브가 닫혔습니다";
                 //createToast(comment);
-                tts(comment);
+                //if(Number(listenHome[0])==0) tts(comment);
+                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[0])>0){
-            modeTurnOff();
-            switch(Number(listenHome[0])-1) {
-                case 0 : {setIndoorMode(true); break;}
-                case 1 : {setOutdoorMode(true); break;}
-                case 2 : {setSleepMode(true); break;}
-                case 3 : {setEcoMode(true); break;}
-                default : {modeTurnOff(); break;}
+            let prevMode = 0;
+
+            if(indoorMode) prevMode = 1;
+            else if(outdoorMode) prevMode = 2;
+            else if(sleepMode) prevMode = 3;
+            else if(ecoMode) prevMode = 4;
+            else prevMode = 0;
+            
+            if(Number(listenHome[0]) != prevMode) {
+                modeTurnOff();
+                switch(Number(listenHome[0])-1) {
+                    case 0 : {
+                        setIndoorMode(true); 
+                        if(prevDB != data) tts("실내모드가 실행되었습니다.")
+                        break;
+                    }
+                    case 1 : {
+                        setOutdoorMode(true);
+                        if(prevDB != data) tts("외출모드가 실행되었습니다.")
+                        break;
+                    }
+                    case 2 : {
+                        setSleepMode(true); 
+                        if(prevDB != data) tts("슬립모드가 실행되었습니다.")
+                        break;
+                    }
+                    case 3 : {
+                        setEcoMode(true); 
+                        if(prevDB != data) tts("에코모드가 실행되었습니다.")
+                        break;
+                    }
+                    default : {modeTurnOff(); break;}
+                }
             }
         } else {
-            onDoMode(4);
             modeTurnOff();
         } 
         console.log("[Home:setUI] 함수 종료");
@@ -490,13 +515,17 @@ const Home = ({setDarkMode, darkMode}) => {
     const onGotoSignin = () => {
         console.log("[Home:onGotoSignin] 뒤로 돌아가기");
         pageNum = 0;
-        history.replace('/');
+        history.goBack();
     }
 
     const onGotoMode = () => {
         console.log("[Home:onGotoMode] 모드 설정 페이지");
         pageNum = 2;
         //모드 설정 페이지
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        history.push('/mode');
+        /*
         history.push({
             pathname: '/mode',
             state: {
@@ -505,12 +534,17 @@ const Home = ({setDarkMode, darkMode}) => {
                 'pageNum' : pageNum
             }
         });
+        */
     }
 
     const onGotoSchedule = () => {
         console.log("[Home:onGotoSchedule] 스케줄 설정 페이지");
         pageNum = 3;
         //스케줄 설정 페이지
+        
+        ////////////////////////////////////////////////////////////////////////////////////
+        history.push('/schedule');
+        /*
         history.push({
             pathname: '/schedule',
             state: {
@@ -519,13 +553,17 @@ const Home = ({setDarkMode, darkMode}) => {
                 'pageNum' : pageNum
             }
         });
+        */
     }
 
     const onGotoSetting = () => {
         console.log("[Home:onGotoSetting] 다크모드 설정 + 알람 페이지");
 
         pageNum = 4;
-        //스케줄 설정 페이지
+        //스케줄 설정 페이지        
+        ////////////////////////////////////////////////////////////////////////////////////
+        history.push('/alarm');
+        /*
         history.push({
             pathname: '/alarm',
             state: {
@@ -535,6 +573,7 @@ const Home = ({setDarkMode, darkMode}) => {
                 'UID' : uid
             }
         });
+        */
     }
 
     const onGotoAppliance = () => {
@@ -543,6 +582,9 @@ const Home = ({setDarkMode, darkMode}) => {
 
         pageNum = 5;
         //스케줄 설정 페이지
+        ////////////////////////////////////////////////////////////////////////////////////
+        history.push('/appliance');
+        /*
         history.push({
             pathname: '/appliance',
             state: {
@@ -552,6 +594,7 @@ const Home = ({setDarkMode, darkMode}) => {
                 'UID' : uid
             }
         });
+        */
     };
     
     const sendMqtt = (exchange, routingKey, msg) => {
@@ -578,22 +621,26 @@ const Home = ({setDarkMode, darkMode}) => {
             "message":String(ment)
         };
         webOSBridge.call(url, JSON.stringify(params));
-        
-        webOSBridge.onservicecallback = serviceCallback;
-        function serviceCallback(msg){
-            try {
+    };
+
+    function serviceCallback(msg){
+
+        var response = JSON.parse(msg);
+        console.log("[Home:callback] response :", response);
+        try {
+            if(response != prevCallBackMsg && response.language != prevCallBackMsg.language) {
                 if(response.provider == "googleassistant") {
                     console.log("before-parse-response");
-                    var response = JSON.parse(msg);
                     console.log(response);
+                    prevCallBackMsg = response;
                     return null;
                 }
-            } catch (e) {
-                var response = JSON.parse(msg); 
-                console.log("[Home:callback] response :", response);
-            };            
-        };        
-    };
+            }
+        } catch (e) {
+            console.log("[Home:callback] err :", e);
+            prevCallBackMsg = response;
+        };   
+    };  
     
     return(
         <div className="home">

@@ -42,15 +42,11 @@ async function getStoreDB() {
     }
 };
 
-if(pageNum == 2) getStoreDB();
+//if(pageNum == 2) getStoreDB();
 
 const Mode = ({darkMode}) => {
     const history = useHistory();
-    const location = useLocation();
-
-    const name = location.state.name;
-    const oldDB = location.state.db;
-
+    
     const [modeNum, setModeNum] = useState();
     const [modeName, setModeName] = useState();
     const [indoorMode, setIndoorMode] = useState();
@@ -77,7 +73,10 @@ const Mode = ({darkMode}) => {
 
     const onGotoHome = () => {
         pageNum = 1;
-        history.replace({
+        /////////////////////////////////////////////////////////////////
+        history.goBack();
+        /*
+        history.push({
             pathname: '/home',
             state: {
                 'name' : name,
@@ -85,6 +84,7 @@ const Mode = ({darkMode}) => {
                 'pageNum' : 1
             }
         });
+        */
     };
 
     const onSelectMode = (num) => {

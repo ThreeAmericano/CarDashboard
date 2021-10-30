@@ -16,16 +16,13 @@ import windowIcon from '../../../resources/smarthome_icon/window.png';
 var webOSBridge = new WebOSServiceBridge();
 import { firebase, firebaseConfig, appl_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
-let oldDB, pageNum, uid;
-let appl_dbRef;
+let pageNum;
 
-const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
+const Appliance = ({darkMode, oldDB, setOldDB}) => {   // 가전 상세 제어 페이지
     const history = useHistory();
-    const location = useLocation();
 
     let command = "";
 
-    const [name, setName] = useState();         // 로그인한 사용자 이름
     const [aircon, setAircon] = useState(false);
     const [light, setLight] = useState(false);
     const [valve, setValve] = useState(false);
@@ -38,12 +35,9 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
 
     useEffect(() => {
         console.log("[Appliance:useEffect] Appliance 페이지 실행");
-        setName(location.state.name);
-        oldDB = location.state.db;
-        uid = location.state.UID;
-        firebase.deleteApp();
-        firebase.initializeApp(firebaseConfig);
-        appl_dbRef = ref(appl_db);
+
+        //firebase.deleteApp();
+        //firebase.initializeApp(firebaseConfig);
         getApplRTDB();
         pageNum = 5;
         setAppliUI(oldDB);
@@ -57,6 +51,9 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
 
     const onGotoHome = () => {
         pageNum = 1;
+        ///////////////////////////////////////////////////
+        history.goBack();
+        /*
         history.push({
             pathname: '/home',
             state: {
@@ -65,7 +62,7 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
                 'pageNum' : 1,
                 'UID' : uid
             }
-        });
+        });*/
     };
 
     const setAppliUI = (data) => {
@@ -127,6 +124,7 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
     };
     
     const getApplRTDB = () => {
+        const appl_dbRef = ref(appl_db);
         onValue(appl_dbRef, (snapshot) => {
             let data = snapshot.val();
 
@@ -136,7 +134,7 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
                 console.log("[Appliance:listener] 변화 있음");
                 if(pageNum == 5) {
                     console.log("[Appliance:listener] setAppliUI 실행");
-                    oldDB = data;  
+                    setOldDB(data);  
                     setAppliUI(data);
                 };
             };
@@ -275,33 +273,33 @@ const Appliance = ({darkMode}) => {   // 가전 상세 제어 페이지
                                 <div>
                                     <div className ="color-selection" style={{filter : darkMode ? 'invert(1)' : 'invert(0)'}}>
                                         <span>색 선택</span><br/>
-                                        <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
-                                        <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
-                                        <input type="radio" className="color-blue"  name="color-select" value="3" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==3?"checked":""}/>
-                                        <input type="radio" className="color-green"  name="color-select" value="4" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==4?"checked":""}/>
+                                        <input type="radio" className="color-white" name="color-select" value="0" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==0?"checked":""}/>
+                                        <input type="radio" className="color-red"  name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
+                                        <input type="radio" className="color-blue"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
+                                        <input type="radio" className="color-green"  name="color-select" value="3" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==3?"checked":""}/>
                                         <br/>
-                                        <input type="radio" className="color-yellow"  name="color-select" value="5" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==5?"checked":""}/>
-                                        <input type="radio" className="color-purple"  name="color-select" value="6" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==6?"checked":""}/>
-                                        <input type="radio" className="color-orange"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
-                                        <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
+                                        <input type="radio" className="color-yellow"  name="color-select" value="4" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==4?"checked":""}/>
+                                        <input type="radio" className="color-purple"  name="color-select" value="5" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==5?"checked":""}/>
+                                        <input type="radio" className="color-orange"  name="color-select" value="6" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==6?"checked":""}/>
+                                        <input type="radio" className="color-skyblue"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
                                     </div>
                                     <div className ="mode-selection">
                                         <span>모드 선택</span><br/>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="0" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="0" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==0?"checked":""}/>
                                             <span>일반모드</span> 
                                         </label>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
                                             <span>슬립모드</span> 
                                         </label>
                                         <br/>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
-                                            <span>파티모드</span> 
+                                            <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                            <span>안내모드</span> 
                                         </label>
                                         <label className="label-lightmode-radio">
-                                            <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
+                                            <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
                                             <span>트리모드</span> 
                                         </label>
                                     </div>
