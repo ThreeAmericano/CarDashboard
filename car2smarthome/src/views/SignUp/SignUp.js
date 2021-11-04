@@ -87,7 +87,7 @@ const SignUp = () => {
     }
 
     const onGotoSignIn = () => {
-        history.replace('/');
+        history.goBack();
     }
 
     return(

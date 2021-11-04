@@ -65,13 +65,13 @@ async function sendMqttFunc(exchange, routingKey, msg) {        // MQTT 송신 �
         channel.publish(exchange, routingKey, Buffer.from(msg));// Exchange의 RoutingKey로 msg 송신
 
         console.log("[Service]  [x] Sent %s:'%s'", routingKey, msg);
-
+/*
         setTimeout(() => {                                      // timeout 되면 채널과 연결 닫음
             console.log("[Service:sendMqttFunc] tiemout");
             channel.close();
             connection.close();
         }, 2000);
-
+*/
         console.log("[Service] send MQTT end");
     } catch(e) {
         console.log("[Service:sendMqttFunc] error : ", e);

@@ -31,13 +31,12 @@ import lightIcon from '../../../resources/smarthome_icon/light.png';
 import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
-var webOSBridge = new WebOSServiceBridge();
+var webOSBridgeHome;
 import { firebase, firebaseConfig, home_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
 
 //let oldDB;  
 let smarthome = "";
 // let listendarkMode; 
-let uid;
 let mode = new Array(4);
 
 let pageNum = 0;
@@ -72,6 +71,27 @@ async function getStoreDB() {
     };
 };
 
+async function getUIDB(uidparam) {
+    try {
+        let uiMode ='';
+
+        console.log("[Home:getUIDB UI start]");
+        const querySnapshot = await getDocs(collection(storeDB,"uiux_preset"));
+        console.log("[Home:getUIDB] querySnapshot :",querySnapshot);
+        querySnapshot.forEach((doc) => {
+            if(String(doc.id) == String(uidparam)){
+                //console.log("[Home:getUIDB UI listener]", doc.id, " => ", doc.data());
+                //listendarkMode = doc.data();
+                console.log("[Home:getUIDB doc.data().ui_mode :", doc.data().ui_mode);
+                uiMode = doc.data().ui_mode;
+            }
+        });
+        return uiMode;
+    } catch(e) {
+        console.log("[Home:getUIDB] error : ", e);
+    };
+};
+/*
 async function getUIDB() {
     try {
         let i = 0;
@@ -89,8 +109,8 @@ async function getUIDB() {
         console.log("[Home:getUIDB] error : ", e);
     };
 };
-
-const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
+*/
+const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDarkMode}) => {
     const history = useHistory();
     
     const [temp, setTemp] = useState();         // 스마트홈 센서 측정 온도
@@ -112,7 +132,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
     let prevHome = [false, false, false, false];    // 가전 이전 on/off 상태 [에어컨, 무드등, 창문, 가스밸브]
 
     useEffect(() => {
-        console.log("[Home:useEffect] useEffect 실행 asdfasdfasfd");
+        console.log("[Home:useEffect] useEffect 실행");
         //firebase.deleteApp();
         //firebase.initializeApp(firebaseConfig);
         // 초기값 설정
@@ -120,7 +140,8 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         
         console.log("[Home:useEffect] serviceCheck :",serviceCheck);
         if(serviceCheck==0) {
-            webOSBridge.onservicecallback = serviceCallback;
+            webOSBridgeHome = new WebOSServiceBridge();
+            webOSBridgeHome.onservicecallback = serviceCallbackHome;
         }
         setServiceCheck(serviceCheck => serviceCheck+1);
 
@@ -128,12 +149,11 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         getHomeRTDB();
         console.log("[Home:useEffect] oldDB :",oldDB);
 
-        //getUIDB()
-        //    .then((res) => setDarkMode(res=="darkmode"?true:false));
-        //console.log("[Home:useEffect] listendarkMode :",listendarkMode);
-        //setDarkMode(listendarkMode=="darkmode"?true:false);/////////////////////////////////////////
-        //print("[Home:useEffect] webOSBridge.onservicecallback :",webOSBridge.onservicecallback);
-
+        getUIDB(uid)
+            .then((res) => {
+                console.log("[Home:useEffect] getUIDB :",res);
+                setDarkMode(res=="darkmode"?true:false)
+            });
 
         stopAssistant();    // 음성인식 설정
         startAssistant();
@@ -193,6 +213,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
             };
         } else modeTurnOff();
         
+        
         return() => {
             stopAssistant(); // 음성인식 종료
             //firebase.deleteApp(home_dbRef);
@@ -206,7 +227,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         onValue(home_dbRef, (snapshot) => {
             let data = snapshot.val();
 
-            if(prevDB.smarthome.status == data.smarthome.status && oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp && oldDB.server.notification == data.server.notification) {
+            if(prevDB.smarthome.status == data.smarthome.status && oldDB.server.notification == data.server.notification) { //&& oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp &&
                 console.log("[Home:listener] 변화 없음");
             } else {
                 console.log("[Home:listener] 변화 있음");
@@ -221,10 +242,10 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
                 if(pageNum == 1) {
                     console.log("[Home:listener] setUI 실행");
                     setUI(data);
-                    prevDB = data;
+                    //prevDB = data;
                     
                 };
-                prevDB = data;
+                //prevDB = data;
                 setOldDB(data);
             };
         });
@@ -238,6 +259,8 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         // setDarkMode(listendarkMode=="darkmode"?true:false);
     };
 */
+    
+
     const startAssistant = () => {  // 음성인식 설정
         let url = 'luna://com.webos.service.ai.voice/start';
 
@@ -247,7 +270,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         };
 
         console.log("[home:startAssistant] before startAssistant call");
-        webOSBridge.call(url, JSON.stringify(params));
+        webOSBridgeHome.call(url, JSON.stringify(params));
         console.log("[home:startAssistant] after startAssistant call");
     };
 
@@ -259,7 +282,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         };
 
         console.log("[home:GetState] before GetState call");
-        webOSBridge.call(url, JSON.stringify(params));
+        webOSBridgeHome.call(url, JSON.stringify(params));
         console.log("[home:GetState] after GetState call");
     };
 
@@ -270,7 +293,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         };
 
         console.log("[home:stopAssistant] before stopAssistant call");
-        webOSBridge.call(url, JSON.stringify(params));
+        webOSBridgeHome.call(url, JSON.stringify(params));
         console.log("[home:stopAssistant] after stopAssistant call");
     };
     
@@ -289,7 +312,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
               
             if(ttsCheck == false) {
                 console.log("[Home:tts] ttsCheck == false");
-                webOSBridge.call(url, JSON.stringify(params));
+                webOSBridgeHome.call(url, JSON.stringify(params));
                 ttsCheck = true;
             };
 
@@ -412,6 +435,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         } else {
             modeTurnOff();
         } 
+        prevDB = data;
         console.log("[Home:setUI] 함수 종료");
     };
 
@@ -607,7 +631,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
             "msg":msg        
         });
       
-        webOSBridge.call(url, params); 
+        webOSBridgeHome.call(url, params); 
     
         console.log("[Home:sendMqtt] sendMqtt function end");
     };
@@ -620,11 +644,10 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
             "sourceId":"com.ta.car2smarthome",
             "message":String(ment)
         };
-        webOSBridge.call(url, JSON.stringify(params));
+        webOSBridgeHome.call(url, JSON.stringify(params));
     };
 
-    function serviceCallback(msg){
-
+    function serviceCallbackHome(msg){
         var response = JSON.parse(msg);
         console.log("[Home:callback] response :", response);
         try {
@@ -886,7 +909,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
                                         </button>
                                     </td>
                                     <td>
-                                        <button className="button" onClick={() => getUIDB()}>
+                                        <button className="button" >
                                             ㅁ
                                         </button>
                                     </td>
@@ -899,5 +922,5 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck}) => {
         </div>
     );
 }
-
+//onClick={() => getUIDB(uid)}
 export default Home;

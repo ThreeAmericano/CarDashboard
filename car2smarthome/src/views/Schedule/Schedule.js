@@ -577,15 +577,15 @@ const Schedule = ({darkMode}) => {
                                 <br/>
                                 <div style={{filter : darkMode ? 'invert(1)' : 'invert(0)'}}>
                                     <span>색 선택</span><br/>
-                                    <input type="radio" className="color-white" name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
-                                    <input type="radio" className="color-red"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
-                                    <input type="radio" className="color-blue"  name="color-select" value="3" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==3?"checked":""}/>
-                                    <input type="radio" className="color-green"  name="color-select" value="4" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==4?"checked":""}/>
+                                    <input type="radio" className="color-white" name="color-select" value="0" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==0?"checked":""}/>
+                                    <input type="radio" className="color-red"  name="color-select" value="1" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==1?"checked":""}/>
+                                    <input type="radio" className="color-blue"  name="color-select" value="2" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==2?"checked":""}/>
+                                    <input type="radio" className="color-green"  name="color-select" value="3" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==3?"checked":""}/>
                                     <br/>
-                                    <input type="radio" className="color-yellow"  name="color-select" value="5" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==5?"checked":""}/>
-                                    <input type="radio" className="color-purple"  name="color-select" value="6" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==6?"checked":""}/>
-                                    <input type="radio" className="color-orange"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
-                                    <input type="radio" className="color-skyblue"  name="color-select" value="8" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==8?"checked":""}/>
+                                    <input type="radio" className="color-yellow"  name="color-select" value="4" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==4?"checked":""}/>
+                                    <input type="radio" className="color-purple"  name="color-select" value="5" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==5?"checked":""}/>
+                                    <input type="radio" className="color-orange"  name="color-select" value="6" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==6?"checked":""}/>
+                                    <input type="radio" className="color-skyblue"  name="color-select" value="7" onClick={(event) => setlightColor(event.target.value)} checked={lightColor==7?"checked":""}/>
                                 </div>
                             </div>
 
@@ -593,20 +593,20 @@ const Schedule = ({darkMode}) => {
                                 <br/>
                                 <span>모드 선택</span><br/>
                                 <label className="label-lightmode-radio">
-                                    <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
+                                    <input type="radio" className="lightmode lightmode1" name="lightmode-select" value="0" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==0?"checked":""}/>
                                     <span>일반모드</span> 
                                 </label>
                                 <label className="label-lightmode-radio">
-                                    <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                    <input type="radio" className="lightmode lightmode2"  name="lightmode-select" value="1" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==1?"checked":""}/>
                                     <span>슬립모드</span> 
                                 </label>
                                 <br/>
                                 <label className="label-lightmode-radio">
-                                    <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
-                                    <span>파티모드</span> 
+                                    <input type="radio" className="lightmode lightmode3"  name="lightmode-select" value="2" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==2?"checked":""}/>
+                                    <span>안내모드</span> 
                                 </label>
                                 <label className="label-lightmode-radio">
-                                    <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="4" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==4?"checked":""}/>
+                                    <input type="radio" className="lightmode lightmode4"  name="lightmode-select" value="3" onClick={(event) => setlightMode(event.target.value)} checked={lightMode==3?"checked":""}/>
                                     <span>트리모드</span> 
                                 </label>
                             </div>   

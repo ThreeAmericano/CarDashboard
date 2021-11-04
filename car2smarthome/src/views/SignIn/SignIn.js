@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
 import faceIcon from '../../../resources/smarthome_icon/smile.png'; // 얼굴인식 버튼 아이콘
+import { storeDB, collection, getDocs} from "../../firebase";
 
 const webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
 const kindID = "com.ta.car2smarthome:1";
@@ -14,7 +15,25 @@ import "./SignIn.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
-const SignIn = ({setName, setUid, setOldDB}) => {
+async function getUIDB(uid) {
+    try {
+        let i = 0;
+        console.log("[Home:getUIDB UI start]");
+        const querySnapshot = await getDocs(collection(storeDB,"uiux_preset"));
+        querySnapshot.forEach((doc) => {
+            if(String(doc.id) == String(uid)){
+                //console.log("[Home:getUIDB UI listener]", doc.id, " => ", doc.data());
+                //listendarkMode = doc.data();
+                console.log("[Home:getUIDB doc.data().ui_mode :", doc.data().ui_mode);
+                return doc.data().ui_mode;
+            }
+        });
+    } catch(e) {
+        console.log("[Home:getUIDB] error : ", e);
+    };
+};
+
+const SignIn = ({setName, setUid, setOldDB, setDarkMode}) => {
     // 로그인 페이지
     const history = useHistory();   // 페이지 이동에 사용된다.
     const [email, setEmail] = useState("");
@@ -60,18 +79,8 @@ const SignIn = ({setName, setUid, setOldDB}) => {
                     setName(dbResult[0].name);
                     setUid(dbResult[0].UID);
                     setOldDB(dbResult[0].db);
+                    //setDarkMode(getUIDB(dbResult[0].UID)=="darkmode"?true:false);
                     history.push('/home');
-                    /*
-                    history.push({
-                        pathname: '/home',
-                        state: {
-                            'name' : dbResult[0].name,
-                            'db' : dbResult[0].db,
-                            'pageNum' : 1,
-                            'UID' : dbResult[0].UID
-                        }
-                    });
-                    */
                 } catch (e) {
                     console.log("[SignIn callback] e :", e);
                 }
@@ -132,12 +141,17 @@ const SignIn = ({setName, setUid, setOldDB}) => {
                             } else {
                                 console.log("이메일 로그인")
                                 //internetConnection = true;
+                                //deleteDB(returnValue.UID);
                                 putUserData(email, password, name, returnValue.db, returnValue.UID);
                                 tts(String(name)+"님 안녕하세요");
                                 ///////////////////////////////////////////////////////////////////////////////////
                                 setName(name);
                                 setUid(returnValue.UID);
                                 setOldDB(returnValue.db);
+
+                                //getUIDB(uid)
+                                //    .then((res) => setDarkMode(res=="darkmode"?true:false));
+                                //console.log("darkmode : ",getUIDB(returnValue.UID)=="darkmode"?true:false);
                                 history.push('/home');
                                 /*
                                 history.push({
@@ -222,6 +236,9 @@ const SignIn = ({setName, setUid, setOldDB}) => {
                             setName(name);
                             setUid(returnValue.UID);
                             setOldDB(returnValue.db);
+                            //getUIDB(uid)
+                            //    .then((res) => setDarkMode(res=="darkmode"?true:false));
+                            //setDarkMode(getUIDB(returnValue.UID)=="darkmode"?true:false);
                             history.push('/home');
                             /*
                             history.push({
@@ -347,6 +364,22 @@ const SignIn = ({setName, setUid, setOldDB}) => {
             "query":{ 
                 "from":kindID
             }
+        };
+        webOSBridge.call(url, JSON.stringify(params));
+    }
+    const deleteDB = (uid) => {
+        // query, from, where절을 사용하여 kindID의 데이터를 삭제합니다.
+        let url = 'luna://com.webos.service.db/del';
+        
+        let params = {
+            "query":{ 
+                "from":kindID
+            },
+            "where":[{
+                "prop":"UID",
+                "op":"=",
+                "val":uid
+            }]
         };
         webOSBridge.call(url, JSON.stringify(params));
     }

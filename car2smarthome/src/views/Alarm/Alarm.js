@@ -43,7 +43,7 @@ async function getStoreDB() {
 
 //if(pageNum == 4) getStoreDB();
 
-const Alarm = ({setDarkMode, darkMode}) => {
+const Alarm = ({setDarkMode, darkMode, uid}) => {
     const history = useHistory();
     const location = useLocation();
 /*
@@ -67,16 +67,6 @@ const Alarm = ({setDarkMode, darkMode}) => {
     const onGotoHome = () => {
         pageNum = 1;
         history.goBack();
-        /*
-        history.push({
-            pathname: '/home',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : 1
-            }
-        });
-        */
     };
 
     const displayIcon = (num) => {
@@ -97,6 +87,8 @@ const Alarm = ({setDarkMode, darkMode}) => {
     };
 
     const onSave = () => {
+        console.log("[Alarm:onSave] onSave, darkMode :",darkMode);
+        
         setDoc(doc(storeDB, "uiux_preset", uid), {
             "ui_mode" : darkMode?"darkmode":"none",
             "ux_mode" : "none"

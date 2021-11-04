@@ -26,7 +26,7 @@ const App = function () {
 					</Route>
 					<Route path="/sign-up" component={SignUp} />
 					<Route path="/home" exact>
-						<Home name={name} uid={uid} oldDB={oldDB} setOldDB={setOldDB} serviceCheck={serviceCheck} setServiceCheck={setServiceCheck} />
+						<Home name={name} uid={uid} oldDB={oldDB} setOldDB={setOldDB} serviceCheck={serviceCheck} setServiceCheck={setServiceCheck} setDarkMode={setDarkMode}/>
 					</Route>
 					<Route path="/mode">
 						<Mode darkMode={darkMode} />
@@ -38,7 +38,7 @@ const App = function () {
 						<Appliance darkMode={darkMode} oldDB={oldDB} setOldDB={setOldDB} />
 					</Route>
 					<Route path="/alarm">
-						<Alarm darkMode={darkMode} setDarkMode={setDarkMode}/>
+						<Alarm darkMode={darkMode} setDarkMode={setDarkMode} uid={uid}/>
 					</Route>
 					<Redirect to="/" />
 				</Switch>
