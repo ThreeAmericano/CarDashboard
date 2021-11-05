@@ -10,6 +10,9 @@ const logHeader = "[" + pkgInfo.name + "]"; // 서비스 이름으로 logHeader 
 
 const MQ_URL = 'amqp://rabbit:MQ321@211.179.42.130:5672';   // RabbitMQ 주소 지정 amqp://아이디:비밀번호@호스트:포트
 
+//const connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
+//const channel = await connection.createChannel();       // 채널 생성
+
 const firebaseConfig = {    // 우리 프로젝트 firebase 설정
     apiKey: "AIzaSyDMy6DVimbJQgQGo1PU0IXiPeq3K0yzF5I",
     authDomain: "threeamericano.firebaseapp.com",
@@ -106,8 +109,8 @@ async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값
     } catch(e) {
         console.log("[Service:getMqtt] error : ", e);
         //channel.ack(response);  // queue 소진하기
-        channel.close();
-        connection.close();
+        //channel.close();////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //connection.close();
     };
 };
 

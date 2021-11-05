@@ -41,9 +41,10 @@ let mode = new Array(4);
 
 let pageNum = 0;
 let ttsCheck = false;
-let prevCallBackMsg = ''
+//let prevCallBackMsg = ''
 let prevDB;
 let prevMent;
+let temhum = "";
 
 async function getStoreDB() {
     try {
@@ -144,9 +145,10 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
             webOSBridgeHome.onservicecallback = serviceCallbackHome;
         }
         setServiceCheck(serviceCheck => serviceCheck+1);
-
+        
         prevDB = oldDB;
         getHomeRTDB();
+        getStoreDB();
         console.log("[Home:useEffect] oldDB :",oldDB);
 
         getUIDB(uid)
@@ -163,6 +165,8 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
         setHumi(oldDB.sensor.hometemp.humi);
         setW_icon(oldDB.sensor.openweather.icon.substring(0,2));
         setWeather(oldDB.sensor.openweather.description+", "+oldDB.sensor.openweather.temp+"°C");
+
+        temhum = "온도는 "+String(oldDB.sensor.hometemp.temp)+"도 이고 습도는 "+String(oldDB.sensor.hometemp.humi)+"퍼센트 입니다."
 
         switch(oldDB.sensor.openweather.air_level) {
             case 1 : setDust("매우 좋음"); break;
@@ -227,12 +231,12 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
         onValue(home_dbRef, (snapshot) => {
             let data = snapshot.val();
 
-            if(prevDB.smarthome.status == data.smarthome.status && oldDB.server.notification == data.server.notification) { //&& oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp &&
+            if(oldDB.smarthome.status == data.smarthome.status && oldDB.server.notification == data.server.notification) { //&& oldDB.sensor.openweather.update == data.sensor.openweather.update && oldDB.sensor.hometemp.humi == data.sensor.hometemp.humi && oldDB.sensor.hometemp.temp == data.sensor.hometemp.temp &&
                 console.log("[Home:listener] 변화 없음");
             } else {
                 console.log("[Home:listener] 변화 있음");
                 ttsCheck = false;
-                if(oldDB.server.notification != data.server.notification) {
+                if(prevDB.server.notification != data.server.notification) {
                     if(data.server.notification != "none") {
                         createToast(data.server.notification);
                         tts(data.server.notification);
@@ -243,7 +247,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                     console.log("[Home:listener] setUI 실행");
                     setUI(data);
                     //prevDB = data;
-                    
                 };
                 //prevDB = data;
                 setOldDB(data);
@@ -298,6 +301,22 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
     };
     
     const tts = (ment) => {
+        console.log("[Home:tts] ment :", ment);
+    
+        var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
+        var params = {
+            "text": ment, 
+            "language": "ko-KR", 
+            "clear":false
+        };
+            
+        webOSBridgeHome.call(url, JSON.stringify(params));
+        /*
+        if(ttsCheck == false) {
+            console.log("[Home:tts] ttsCheck == false");
+            webOSBridgeHome.call(url, JSON.stringify(params));
+            ttsCheck = true;
+        };
         if(prevMent == ment) {
             console.log("[Home:tts] 같은 문구");
         } else {
@@ -318,6 +337,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
 
             prevMent = ment;
         };
+        */
     };
     
     let setUI = (data) => {
@@ -335,6 +355,8 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
 
         console.log("[Home:setUI] listenHome :",listenHome);
         
+        temhum = "온도는 "+String(listenTemp)+"도 이고 습도는 "+String(listenHumi)+"퍼센트 입니다.";
+
         setTemp(listenTemp);
         setHumi(listenHumi);
 
@@ -358,7 +380,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 let comment = onOff ? "에어컨이 켜졌습니다" : "에어컨이 꺼졌습니다";
                 //createToast(comment);
                 //if(Number(listenHome[0])==0 && ) tts(comment);
-                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
+                if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[3]) != 2) {
@@ -370,7 +392,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 let comment = (onOff) ? "무드등이 켜졌습니다" : "무드등이 꺼졌습니다";
                 //createToast(comment);
                 //if(Number(listenHome[0])==0) tts(comment);
-                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
+                if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[7]) != 2) {
@@ -382,7 +404,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 let comment = (onOff) ? "창문이 열렸습니다" : "창문이 닫혔습니다";
                 //createToast(comment);
                 //if(Number(listenHome[0])==0) tts(comment);
-                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
+                if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[8]) != 2) {
@@ -394,7 +416,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 let comment = (onOff) ? "가스밸브가 열렸습니다" : "가스밸브가 닫혔습니다";
                 //createToast(comment);
                 //if(Number(listenHome[0])==0) tts(comment);
-                if(prevDB != data && Number(listenHome[0])==0) tts(comment);
+                if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
         if(Number(listenHome[0])>0){
@@ -411,22 +433,22 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 switch(Number(listenHome[0])-1) {
                     case 0 : {
                         setIndoorMode(true); 
-                        if(prevDB != data) tts("실내모드가 실행되었습니다.")
+                        if(prevDB.smarthome.status != listenHome) tts("실내모드가 실행되었습니다.")
                         break;
                     }
                     case 1 : {
                         setOutdoorMode(true);
-                        if(prevDB != data) tts("외출모드가 실행되었습니다.")
+                        if(prevDB.smarthome.status != listenHome) tts("외출모드가 실행되었습니다.")
                         break;
                     }
                     case 2 : {
                         setSleepMode(true); 
-                        if(prevDB != data) tts("슬립모드가 실행되었습니다.")
+                        if(prevDB.smarthome.status != listenHome) tts("슬립모드가 실행되었습니다.")
                         break;
                     }
                     case 3 : {
                         setEcoMode(true); 
-                        if(prevDB != data) tts("에코모드가 실행되었습니다.")
+                        if(prevDB.smarthome.status != listenHome) tts("에코모드가 실행되었습니다.")
                         break;
                     }
                     default : {modeTurnOff(); break;}
@@ -502,7 +524,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                     command = "022022222";
                 } else {
                     setLight(true);
-                    command = "022160222";
+                    command = "022152022";
                 } 
                 console.log("[Home:onDoApplience] light :", light);
                 sendMqtt("webos.topic", "webos.smarthome.info", command);
@@ -651,17 +673,34 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
         var response = JSON.parse(msg);
         console.log("[Home:callback] response :", response);
         try {
-            if(response != prevCallBackMsg && response.language != prevCallBackMsg.language) {
-                if(response.provider == "googleassistant") {
-                    console.log("before-parse-response");
-                    console.log(response);
-                    prevCallBackMsg = response;
-                    return null;
+           if(response.provider == "googleassistant") { // 음성인식
+                let command = response.response.deviceAction.inputs[0].payload.commands[0].execution[0].command
+                console.log("[Home:serviceCallbackHome] command", command);
+                if(command == "AskTemp") {
+                    ttsCheck = false;
+                    tts(temhum);
                 }
+                else if(command[0] > 0) onDoMode(parseInt(command[0])-1);
+                else sendMqtt("webos.topic", "webos.smarthome.info", command);
+                /*
+                if(response.response.partial == "창문 열어 줘" &&  response.response.partial != prevCallBackMsg) { // 구문 해석, 중복 문구 제거
+                    console.log("[Home:serviceCallbackHome] 창문 열어 줘 명령 실행");
+                    if(window) {
+                        tts("이미 창문이 열려있어요.");
+                    } else {
+                        sendMqtt("webos.topic", "webos.smarthome.info", "022222212");
+                    }
+                } else if(response.response.partial == "알려 줘" &&  response.response.partial != prevCallBackMsg) {
+                    console.log("[Home:serviceCallbackHome] 알려 줘 명령 실행");
+                    tts(temhum);
+                } 
+                prevCallBackMsg = response.response.partial;
+                */
+                return null;
             }
         } catch (e) {
             console.log("[Home:callback] err :", e);
-            prevCallBackMsg = response;
+            //prevCallBackMsg = response;
         };   
     };  
     
