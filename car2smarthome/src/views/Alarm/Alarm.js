@@ -1,11 +1,10 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import "./Alarm.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
-//import "../../../resources/script/access_document.js"
 
 // 모드 + 가전
 import indoorIcon from '../../../resources/smarthome_icon/indoor.png';
@@ -18,8 +17,7 @@ import light_icon from '../../../resources/smarthome_icon/light.png';
 import gasvalve_icon from '../../../resources/smarthome_icon/valve.png';
 import window_icon from '../../../resources/smarthome_icon/window.png';
 
-var webOSBridge = new WebOSServiceBridge();
-import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
+import { storeDB, collection, doc, getDocs, setDoc } from "../../firebase";
 
 let alarmData = [];
 let iconData = [];
@@ -40,17 +38,9 @@ async function getStoreDB() {
         console.log("[Alarm:getStoreDB] error : ", e);
     };
 };
-
-//if(pageNum == 4) getStoreDB();
-
 const Alarm = ({setDarkMode, darkMode, uid}) => {
     const history = useHistory();
-    const location = useLocation();
-/*
-    const name = location.state.name;
-    const oldDB = location.state.db;
-    const uid = location.state.UID; 
-*/
+    
     const [alarm, setAlarm] = useState('');//알람 테이블
 
     let alarmList;

@@ -11,11 +11,11 @@ import Alarm from "../views/Alarm/Alarm";				// 알람 + UI 모드 설정 페이
 import Appliance from "../views/Appliance/Appliance";	// 가전 상세 제어 페이지
 
 const App = function () {
-	const [darkMode, setDarkMode] = useState(false);
-	const [name, setName] = useState();
-	const [uid, setUid] = useState();
+	const [darkMode, setDarkMode] = useState(false); // 다크 모드 on off
+	const [name, setName] = useState(); // 로그인 한 유저 이름
+	const [uid, setUid] = useState(); // 로그인 한 유저 UID
 	const [oldDB, setOldDB] = useState(); // DB 이전 상태와 비교하여 다르면 동작하도록 하기 위함
-	const [serviceCheck, setServiceCheck] = useState(0);
+	const [serviceCheck, setServiceCheck] = useState(0); 
 
 	return(
 		<div style={{filter : darkMode ? 'invert(1)' : 'invert(0)'}}>

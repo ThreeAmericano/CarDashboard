@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import "./Schedule.css"
 import "../../../resources/css/set_font.css"
@@ -18,7 +18,7 @@ import lightIcon from '../../../resources/smarthome_icon/light.png';
 import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
-import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
+import { storeDB, collection, doc, getDocs, setDoc, deleteDoc } from "../../firebase";
 
 let scheduleData = [];
 let docID = [];
@@ -30,36 +30,26 @@ async function getStoreDB() {
         i=0;
         console.log("[Schedule:store start]")
         const querySnapshot = await getDocs(collection(storeDB, "schedule_mode"));
-        //console.log("[Schedule:store listener] querySnapshot :", querySnapshot);
         querySnapshot.forEach((doc) => {
             //console.log("[Schedule:store]", doc.id, " => ", doc.data());
             docID[i] = doc.id;
             scheduleData[i] = doc.data();
             i++;
         });
-        //console.log("[Schedule:getStoreDB] scheduleData :", scheduleData);
-        //console.log("[Schedule:getStoreDB] scheduleData.length :", scheduleData.length);
-        //console.log("[Schedule:getStoreDB] scheduleData[0].daysOfWeek :", scheduleData[0].daysOfWeek);
     } catch(e) {
         console.log("[Schedule:getStoreDB] error : ", e);   
     };
 };
 
-//if(pageNum == 3) getStoreDB();
 
 const Schedule = ({darkMode}) => {
     const history = useHistory();
-    const location = useLocation();
-/*
-    const name = location.state.name;
-    const oldDB = location.state.db;
-*/
+
     const [checkMyProfile, setCheckMyProfile] = useState(false);
 
     const [addDocName, setAddDocName] = useState(); //useState(""); 하면 글자 안써짐
 
     const [titleName, setTitleName] = useState();
-    //const [daysOfWeek, setdaysOfWeek] = useState([]);
     const [startTime, setStartTime] = useState();
     const [activeDate, setActivedate] = useState();
 
@@ -115,16 +105,6 @@ const Schedule = ({darkMode}) => {
     const onGotoHome = () => {
         pageNum = 1;
         history.goBack()
-        /*
-        history.push({
-            pathname: '/home',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : 1
-            }
-        });
-        */
     };
     
     const setScheduleUI = () => {
@@ -383,7 +363,7 @@ const Schedule = ({darkMode}) => {
                             <br/>
                             
                             <div className="togglebox_name">
-                                <span>모드제어</span>
+                                <span>가전제어</span>
                             </div>
                             <div className="togglebox_input">
                                 <input className="toggle_checkbox" type="checkbox" id="chk2"

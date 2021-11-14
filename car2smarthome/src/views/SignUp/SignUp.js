@@ -1,8 +1,6 @@
 /* eslint-disable */
-import {useState } from "react";
-import {useHistory} from "react-router-dom";
-//import Button from '@enact/sandstone/Button';
-//import Button from "../../components/Button/Button";
+import { useState } from "react";
+import { useHistory } from "react-router-dom";
 
 var webOSBridge = new WebOSServiceBridge(); // 서비스 연결 브릿지 (저레벨 루나버스)
 

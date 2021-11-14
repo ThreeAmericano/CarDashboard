@@ -1,11 +1,10 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import "./Appliance.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
-//import "../../../resources/script/access_document.js"
 
 // 가전
 import airconIcon from '../../../resources/smarthome_icon/air_conditioner.png';
@@ -14,7 +13,7 @@ import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
 var webOSBridge = new WebOSServiceBridge();
-import { firebase, firebaseConfig, appl_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
+import { appl_db, ref, onValue } from "../../firebase";
 
 let pageNum;
 
@@ -36,33 +35,19 @@ const Appliance = ({darkMode, oldDB, setOldDB}) => {   // 가전 상세 제어 �
     useEffect(() => {
         console.log("[Appliance:useEffect] Appliance 페이지 실행");
 
-        //firebase.deleteApp();
-        //firebase.initializeApp(firebaseConfig);
         getApplRTDB();
         pageNum = 5;
         setAppliUI(oldDB);
 
         return() => {
             console.log("[Appliance:useEffect] 종료 pageNum :", pageNum);
-            /*firebase.deleteApp(home_dbRef);*/
             pageNum = 1;
         };
     }, []);
 
     const onGotoHome = () => {
         pageNum = 1;
-        ///////////////////////////////////////////////////
         history.goBack();
-        /*
-        history.push({
-            pathname: '/home',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : 1,
-                'UID' : uid
-            }
-        });*/
     };
 
     const setAppliUI = (data) => {
@@ -81,8 +66,6 @@ const Appliance = ({darkMode, oldDB, setOldDB}) => {   // 가전 상세 제어 �
             setWindow(Number(listenHome[7])==1?true:false);
         };
         if(Number(listenHome[8]) != 2) {
-            //console.log("[Appliance:setAppliUI] valve listenHome[8] :",listenHome[8]);
-            //console.log("[Appliance:setAppliUI] Number(listenHome[8])==1?true:false :",Number(listenHome[8])==1?true:false);
             setValve(Number(listenHome[8])==1?true:false);
         };
 
@@ -139,11 +122,7 @@ const Appliance = ({darkMode, oldDB, setOldDB}) => {   // 가전 상세 제어 �
                 };
             };
         });
-    };
-    /*if(pageNum == 5) {
-        getApplRTDB();
-    }*/
-      
+    };      
     
     return(
         <div className="appliance-setting">

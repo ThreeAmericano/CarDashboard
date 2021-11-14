@@ -1,12 +1,12 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import "./Home.css"
 import "../../../resources/css/set_font.css"
 import "../../../resources/css/sam_style.css"
 
-// 날씨
+// 날씨 아이콘
 import sunny from '../../../resources/weather_icon/sunny.png';
 import littlecloudy from '../../../resources/weather_icon/littlecloudy.png';
 import cloudy from '../../../resources/weather_icon/cloudy.png';
@@ -17,7 +17,7 @@ import thunder from '../../../resources/weather_icon/thunder.png';
 import snow from '../../../resources/weather_icon/snow.png';
 import fog from '../../../resources/weather_icon/fog.png';
 
-// 모드 + 가전
+// 모드 + 가전 아이콘
 import modeIcon from '../../../resources/smarthome_icon/star.png';
 import indoorIcon from '../../../resources/smarthome_icon/indoor.png';
 import outdoorIcon from '../../../resources/smarthome_icon/outdoor.png';
@@ -32,16 +32,13 @@ import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
 var webOSBridgeHome;
-import { firebase, firebaseConfig, home_db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc, deleteDoc } from "../../firebase";
+import { home_db, ref, onValue, storeDB, collection, getDocs } from "../../firebase";
 
-//let oldDB;  
 let smarthome = "";
-// let listendarkMode; 
 let mode = new Array(4);
 
 let pageNum = 0;
 let ttsCheck = false;
-//let prevCallBackMsg = ''
 let prevDB;
 let prevMent;
 let temhum = "";
@@ -53,8 +50,6 @@ async function getStoreDB() {
         console.log("[Home:store start]")
         const querySnapshot = await getDocs(collection(storeDB, "modes"));
         querySnapshot.forEach((doc) => {
-            //console.log("[Home:store listener]", doc.id, " => ", doc.data());
-            
             mode[i] = String(i+1); // 모드 번호
             mode[i] += doc.data().airconEnable ? '1' : '0';  // 에어컨 상태 (0~1)
             mode[i] += String(doc.data().airconWindPower);   // 에어컨 강도 (0~9)
@@ -81,8 +76,6 @@ async function getUIDB(uidparam) {
         console.log("[Home:getUIDB] querySnapshot :",querySnapshot);
         querySnapshot.forEach((doc) => {
             if(String(doc.id) == String(uidparam)){
-                //console.log("[Home:getUIDB UI listener]", doc.id, " => ", doc.data());
-                //listendarkMode = doc.data();
                 console.log("[Home:getUIDB doc.data().ui_mode :", doc.data().ui_mode);
                 uiMode = doc.data().ui_mode;
             }
@@ -92,25 +85,7 @@ async function getUIDB(uidparam) {
         console.log("[Home:getUIDB] error : ", e);
     };
 };
-/*
-async function getUIDB() {
-    try {
-        let i = 0;
 
-        console.log("[Home:getUIDB UI start]")
-        const querySnapshot = await getDocs(collection(storeDB,"uiux_preset"));
-        querySnapshot.forEach((doc) => {
-            if(String(doc.id) == String(uid)){
-                console.log("[Home:getUIDB UI listener]", doc.id, " => ", doc.data());
-                //listendarkMode = doc.data();
-                return doc.data();
-            }
-        });
-    } catch(e) {
-        console.log("[Home:getUIDB] error : ", e);
-    };
-};
-*/
 const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDarkMode}) => {
     const history = useHistory();
     
@@ -134,9 +109,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
 
     useEffect(() => {
         console.log("[Home:useEffect] useEffect 실행");
-        //firebase.deleteApp();
-        //firebase.initializeApp(firebaseConfig);
-        // 초기값 설정
+
         pageNum = 1;        
         
         console.log("[Home:useEffect] serviceCheck :",serviceCheck);
@@ -216,14 +189,12 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 }
             };
         } else modeTurnOff();
-        
-        
+         
         return() => {
             stopAssistant(); // 음성인식 종료
             //firebase.deleteApp(home_dbRef);
             console.log("[Home:useEffect] 종료 pageNum :", pageNum);
         };
-        
     }, []);
 
     const getHomeRTDB = () => {
@@ -246,23 +217,11 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 if(pageNum == 1) {
                     console.log("[Home:listener] setUI 실행");
                     setUI(data);
-                    //prevDB = data;
                 };
-                //prevDB = data;
                 setOldDB(data);
             };
         });
-    };
-/*
-    if(pageNum == 1) {
-        //getUIDB()
-        //    .then((res) => setDarkMode(res=="darkmode"?true:false));
-        // listendarkMode = getUIDB();
-        // console.log("[Home:useEffect] listendarkMode :",listendarkMode);
-        // setDarkMode(listendarkMode=="darkmode"?true:false);
-    };
-*/
-    
+    };    
 
     const startAssistant = () => {  // 음성인식 설정
         let url = 'luna://com.webos.service.ai.voice/start';
@@ -301,22 +260,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
     };
     
     const tts = (ment) => {
-        console.log("[Home:tts] ment :", ment);
-    
-        var url = 'luna://com.webos.service.tts/speak'; // JS 서비스의 signIn 서비스를 이용한다.
-        var params = {
-            "text": ment, 
-            "language": "ko-KR", 
-            "clear":false
-        };
-            
-        webOSBridgeHome.call(url, JSON.stringify(params));
-        /*
-        if(ttsCheck == false) {
-            console.log("[Home:tts] ttsCheck == false");
-            webOSBridgeHome.call(url, JSON.stringify(params));
-            ttsCheck = true;
-        };
         if(prevMent == ment) {
             console.log("[Home:tts] 같은 문구");
         } else {
@@ -337,7 +280,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
 
             prevMent = ment;
         };
-        */
     };
     
     let setUI = (data) => {
@@ -378,8 +320,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 prevHome[0] = onOff;
                 setAircon(onOff);
                 let comment = onOff ? "에어컨이 켜졌습니다" : "에어컨이 꺼졌습니다";
-                //createToast(comment);
-                //if(Number(listenHome[0])==0 && ) tts(comment);
                 if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
@@ -390,8 +330,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 prevHome[1] = onOff;
                 setLight(onOff);
                 let comment = (onOff) ? "무드등이 켜졌습니다" : "무드등이 꺼졌습니다";
-                //createToast(comment);
-                //if(Number(listenHome[0])==0) tts(comment);
                 if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
@@ -402,8 +340,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 prevHome[2] = onOff;
                 setWindow(onOff);
                 let comment = (onOff) ? "창문이 열렸습니다" : "창문이 닫혔습니다";
-                //createToast(comment);
-                //if(Number(listenHome[0])==0) tts(comment);
                 if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
@@ -414,8 +350,6 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 prevHome[3] = onOff;
                 setValve(onOff);
                 let comment = (onOff) ? "가스밸브가 열렸습니다" : "가스밸브가 닫혔습니다";
-                //createToast(comment);
-                //if(Number(listenHome[0])==0) tts(comment);
                 if(prevDB.smarthome.status != listenHome && Number(listenHome[0])==0) tts(comment);
             };
         };
@@ -568,79 +502,28 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
         console.log("[Home:onGotoMode] 모드 설정 페이지");
         pageNum = 2;
         //모드 설정 페이지
-
-        ////////////////////////////////////////////////////////////////////////////////////
         history.push('/mode');
-        /*
-        history.push({
-            pathname: '/mode',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : pageNum
-            }
-        });
-        */
     }
 
     const onGotoSchedule = () => {
         console.log("[Home:onGotoSchedule] 스케줄 설정 페이지");
         pageNum = 3;
         //스케줄 설정 페이지
-        
-        ////////////////////////////////////////////////////////////////////////////////////
         history.push('/schedule');
-        /*
-        history.push({
-            pathname: '/schedule',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : pageNum
-            }
-        });
-        */
     }
 
     const onGotoSetting = () => {
         console.log("[Home:onGotoSetting] 다크모드 설정 + 알람 페이지");
-
         pageNum = 4;
         //스케줄 설정 페이지        
-        ////////////////////////////////////////////////////////////////////////////////////
         history.push('/alarm');
-        /*
-        history.push({
-            pathname: '/alarm',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : pageNum,
-                'UID' : uid
-            }
-        });
-        */
     }
 
     const onGotoAppliance = () => {
         console.log("[Home:onGotoAppliance] 개별 가전 제어 페이지");
         //가전 제어 페이지
-
         pageNum = 5;
-        //스케줄 설정 페이지
-        ////////////////////////////////////////////////////////////////////////////////////
         history.push('/appliance');
-        /*
-        history.push({
-            pathname: '/appliance',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : pageNum,
-                'UID' : uid
-            }
-        });
-        */
     };
     
     const sendMqtt = (exchange, routingKey, msg) => {
@@ -682,20 +565,7 @@ const Home = ({name, uid, oldDB, setOldDB, serviceCheck, setServiceCheck, setDar
                 }
                 else if(command[0] > 0) onDoMode(parseInt(command[0])-1);
                 else sendMqtt("webos.topic", "webos.smarthome.info", command);
-                /*
-                if(response.response.partial == "창문 열어 줘" &&  response.response.partial != prevCallBackMsg) { // 구문 해석, 중복 문구 제거
-                    console.log("[Home:serviceCallbackHome] 창문 열어 줘 명령 실행");
-                    if(window) {
-                        tts("이미 창문이 열려있어요.");
-                    } else {
-                        sendMqtt("webos.topic", "webos.smarthome.info", "022222212");
-                    }
-                } else if(response.response.partial == "알려 줘" &&  response.response.partial != prevCallBackMsg) {
-                    console.log("[Home:serviceCallbackHome] 알려 줘 명령 실행");
-                    tts(temhum);
-                } 
-                prevCallBackMsg = response.response.partial;
-                */
+                
                 return null;
             }
         } catch (e) {

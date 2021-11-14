@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import "./Mode.css"
 import "../../../resources/css/set_font.css"
@@ -18,7 +18,7 @@ import lightIcon from '../../../resources/smarthome_icon/light.png';
 import valveIcon from '../../../resources/smarthome_icon/valve.png';
 import windowIcon from '../../../resources/smarthome_icon/window.png';
 
-import { db, ref, onValue, storeDB, collection, doc, getDocs, onSnapshot, setDoc } from "../../firebase";
+import { storeDB, collection, doc, getDocs, setDoc } from "../../firebase";
 
 let modeData = [];
 let docID = [];
@@ -30,9 +30,7 @@ async function getStoreDB() {
     
         console.log("[Mode:store start]")
         const querySnapshot = await getDocs(collection(storeDB, "modes"));
-        //console.log("[Mode:store listener] querySnapshot :", querySnapshot);
         querySnapshot.forEach((doc) => {
-            //console.log("[Mode:store listener]", doc.id, " => ", doc.data());
             docID[i] = doc.id;
             modeData[i] = doc.data();
             i++;
@@ -41,8 +39,6 @@ async function getStoreDB() {
         console.log("[Mode:getStoreDB] error : ", e);        
     }
 };
-
-//if(pageNum == 2) getStoreDB();
 
 const Mode = ({darkMode}) => {
     const history = useHistory();
@@ -73,18 +69,7 @@ const Mode = ({darkMode}) => {
 
     const onGotoHome = () => {
         pageNum = 1;
-        /////////////////////////////////////////////////////////////////
         history.goBack();
-        /*
-        history.push({
-            pathname: '/home',
-            state: {
-                'name' : name,
-                'db' : oldDB,
-                'pageNum' : 1
-            }
-        });
-        */
     };
 
     const onSelectMode = (num) => {

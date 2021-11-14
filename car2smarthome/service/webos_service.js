@@ -8,52 +8,11 @@ var firebase = require('firebase').default; // firebase 라이브러리
 const service = new Service(pkgInfo.name);  // package.json 의 서비스 이름으로 서비스를 생성
 const logHeader = "[" + pkgInfo.name + "]"; // 서비스 이름으로 logHeader 지정
 
-const MQ_URL = 'amqp://rabbit:MQ321@211.179.42.130:5672';   // RabbitMQ 주소 지정 amqp://아이디:비밀번호@호스트:포트
+import { MQ_URL } from "../../car2smarthome/src/mq_info"; // MQTT 정보
+import { firebaseConfig } from "../../car2smarthome/src/firebase"; // Firebase 정보
 
-//const connection = await amqp.connect(MQ_URL);          // RabbitMQ 연결
-//const channel = await connection.createChannel();       // 채널 생성
-
-const firebaseConfig = {    // 우리 프로젝트 firebase 설정
-    apiKey: "AIzaSyDMy6DVimbJQgQGo1PU0IXiPeq3K0yzF5I",
-    authDomain: "threeamericano.firebaseapp.com",
-    databaseURL: "https://threeamericano-default-rtdb.firebaseio.com",
-    projectId: "threeamericano",
-    storageBucket: "threeamericano.appspot.com",
-    messagingSenderId: "475814972535",
-    appId: "1:475814972535:web:8be8e4e4b6cf92f2e90a72",
-    measurementId: "G-WEWQJ2NQSB"
-};
 firebase.initializeApp(firebaseConfig);// firebase 초기 설정
-/*
-var dbRef = firebase.database().ref();  // firebase RealTime DB Listener
-dbRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    console.log("[Service] listener :",data);
-    console.log("[Service] listener :",data.smarthome.status);
 
-    //var url = 'luna://com.ta.car2webos.service/listener';
-    //var params = JSON.stringify({
-    //    "data": data 
-    //});
-    //service.call(url, params);
-});
-*/
-/*
-service.register("listener", function(message) {    // signIn 서비스
-    // 이메일, 비밀번호를 입력해 firebase에서 UID 값을 받아오고 UID를 서버로 전송해 계정 주인의 이름을 받아온다.
-    console.log("[Service] ", logHeader, "SERVICE_METHOD_CALLED:/listener");
-    console.log("[Service] In listener callback");
-
-    let data = message.payload.data;
-    console.log("[Service:listener] data :",data);
-    console.log("[Service:listener] data.smarthome.status:",data.smarthome.status);
-
-    message.respond({
-        returnValue: true,
-        Response: data
-    });
-});
-*/
 async function sendMqttFunc(exchange, routingKey, msg) {        // MQTT 송신 함수
     try {
         console.log("[Service] send MQTT start");
@@ -68,13 +27,6 @@ async function sendMqttFunc(exchange, routingKey, msg) {        // MQTT 송신 �
         channel.publish(exchange, routingKey, Buffer.from(msg));// Exchange의 RoutingKey로 msg 송신
 
         console.log("[Service]  [x] Sent %s:'%s'", routingKey, msg);
-/*
-        setTimeout(() => {                                      // timeout 되면 채널과 연결 닫음
-            console.log("[Service:sendMqttFunc] tiemout");
-            channel.close();
-            connection.close();
-        }, 2000);
-*/
         console.log("[Service] send MQTT end");
     } catch(e) {
         console.log("[Service:sendMqttFunc] error : ", e);
@@ -108,9 +60,6 @@ async function getMqtt(queue) { // MQTT 수신 함수 (queue에 들어있는 값
         }
     } catch(e) {
         console.log("[Service:getMqtt] error : ", e);
-        //channel.ack(response);  // queue 소진하기
-        //channel.close();////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //connection.close();
     };
 };
 
@@ -164,12 +113,6 @@ async function firebaseRTdb(){  // realtime database 읽기
         console.log("[Service:firebaseRTdb] err :", err);
     };
 };
-
-/*
-await dbRef.child("sensor").get().then((snapshot) => {
-        if (snapshot.exists()) {
-            db = snapshot.val();
-*/
 
 service.register("getDB", async function(message) {    // signIn 서비스
     try {
@@ -248,9 +191,7 @@ async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있�
 
         response = await channel.get(response.queue,{noAck : true});   // queue에 올라온 값 가져오기
         console.log("[Service:facerGetMQTT] 시작",response)
-        //console.log("[Service:facerGetMQTT] response.content.toString() :", response.content.toString());
-        //msg = JSON.parse(response.content.toString());  // json으로 파싱
-        //console.log("[Service:facerGetMQTT] msg :",msg);
+
         while(!response) {
             await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 wait
             console.log("[Service:facerGetMQTT] 얼굴인식 수신 대기")
@@ -269,9 +210,6 @@ async function facerGetMqtt(queue) { // MQTT 수신 함수 (queue에 들어있�
                 console.log("[Service:facerGetMQTT] get 하는 중 e :",e);
             };
         };
-/*        console.log("[Service:facerGetMQTT] msg :",msg);
-        channel.ack(response);  // queue 소진하기
-        return String(msg);*/
     } catch(e) {
         console.log("[Service:facerGetMQTT] error : ", e);
     };
@@ -321,8 +259,6 @@ service.register("signIn", async function(message) {    // signIn 서비스
 
         let uid = await firebaseLogin(email, password); // 이메일, 비밀번호로 firebase에서 UID값 받아오기
 
-        //const exchange = "webos.topic";             // RabbitMQ 로그인 시 연결 정보
-        //const routingKey = "webos.server.info";
         const msg = JSON.stringify({
             "Producer" : "car",
             "command" : "signin",
@@ -383,7 +319,7 @@ service.register("sendMqtt", async function(message) {  // MQTT 송신 서비스
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------예제---------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------------------------------------------------
 
 // a method that always returns the same value
