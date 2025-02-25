@@ -11,6 +11,6 @@
   "keywords": [],
   "dependencies": {
     "amqplib": "^0.8.0",
-    "firebase": "^8.10.0"
+    "firebase": "^8.10.1"
   }
 }
